@@ -1,0 +1,19 @@
+{
+  "TASK": {
+    "dt": 50,
+    "sigma": 0,
+    "sequence_length": 100,
+    "batch_size": 16,
+    "img_size": 64
+  },
+  "NETWORK": {
+    "cnn_name": "alexnet",
+    "hidden_size": 2048,
+    "n_epochs": 1000,
+    "learning_rate": 0.0005,
+    "device": "cuda:0"
+  },
+  "EXPERIMENT": {
+    "version": 1
+  }
+}
