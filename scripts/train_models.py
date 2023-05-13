@@ -11,7 +11,7 @@ from pathlib import Path
 import gc
 
 from src.utils import load_params
-from src.train_test_models import make_network, train_network
+from src.train_test_utils import make_network, train_network
 
 # Directories
 ROOT_DIR = Path(__file__).parent.parent

@@ -4,7 +4,7 @@ Script to make TAM datasets and save to file
 """
 from pathlib import Path
 from src.utils import load_params
-from src.train_test_models import generate_env_dataset
+from src.train_test_utils import generate_env_dataset
 import gc
 
 # Directories

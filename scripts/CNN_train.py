@@ -10,8 +10,11 @@ import os
 import cv2
 import argparse
 import zipfile
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
+
 import matplotlib.pyplot as plt
 
 import torch
@@ -37,39 +40,48 @@ from efficientnet_pytorch import EfficientNet
 # zipfile_location = main_directory + "/geometry_dataset.zip"
 # extractedfile_location = main_directory + "/geometry_dataset/"
 
+ROOT = Path().cwd().parent
+DATA_DIR = ROOT / "data" / "stimuli"
+zipfile_location = DATA_DIR / "shape_dataset.zip"
+extractedfile_location = DATA_DIR / "shape_dataset"
+extractedfile_location.mkdir(parents=True, exist_ok=True)
 
-# # In[3]:
+# In[3]:
 
 
-# #Unzips the Contents of File present in zipfile_location onto the folder extractedfile_location
+#Unzips the Contents of File present in zipfile_location onto the folder extractedfile_location
 # with zipfile.ZipFile(zipfile_location, 'r') as reference:
 #     reference.extractall(extractedfile_location)
 
 
 # <h3>Resizing the Images to Smaller Resolution Grayscale Images
-
+#
 # In[4]:
 
-
-resize_folder = r"C:\Users\shari\Downloads\2D geometric shapes dataset\2D geometric shapes dataset\dataset\output"
-for file_name in os.listdir(resize_folder):
-    image_name = resize_folder + "/" + file_name
-    #Reading the File as an Image
-    color_image = cv2.imread(image_name)
-    #Converting the Color Image to Grayscale Image
-    grayscale_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
-    #Resizing the 200*200 Images to 100*100 Images
-    resized_image = cv2.resize(grayscale_image, (100, 100))
-    cv2.imwrite(image_name, resized_image)
-
+orig_folder = extractedfile_location / "output"
+resize_folder = ROOT / "data" / "stimuli" / "shape_dataset" / "resized"
+# resize_folder.mkdir(parents=True, exist_ok=True)
+# print(resize_folder)
+# for file_name in orig_folder.iterdir():
+#     # print(file_name)
+#     image_name = resize_folder / f"{file_name.name}_resized.png"
+#     #Reading the File as an Image
+#     color_image = cv2.imread(str(file_name))
+#     #Converting the Color Image to Grayscale Image
+#     grayscale_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+#     #Resizing the 200*200 Images to 100*100 Images
+#     resized_image = cv2.resize(grayscale_image, (100, 100))
+#     # print(image_name)
+#     cv2.imwrite(str(image_name), resized_image)
+#
+# print("Resizing Done.")
 
 # <h3>Function to Assign Class Labels to Images 
 
 # In[5]:
 
 
-def class_initiator():
-    folder_path = r'C:\Users\shari\Downloads\2D geometric shapes dataset\2D geometric shapes dataset\dataset\output'
+def class_initiator(folder_path):
     file_array = []
     class_value = []
     for file_name in os.listdir(folder_path):
@@ -100,14 +112,15 @@ def class_initiator():
 # In[6]:
 
 
-file_array, class_value = class_initiator()
+file_array, class_value = class_initiator(resize_folder)
 class_dictionary = {
             'file_name': file_array,
             'file_class': class_value
           }
 
 df = pd.DataFrame(class_dictionary)
-df.to_csv(r'C:\Users\shari\Downloads\Geometric-Shapes-Identification-using-CNN-main\Geometric-Shapes-Identification-using-CNN-main\dataset.csv')
+dataset_path = DATA_DIR / "shape_dataset" / "dataset.csv"
+df.to_csv(dataset_path)
 
 
 # <h3>Custom Dataset Class
@@ -116,7 +129,7 @@ df.to_csv(r'C:\Users\shari\Downloads\Geometric-Shapes-Identification-using-CNN-m
 
 
 class CustomDataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform = None):
+    def __init__(self, csv_file, root_dir, transform=None):
         self.annotations = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
@@ -125,7 +138,7 @@ class CustomDataset(Dataset):
         return len(self.annotations)
     
     def __getitem__(self, index):
-        img_path = os.path.join(str(self.root_dir), str(self.annotations.iloc[index, 1]))
+        img_path = self.root_dir / str(self.annotations.iloc[index, 1])
         image = plt.imread(img_path)
         y_label = torch.tensor(int(self.annotations.iloc[index, 2]))
         
@@ -139,8 +152,7 @@ class CustomDataset(Dataset):
 # In[8]:
 
 
-root_directory = r"C:\Users\shari\Downloads\Geometric-Shapes-Identification-using-CNN-main\Geometric-Shapes-Identification-using-CNN-main"
-dataset = CustomDataset(csv_file = "dataset.csv", root_dir = root_directory, transform = transforms.ToTensor())
+dataset = CustomDataset(csv_file=dataset_path, root_dir=resize_folder, transform=transforms.ToTensor())
 batch_size = 500
 #Split Dataset into Training and Testing Set
 train_set, test_set = torch.utils.data.random_split(dataset, [72000, 18000])
@@ -163,8 +175,8 @@ class Net(nn.Module):
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(10368, 4096)
         self.fc2 = nn.Linear(4096, 1024)
-        self.fc3 = nn.Linear(1024, 128)
-        self.fc4 = nn.Linear(128, 9)
+        self.fc3 = nn.Linear(1024, 64)
+        self.fc4 = nn.Linear(64, 9)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -230,7 +242,7 @@ training_accuracy_array = []
 testing_accuracy_array = []
 epoch_array = []
 
-for epoch in range(1, 26):
+for epoch in range(1, 50):
     training_losses = []
     testing_losses = []
     
@@ -278,7 +290,7 @@ plt.xlabel("Epoch")
 plt.ylabel("Cost")
 plt.legend()
 plt.show()
-
+plt.savefig(ROOT / 'figures' / "cost.png")
 
 # In[ ]:
 
@@ -290,6 +302,7 @@ plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
 plt.legend()
 plt.show()
+plt.savefig(ROOT / 'figures' / "accuracy.png")
 
 
 # <h3>Saving the Trained Model
@@ -297,5 +310,5 @@ plt.show()
 # In[ ]:
 
 
-torch.save(model.state_dict(), r"C:\Users\shari\Downloads\Geometric-Shapes-Identification-using-CNN-main\Geometric-Shapes-Identification-using-CNN-main\model.pt")
+torch.save(model.state_dict(), ROOT / 'data' / "models" / "cnn_model2.pt")
 
