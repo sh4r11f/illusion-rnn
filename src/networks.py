@@ -195,6 +195,13 @@ class RNNNet(nn.Module):
         return out, rnn_output
 
 
+class CNNNet(nn.Module):
+    """
+    Convolutional network model.
+
+    """
+
+
 class TAMNet:
     """
     Makes instances of CNNs an RNNs and trains them.
