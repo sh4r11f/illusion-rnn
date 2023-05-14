@@ -23,8 +23,10 @@ import seaborn as sns
 # Neural network imports
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torchvision import transforms
 import torch.optim as optim
+from torch.utils.data import Dataset
 import neurogym as ngym
 
 
@@ -200,6 +202,59 @@ class CNNNet(nn.Module):
     Convolutional network model.
 
     """
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.conv3 = nn.Conv2d(64, 128, 5, 1)
+        self.dropout1 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc1 = nn.Linear(10368, 4096)
+        self.fc2 = nn.Linear(4096, 1024)
+        self.fc3 = nn.Linear(1024, 128)
+        self.fc4 = nn.Linear(128, 9)
+
+    def forward(self, inputs):
+        h_new = self.conv1(inputs)
+        h_new = F.relu(h_new)
+        h_new = F.max_pool2d(h_new, 2)
+        h_new = self.conv2(h_new)
+        h_new = F.relu(h_new)
+        h_new = F.max_pool2d(h_new, 2)
+        h_new = self.conv3(h_new)
+        h_new = F.relu(h_new)
+        h_new = F.max_pool2d(h_new, 2)
+        h_new = self.dropout1(h_new)
+        h_new = torch.flatten(h_new, 1)
+        h_new = self.fc1(h_new)
+        h_new = F.relu(h_new)
+        h_new = self.dropout2(h_new)
+        h_new = self.fc2(h_new)
+        h_new = F.relu(h_new)
+        fc3_features = self.fc3(h_new)
+        h_new = F.relu(fc3_features)
+        output = self.fc4(h_new)
+
+        return output, fc3_features
+
+
+class CustomDataset(Dataset):
+    def __init__(self, data_frame, root_dir, transform=None):
+        self.annotations = data_frame
+        self.root_dir = root_dir
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.annotations)
+
+    def __getitem__(self, index):
+        img_path = self.root_dir / str(self.annotations.iloc[index, 0])
+        image = plt.imread(img_path)
+        y_label = torch.tensor(int(self.annotations.iloc[index, 1]))
+
+        if self.transform:
+            image = self.transform(image)
+        return image, y_label
 
 
 class TAMNet:
@@ -281,6 +336,7 @@ class TAMNet:
         else:
             input_size = inputs.reshape(*inputs.shape[:2], -1).shape[-1]
 
+        # input_size = 64
         # Make the RNN
         rnn = RNNNet(
             input_size=input_size,
@@ -340,7 +396,7 @@ class TAMNet:
 
         return features
 
-    def train_rnn(self, datasets=None, n_epochs=100) -> tuple:
+    def train_rnn(self, datasets=None, n_epochs=100, cnn=None) -> tuple:
         """
         Function to train an RNN model.
 
@@ -401,24 +457,40 @@ class TAMNet:
             if self.CNN:
 
                 # get features from the inputs
-                inputs = self.run_cnn(inputs)
+                new_inputs = self.run_cnn(inputs)
+
+            elif cnn is not None:
+
+                cnn_features = np.zeros((inputs.shape[0], inputs.shape[1], 64))
+                for seq in range(inputs.shape[0]):
+                    for batch in range(inputs.shape[1]):
+                        reshaped_input = inputs[seq, batch].reshape(1, 1, 100, 100)
+                        img = torch.from_numpy(reshaped_input).type(torch.float).to(self.device)
+
+                        _, output = cnn(img)
+                        cnn_features[seq, batch] = output.detach().cpu().numpy()[0]
+                new_inputs = cnn_features
+                # new_inputs = new_inputs.reshape(*new_inputs.shape[:2], -1)
+                # print(new_inputs.shape)
 
             else:
 
                 # Flatten images
-                inputs = inputs.reshape(*inputs.shape[:2], -1)
+                new_inputs = inputs.reshape(*inputs.shape[:2], -1)
 
             # Turn to tensors
-            inputs = torch.from_numpy(inputs).type(torch.float)
+            new_inputs = torch.from_numpy(new_inputs).type(torch.float)
             labels = torch.from_numpy(labels).type(torch.long)
 
             # Transfer to device
-            inputs = inputs.to(self.device)
+            new_inputs = new_inputs.to(self.device)
             labels = labels.to(self.device)
+            # print(new_inputs.shape)
+            # print(labels.shape)
 
             # Basic pytorch training
             optimizer.zero_grad()  # zero the gradient buffers
-            output, _ = self.RNN(inputs)  # Run RNN
+            output, _ = self.RNN(new_inputs)  # Run RNN
 
             # Reshape to (SeqLen x Batch, OutputSize)
             output = output.view(-1, self.output_size)
@@ -457,7 +529,7 @@ class TAMNet:
 
         return train_loss_list, train_acc_list
 
-    def test_rnn(self, n_trials: int, dataset=None) -> tuple:
+    def test_rnn(self, n_trials: int, dataset=None, cnn=None) -> tuple:
         """
         Tests a trained model on a generated dataset
 
@@ -510,19 +582,31 @@ class TAMNet:
                 ob = ob[:, np.newaxis, :]
 
                 # run them through the CNN to extract features
-                inputs = self.run_cnn(ob)
+                new_inputs = self.run_cnn(ob)
+
+            elif cnn is not None:
+                # print(ob.shape)
+                cnn_features = np.zeros((ob.shape[0], ob.shape[1], 64))
+                for seq in range(ob.shape[0]):
+                    reshaped_input = ob[seq].reshape(1, 1, 100, 100)
+                    img = torch.from_numpy(reshaped_input).type(torch.float).to(self.device)
+
+                    _, output = cnn(img)
+                    cnn_features[seq] = output.detach().cpu().numpy()[0]
+                new_inputs = cnn_features
+                # print(new_inputs.shape)
 
             else:
 
                 # change the input shape
-                inputs = ob.reshape(*ob.shape[:1], -1)
+                new_inputs = ob.reshape(*ob.shape[:1], -1)
 
             # transform to tensors
-            inputs = torch.from_numpy(inputs).type(torch.float)
-            inputs = inputs.to(self.device)
+            new_inputs = torch.from_numpy(new_inputs).type(torch.float)
+            new_inputs = new_inputs.to(self.device)
 
             # Compute performance
-            action_pred, rnn_activity = self.RNN(inputs)
+            action_pred, rnn_activity = self.RNN(new_inputs)
 
             # Convert back to numpy
             action_pred = action_pred.cpu().detach().numpy()[:, 0, :]
@@ -558,3 +642,37 @@ class TAMNet:
 
         """
 
+
+def calculate_accuracy(loader, model, device):
+    """
+    Calculates the accuracy of a model on a given dataset
+
+    Parameters
+    ----------
+    loader: torch.utils.data.DataLoader
+        DataLoader object containing the dataset
+    model: torch.nn.Module
+        Model to be evaluated
+    device: torch.device
+        Device on which the model is evaluated
+
+    Returns
+    -------
+    float: accuracy of the model on the dataset
+    """
+    correct_predictions = 0
+    total_samples = 0
+    model.eval()
+
+    with torch.no_grad():
+        for data, target in loader:
+            data = data.to(device=device)
+            target = target.to(device=device)
+
+            scores, _ = model(data)
+            _, predictions = scores.max(1)
+            correct_predictions += (predictions == target).sum()
+            total_samples += predictions.size(0)
+        return float(correct_predictions) / (total_samples) * 100
+
+    model.train()
