@@ -96,21 +96,21 @@ class TAMTask(ngym.TrialEnv):
         self.dt = dt
         self.trial_dur = 500
         self.task_len = self.trial_dur // self.dt
-        self.timing = {
-            'fixation': 100,
-            'frame1': 50,
-            'frame2': 50,
-            'frame3': 50,
-            'frame4': 50,
-            'frame5': 50,
-            'decision': 100
-        }
         # self.timing = {
         #     'fixation': 100,
-        #     "frame1": 200,
-        #     "frame2": 100,
-        #     "decision": 100
+        #     'frame1': 50,
+        #     'frame2': 50,
+        #     'frame3': 50,
+        #     'frame4': 50,
+        #     'frame5': 50,
+        #     'decision': 150
         # }
+        self.timing = {
+            'fixation': 50,
+            "frame1": 200,
+            "frame2": 200,
+            "decision": 50
+        }
         if timing:
             self.timing.update(timing)
 
@@ -201,17 +201,18 @@ class TAMTask(ngym.TrialEnv):
         selected_stimuli = self._stimuli[f"{self._box_shape}-{self._stim_type}-{motion_id}"]
 
         # Set stimuli
+        first_stim = self._stimuli[f"{self._box_shape}-{self._stim_type}-init"][0]
         frames = []
         # print(stimuli.keys())
         # print(f"{self._box_shape}-{self._stim_type}")
         # print(self._stimuli[f"{self._box_shape}-{self._stim_type}-init"])
-        for _ in range(1):
-            frames.append(self._stimuli[f"{self._box_shape}-{self._stim_type}-init"][0])
+        # for _ in range(1):
+        #     frames.append(self._stimuli[f"{self._box_shape}-{self._stim_type}-init"][0])
 
         random_frame = random.choice(selected_stimuli)
 
-        for _ in range(4):
-            frames.append(random_frame)
+        # for _ in range(4):
+        #     frames.append(random_frame)
 
         # print(frames[0].shape)
         # Trial info
@@ -226,14 +227,22 @@ class TAMTask(ngym.TrialEnv):
         ground_truth = trial['ground_truth']
 
         # Add sequential periods
+        # self.add_period(
+        #     [
+        #         'fixation',
+        #         'frame1',
+        #         'frame2',
+        #         'frame3',
+        #         'frame4',
+        #         'frame5',
+        #         'decision'
+        #     ]
+        # )
         self.add_period(
             [
                 'fixation',
                 'frame1',
                 'frame2',
-                'frame3',
-                'frame4',
-                'frame5',
                 'decision'
             ]
         )
@@ -254,19 +263,22 @@ class TAMTask(ngym.TrialEnv):
 
         # Add them to the observational environment
         self.add_ob(fix, period=['fixation'])
-        for i in range(len(frames)):
-            self.add_ob(frames[i], period=['frame' + str(i + 1)])
+        # for i in range(len(frames)):
+        #     self.add_ob(frames[i], period=['frame' + str(i + 1)])
+        self.add_ob(first_stim, period=['frame1'])
+        self.add_ob(random_frame, period=['frame2'])
         self.add_ob(decision_stim, period=['decision'])
 
         # Make some noise!
         # self.add_randn(0, self.sigma)
-        self.add_randn(0, self.sigma, period=['frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
+        # self.add_randn(0, self.sigma, period=['frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
+        self.add_randn(0, self.sigma, period=['frame1', 'frame2'])
 
         # Ground truth
+        # self.set_groundtruth(0, period=['fixation', 'frame1'])
         self.set_groundtruth(0, period=['fixation', 'frame1'])
-        # self.set_groundtruth(6, period=['fixation', 'frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
-        self.set_groundtruth(ground_truth, period=['frame2', 'frame3', 'frame4', 'frame5', 'decision'])
-        # self.set_groundtruth(ground_truth, period=['decision'])
+        # self.set_groundtruth(ground_truth, period=['frame2', 'frame3', 'frame4', 'frame5', 'decision'])
+        self.set_groundtruth(ground_truth, period=['frame2', 'decision'])
 
         return trial
 

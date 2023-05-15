@@ -487,14 +487,15 @@ class TAMNet:
             labels = labels.to(self.device)
             # print(new_inputs.shape)
             # print(labels.shape)
+            # print(labels.shape)
 
             # Basic pytorch training
             optimizer.zero_grad()  # zero the gradient buffers
             output, _ = self.RNN(new_inputs)  # Run RNN
-
+            # print(output.shape)
             # Reshape to (SeqLen x Batch, OutputSize)
             output = output.view(-1, self.output_size)
-
+            # print(output.shape)
             # Compute loss
             loss = criterion(output, labels)
             loss.backward()
