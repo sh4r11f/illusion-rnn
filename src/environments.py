@@ -276,9 +276,11 @@ class TAMTask(ngym.TrialEnv):
 
         # Ground truth
         # self.set_groundtruth(0, period=['fixation', 'frame1'])
-        self.set_groundtruth(0, period=['fixation', 'frame1'])
+        # self.set_groundtruth(0, period=['fixation', 'frame1'])
+        self.set_groundtruth(0, period=['fixation', 'frame1', "frame2"])
         # self.set_groundtruth(ground_truth, period=['frame2', 'frame3', 'frame4', 'frame5', 'decision'])
-        self.set_groundtruth(ground_truth, period=['frame2', 'decision'])
+        # self.set_groundtruth(ground_truth, period=['frame2', 'decision'])
+        self.set_groundtruth(ground_truth, period=['decision'])
 
         return trial
 
