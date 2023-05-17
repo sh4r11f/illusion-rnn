@@ -105,11 +105,17 @@ class TAMTask(ngym.TrialEnv):
         #     'frame5': 50,
         #     'decision': 150
         # }
+        # self.timing = {
+        #     'fixation': 50,
+        #     "frame1": 200,
+        #     "frame2": 200,
+        #     "decision": 50
+        # }
         self.timing = {
-            'fixation': 50,
-            "frame1": 200,
-            "frame2": 200,
-            "decision": 50
+            'fixation': 100,
+            "frame1": 100,
+            "frame2": 150,
+            "decision": 150
         }
         if timing:
             self.timing.update(timing)
@@ -126,9 +132,10 @@ class TAMTask(ngym.TrialEnv):
 
         # Action space
         # self.choice_names = {'no_motion': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5, 'fixation': 6}
-        self.choice_names = {'fixation': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5}
+        # self.choice_names = {'fixation': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5}
+        self.choice_names = {'fixation': 0, 'left': 1, 'middle': 2, 'right': 3}
         self.choices = list(self.choice_names.values())
-        self.action_space = ngym.spaces.Discrete(6, name=self.choice_names)
+        self.action_space = ngym.spaces.Discrete(4, name=self.choice_names)
 
     # Getter functions
     @property
@@ -479,6 +486,15 @@ class MotionTask(ngym.TrialEnv):
         self.dt = dt
         self.trial_dur = 500
         self.task_len = self.trial_dur // self.dt
+        # self.timing = {
+        #     'fixation': 100,
+        #     'frame1': 50,
+        #     'frame2': 50,
+        #     'frame3': 50,
+        #     'frame4': 50,
+        #     'frame5': 50,
+        #     'decision': 150
+        # }
         self.timing = {
             'fixation': 100,
             'frame1': 50,
@@ -486,7 +502,7 @@ class MotionTask(ngym.TrialEnv):
             'frame3': 50,
             'frame4': 50,
             'frame5': 50,
-            'decision': 150
+            "decision": 150
         }
         if timing:
             self.timing.update(timing)
@@ -503,9 +519,11 @@ class MotionTask(ngym.TrialEnv):
         )
 
         # Action space
-        self.choice_names = {'no_motion': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5, 'fixation': 6}
+        # self.choice_names = {'no_motion': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5, 'fixation': 6}
+        # self.choice_names = {'fixation': 0, 'left': 1, 'middle': 2, 'right': 3, 'down': 4, 'up': 5}
+        self.choice_names = {'fixation': 0, 'left': 1, 'middle': 2, 'right': 3}
         self.choices = list(self.choice_names.values())
-        self.action_space = ngym.spaces.Discrete(7, name=self.choice_names)
+        self.action_space = ngym.spaces.Discrete(4, name=self.choice_names)
 
     def _new_trial(self, **kwargs):
         """
@@ -523,13 +541,14 @@ class MotionTask(ngym.TrialEnv):
         # Frames
         # Select stimuli
         if self._stim_ori == 'horizontal':
-            trial_direction = np.random.choice([0, 1, 2, 3])
-        else:
-            trial_direction = np.random.choice([0, 2, 4, 5])
-            for key, val in self._stimuli.items():
-                for s, stim_class in enumerate(val):
-                    for i, img in enumerate(stim_class):
-                        val[s][i] = np.rot90(img, k=-1)
+            # trial_direction = np.random.choice([0, 1, 2, 3])
+            trial_direction = np.random.choice([1, 2, 3])
+        # else:
+        #     trial_direction = np.random.choice([0, 2, 4, 5])
+        #     for key, val in self._stimuli.items():
+        #         for s, stim_class in enumerate(val):
+        #             for i, img in enumerate(stim_class):
+        #                 val[s][i] = np.rot90(img, k=-1)
 
         # Trial info
         trial = {
@@ -589,7 +608,7 @@ class MotionTask(ngym.TrialEnv):
         self.add_randn(0, self.sigma, period=['frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
 
         # Ground truth
-        self.set_groundtruth(6, period=['fixation', 'frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
+        self.set_groundtruth(0, period=['fixation', 'frame1', 'frame2', 'frame3', 'frame4', 'frame5'])
         self.set_groundtruth(ground_truth, period=['decision'])
         # self.set_groundtruth(6, period=['fixation'])
         # self.set_groundtruth(ground_truth, period=['frame1', 'frame2', 'frame3', 'frame4', 'frame5', 'decision'])

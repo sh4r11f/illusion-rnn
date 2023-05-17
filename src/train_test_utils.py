@@ -272,10 +272,10 @@ def plot_dataset(n_trials, dataset, save_dir=None):
     fig.subplots_adjust(hspace=0.2, wspace=0.2)
 
     # Title
-    try:
-        fig.suptitle(f'{env.box_shape} {env.motion_type} {env.stim_ori}', fontsize=26)
-    except AttributeError:
-        fig.suptitle(f'{env.box_shape} {env.stim_type} {env.stim_ori}', fontsize=26)
+    # try:
+    #     fig.suptitle(f'{env.box_shape} {env.motion_type} {env.stim_ori}', fontsize=26)
+    # except AttributeError:
+    #     fig.suptitle(f'{env.box_shape} {env.stim_type} {env.stim_ori}', fontsize=26)
 
     # Generate data
     images, labels = dataset()
@@ -291,13 +291,13 @@ def plot_dataset(n_trials, dataset, save_dir=None):
         for tp in range(n_times):
             axs[trial, tp].imshow(images[tp, trial, :, :], cmap='gray')
             axs[trial, tp].axis('off')
-            axs[trial, tp].set_title(f'Time in trial: {tp * env.dt}. Ground truth: {labels[tp, trial]}.', fontsize=16)
+            axs[trial, tp].set_title(f'Time in trial: {tp * env.dt}', fontsize=50)
 
     if save_dir:
         try:
-            filename = f'sample-trials_{env.box_shape}_{env.motion_type}_{env.stim_ori}.jpg'
+            filename = f'sample-trials_motion_square.jpg'
         except AttributeError:
-            filename = f'sample-trials_{env.box_shape}_{env.stim_type}_{env.stim_ori}.jpg'
+            filename = f'sample-trials_motion_square.jpg'
         plt.savefig(save_dir / filename, dpi=300)
 
     plt.show()
