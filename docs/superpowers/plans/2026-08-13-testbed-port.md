@@ -760,6 +760,8 @@ def test_rotate_stimuli_nested():
 
 
 def test_step_contract_and_fixation_index():
+    # neurogym 2.x reset() consumes the trial's first timestep internally,
+    # so exactly one fixation step remains before frame1.
     env = _make_tam()
     env.reset()
     # Fixating (action 0) during the fixation period must NOT be punished.
@@ -768,7 +770,9 @@ def test_step_contract_and_fixation_index():
     _, reward, terminated, truncated, info = out
     assert reward == 0.0
     assert terminated is False and truncated is False
-    # Breaking fixation (any non-fixation action) draws the abort penalty.
+    # Fresh trial: breaking fixation (any non-fixation action) on the
+    # remaining fixation step draws the abort penalty.
+    env.reset()
     _, reward, _, _, _ = env.step(TAM_CHOICES["left"])
     assert reward == pytest.approx(env.rewards["abort"])
 
@@ -777,9 +781,9 @@ def test_decision_reward():
     env = _make_tam()
     env.reset()
     gt_final = int(env.gt[-1])
-    for _ in range(7):  # steps 0-6: fixation x2 + frames x5
+    for _ in range(7):  # t1..t7: remaining fixation step, frames 1-5, first decision step
         env.step(TAM_CHOICES["fixation"])
-    _, reward, _, _, info = env.step(gt_final)  # step 7: decision
+    _, reward, _, _, info = env.step(gt_final)  # t8: final decision step
     assert reward == pytest.approx(env.rewards["correct"])
     assert info["new_trial"] is True
 
@@ -1122,11 +1126,14 @@ def test_motion_trials_change_frames():
 
 
 def test_motion_step_fixation_index():
+    # neurogym 2.x reset() consumes the trial's first timestep internally,
+    # so exactly one fixation step remains before frame1.
     env = _make_motion()
     env.reset()
     out = env.step(MOTION_CHOICES["fixation"])
     assert len(out) == 5
     assert out[1] == 0.0  # fixating during fixation: no penalty
+    env.reset()
     _, reward, _, _, _ = env.step(MOTION_CHOICES["left"])
     assert reward == pytest.approx(env.rewards["abort"])
 
