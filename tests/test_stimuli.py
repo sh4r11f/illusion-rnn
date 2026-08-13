@@ -67,3 +67,26 @@ def test_bad_filename_raises(tmp_path):
     (tmp_path / "bogus-file.jpg").write_bytes(b"junk")
     with pytest.raises(ValueError, match="expected"):
         load_tam(24, source=tmp_path)
+
+
+def test_load_motion_empty_source_raises(tmp_path):
+    with pytest.raises(FileNotFoundError, match="No .jpg stimuli"):
+        load_motion(24, source=tmp_path)
+
+
+def test_load_motion_bad_filename_raises(tmp_path):
+    (tmp_path / "square-cnt-left-1.jpg").write_bytes(b"junk")  # missing f<m>
+    with pytest.raises(ValueError, match="expected"):
+        load_motion(24, source=tmp_path)
+
+
+def test_load_motion_unknown_shape_raises(tmp_path):
+    (tmp_path / "foo-cnt-left-1-f1.jpg").write_bytes(b"junk")
+    with pytest.raises(ValueError, match="expected"):
+        load_motion(24, source=tmp_path)
+
+
+def test_load_motion_unknown_direction_raises(tmp_path):
+    (tmp_path / "square-cnt-bar-1-f1.jpg").write_bytes(b"junk")
+    with pytest.raises(ValueError, match="expected"):
+        load_motion(24, source=tmp_path)

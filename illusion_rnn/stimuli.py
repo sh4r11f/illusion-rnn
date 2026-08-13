@@ -104,6 +104,18 @@ def load_motion(
                 f"'<shape>-<cnt|track>-<direction>-<n>-f<m>.jpg'"
             )
             raise ValueError(msg)
+        if parts[0] not in SHAPES:
+            msg = (
+                f"Unexpected stimulus file {jpg.name!r}; expected "
+                f"'<shape>-<cnt|track>-<direction>-<n>-f<m>.jpg' with shape in {SHAPES}"
+            )
+            raise ValueError(msg)
+        if parts[2] not in MOTION_DIRECTIONS:
+            msg = (
+                f"Unexpected stimulus file {jpg.name!r}; expected "
+                f"'<shape>-<cnt|track>-<direction>-<n>-f<m>.jpg' with direction in {MOTION_DIRECTIONS}"
+            )
+            raise ValueError(msg)
         if parts[1] != prefix:
             continue  # other motion type, same directory
         base = "-".join(parts[:3])
