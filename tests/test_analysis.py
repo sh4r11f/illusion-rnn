@@ -202,3 +202,39 @@ def test_cross_variant_rdm_key_order():
     keys, matrix = cross_variant_rdm(rdms)
     assert keys == ["b-first", "a-second", "c-third"]
     assert matrix.shape == (3, 3)
+
+
+def test_run_analyses_script_smoke(tmp_path):
+    import json
+    import subprocess
+    from pathlib import Path
+
+    checkpoint = Path(__file__).resolve().parent.parent / "checkpoints" / "rnn-pixel_h2048_tam-horiz.pt"
+    if not checkpoint.exists() or checkpoint.stat().st_size <= 1024:
+        pytest.skip("flagship checkpoint not materialized (git lfs checkout)")
+    proc = subprocess.run(
+        [
+            "uv", "run", "python", "scripts/run_analyses.py",
+            "--n-trials", "60", "--top-k", "3", "--rdm-top-k", "5",
+            "--seed", "0", "--out", str(tmp_path), "--device", "cpu",
+        ],
+        capture_output=True, text=True,
+        cwd=Path(__file__).resolve().parent.parent,
+    )
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    dynamics = np.load(tmp_path / "dynamics.npz")
+    rsa = np.load(tmp_path / "rsa.npz")
+    for variant in ("standard", "outline", "basic"):
+        assert f"{variant}_trajectories" in dynamics
+        assert f"{variant}_mean_trajectories" in dynamics
+        assert f"{variant}_unit_mean" in dynamics
+        assert f"{variant}_unit_rdms" in rsa
+        assert f"{variant}_condition_rdm" in rsa
+        assert rsa[f"{variant}_unit_rdms"].shape == (3, 5, 5)
+        assert not np.isnan(rsa[f"{variant}_condition_rdm"]).any()
+    assert dynamics["components"].shape[0] == 2
+    assert rsa["cross_rdm"].shape == (9, 9)
+    assert len(rsa["cross_keys"]) == 9
+    meta = json.loads((tmp_path / "meta.json").read_text())
+    assert meta["n_trials"] == 60
+    assert set(meta["accuracy"]) == {"standard", "outline", "basic"}

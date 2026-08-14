@@ -1,0 +1,23 @@
+{
+  "checkpoint": "checkpoints/rnn-pixel_h2048_tam-horiz.pt",
+  "variants": [
+    "standard",
+    "outline",
+    "basic"
+  ],
+  "n_trials": 300,
+  "seed": 0,
+  "cutoff": 3,
+  "n_bins": 3,
+  "top_k": 10,
+  "rdm_top_k": 30,
+  "device": "cpu",
+  "accuracy": {
+    "standard": 0.967,
+    "outline": 0.1,
+    "basic": 0.967
+  },
+  "n_active_units": 1047,
+  "package_version": "1.0.0",
+  "date": "2026-08-14T18:53:15+00:00"
+}
