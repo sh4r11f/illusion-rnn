@@ -170,6 +170,17 @@ def test_compute_rdms_units_subset():
     np.testing.assert_allclose(rdms[0, 0, 1], 2.0, atol=1e-12)
 
 
+def test_compute_rdms_boolean_mask_equivalent():
+    from illusion_rnn.analysis import compute_rdms
+
+    cond_mean = _sine_cond_mean()
+    mask = np.array([True, False, True])
+    via_mask = compute_rdms(cond_mean, cutoff=0, units=mask)
+    via_ids = compute_rdms(cond_mean, cutoff=0, units=np.array([0, 2]))
+    np.testing.assert_allclose(via_mask, via_ids)
+    assert via_mask.shape == (1, 2, 2)
+
+
 def test_second_order_rdm():
     from illusion_rnn.analysis import second_order_rdm
 

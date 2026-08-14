@@ -142,10 +142,14 @@ def compute_rdms(
     cond_mean: np.ndarray, cutoff: int = 3, units: np.ndarray | None = None,
 ) -> np.ndarray:
     """Per-condition unit-by-unit RDMs: ``1 - corrcoef`` of post-cutoff
-    condition-mean timecourses. Returns ``(C, U, U)``."""
+    condition-mean timecourses. Returns ``(C, U, U)``.
+
+    Boolean masks are accepted for ``units`` and converted to indices.
+    """
     if units is None:
         units = np.arange(cond_mean.shape[-1])
-    units = np.asarray(units, dtype=int)
+    units_arr = np.asarray(units)
+    units = np.flatnonzero(units_arr) if units_arr.dtype == bool else units_arr.astype(int)
     n_cond = cond_mean.shape[0]
     rdms = np.zeros((n_cond, len(units), len(units)))
     for c in range(n_cond):
