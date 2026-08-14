@@ -126,3 +126,47 @@ def condition_average(
         ddof = 1 if selected.shape[0] > 1 else 0
         cond_sem[i] = selected.std(axis=0, ddof=ddof) / np.sqrt(selected.shape[0])
     return cond_mean, cond_sem, conditions
+
+
+def active_unit_mask(cond_means, cutoff: int = 3, eps: float = 1e-12) -> np.ndarray:
+    """Units whose post-cutoff timecourse varies in EVERY condition of EVERY
+    provided ``(C, T, N)`` array (Pearson r is undefined on flat timecourses)."""
+    masks = []
+    for cond_mean in cond_means:
+        stds = cond_mean[:, cutoff:, :].std(axis=1)  # (C, N)
+        masks.append((stds > eps).all(axis=0))
+    return np.logical_and.reduce(masks)
+
+
+def compute_rdms(
+    cond_mean: np.ndarray, cutoff: int = 3, units: np.ndarray | None = None,
+) -> np.ndarray:
+    """Per-condition unit-by-unit RDMs: ``1 - corrcoef`` of post-cutoff
+    condition-mean timecourses. Returns ``(C, U, U)``."""
+    if units is None:
+        units = np.arange(cond_mean.shape[-1])
+    units = np.asarray(units, dtype=int)
+    n_cond = cond_mean.shape[0]
+    rdms = np.zeros((n_cond, len(units), len(units)))
+    for c in range(n_cond):
+        timecourses = cond_mean[c, cutoff:, :][:, units].T  # (U, T')
+        rdms[c] = 1.0 - np.corrcoef(timecourses)
+        np.fill_diagonal(rdms[c], 0.0)
+    return rdms
+
+
+def second_order_rdm(rdms: np.ndarray) -> np.ndarray:
+    """``1 - Pearson`` between the strict lower triangles of ``(K, U, U)``
+    RDMs. Diagonal is exactly 0."""
+    rows, cols = np.tril_indices(rdms.shape[1], k=-1)
+    vectors = rdms[:, rows, cols]  # (K, U*(U-1)/2)
+    out = 1.0 - np.corrcoef(vectors)
+    np.fill_diagonal(out, 0.0)
+    return out
+
+
+def cross_variant_rdm(rdms_by_key: dict) -> tuple[list, np.ndarray]:
+    """Second-order RDM across labeled RDMs; insertion order preserved."""
+    keys = list(rdms_by_key)
+    stacked = np.stack([rdms_by_key[key] for key in keys], axis=0)
+    return keys, second_order_rdm(stacked)

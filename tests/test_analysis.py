@@ -4,9 +4,13 @@ import pytest
 from illusion_rnn.analysis import (
     BinnedPCA,
     PCAResult,
+    active_unit_mask,
     binned_pca_loadings,
+    compute_rdms,
     condition_average,
+    cross_variant_rdm,
     run_pca,
+    second_order_rdm,
     stack_activity,
     top_units,
     unique_units,
@@ -113,3 +117,88 @@ def test_condition_average_explicit_conditions():
     assert mean.shape == (2, 3, 2)
     with pytest.raises(ValueError, match="no trials"):
         condition_average(activity, labels, conditions=np.array([1, 2, 3]))
+
+
+def test_active_unit_mask():
+    cond_mean = np.zeros((2, 9, 3))
+    cond_mean[:, :, 0] = np.arange(9)          # varies in both conditions
+    cond_mean[0, :, 1] = np.arange(9)          # varies in cond 0 only
+    cond_mean[:, :, 2] = 5.0                   # constant everywhere
+    from illusion_rnn.analysis import active_unit_mask
+
+    mask = active_unit_mask([cond_mean], cutoff=3)
+    np.testing.assert_array_equal(mask, [True, False, False])
+
+
+def test_active_unit_mask_joint_across_variants():
+    a = np.zeros((1, 9, 2))
+    a[0, :, 0] = np.arange(9)
+    a[0, :, 1] = np.arange(9)
+    b = a.copy()
+    b[0, :, 1] = 1.0  # unit 1 flat in variant b
+    from illusion_rnn.analysis import active_unit_mask
+
+    np.testing.assert_array_equal(active_unit_mask([a, b], cutoff=0), [True, False])
+
+
+def _sine_cond_mean():
+    """(1, 9, 3): unit1 == unit0, unit2 == -unit0 (post-cutoff)."""
+    t = np.linspace(0, 2 * np.pi, 9)
+    cond_mean = np.zeros((1, 9, 3))
+    cond_mean[0, :, 0] = np.sin(t)
+    cond_mean[0, :, 1] = np.sin(t)
+    cond_mean[0, :, 2] = -np.sin(t)
+    return cond_mean
+
+
+def test_compute_rdms_correlation_structure():
+    from illusion_rnn.analysis import compute_rdms
+
+    rdms = compute_rdms(_sine_cond_mean(), cutoff=0)
+    assert rdms.shape == (1, 3, 3)
+    np.testing.assert_allclose(np.diag(rdms[0]), 0.0, atol=1e-12)
+    np.testing.assert_allclose(rdms[0, 0, 1], 0.0, atol=1e-12)  # identical -> 0
+    np.testing.assert_allclose(rdms[0, 0, 2], 2.0, atol=1e-12)  # anti -> 2
+    assert not np.isnan(rdms).any()
+
+
+def test_compute_rdms_units_subset():
+    from illusion_rnn.analysis import compute_rdms
+
+    rdms = compute_rdms(_sine_cond_mean(), cutoff=0, units=np.array([0, 2]))
+    assert rdms.shape == (1, 2, 2)
+    np.testing.assert_allclose(rdms[0, 0, 1], 2.0, atol=1e-12)
+
+
+def test_second_order_rdm():
+    from illusion_rnn.analysis import second_order_rdm
+
+    rng = np.random.RandomState(0)
+    base = rng.rand(5, 5)
+    base = (base + base.T) / 2
+    np.fill_diagonal(base, 0)
+    other = rng.rand(5, 5)
+    other = (other + other.T) / 2
+    np.fill_diagonal(other, 0)
+    rdms = np.stack([base, base.copy(), other])
+    out = second_order_rdm(rdms)
+    assert out.shape == (3, 3)
+    np.testing.assert_allclose(np.diag(out), 0.0, atol=1e-12)
+    np.testing.assert_allclose(out[0, 1], 0.0, atol=1e-12)  # identical RDMs
+    assert out[0, 2] > 1e-3
+    np.testing.assert_allclose(out, out.T, atol=1e-12)
+
+
+def test_cross_variant_rdm_key_order():
+    from illusion_rnn.analysis import cross_variant_rdm
+
+    rng = np.random.RandomState(1)
+    rdms = {}
+    for name in ("b-first", "a-second", "c-third"):
+        m = rng.rand(4, 4)
+        m = (m + m.T) / 2
+        np.fill_diagonal(m, 0)
+        rdms[name] = m
+    keys, matrix = cross_variant_rdm(rdms)
+    assert keys == ["b-first", "a-second", "c-third"]
+    assert matrix.shape == (3, 3)
