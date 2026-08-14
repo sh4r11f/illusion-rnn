@@ -76,6 +76,25 @@ fails to, per variant) as follows:
 
 Exact numbers and every shipped model: [`checkpoints/MANIFEST.md`](checkpoints/MANIFEST.md).
 
+## Analyses
+
+`scripts/run_analyses.py` reproduces the project's dynamics and RSA analyses
+(corrected reimplementations of the 2022–23 exploratory notebooks — see the
+deviations documented in `illusion_rnn/analysis.py`): PCA of hidden-state
+trajectories in the trained state space, time-binned PCA with top-loading
+units, condition-averaged unit timecourses, unit-by-unit RDMs, and
+second-order RSA within and across stimulus variants.
+
+```bash
+uv run python scripts/run_analyses.py   # writes results/*.npz (committed)
+```
+
+`notebooks/03_dynamics.ipynb` and `notebooks/04_rsa.ipynb` visualize the
+committed artifacts. The cross-variant RSA asks the headline question —
+is outline TAM represented like standard TAM? —
+
+![Cross-variant RSA](figures/rsa_cross_variant.png)
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
