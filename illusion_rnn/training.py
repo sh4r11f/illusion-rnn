@@ -1,0 +1,160 @@
+"""Supervised training and evaluation for TAM/motion tasks.
+
+The pipeline is the neurogym supervised one: ``ngym.Dataset`` yields
+``(inputs (T, B, H, W), labels (T, B))`` batches of concatenated trials;
+the model is trained with cross-entropy over every timestep. An optional
+``encoder`` callable maps raw image batches ``(T, B, H, W)`` to feature
+batches ``(T, B, F)`` before they reach the model — pass
+``cnn_encoder(ShapesCNN(...), ...)`` to reproduce the CNN-features
+pipeline the ``rnn-cnnfeat64_*`` checkpoints were trained with.
+"""
+
+from dataclasses import dataclass, field
+
+import numpy as np
+import torch
+from torch import nn, optim
+
+import neurogym as ngym
+
+from illusion_rnn.envs import MotionTask, TAMTask
+
+
+def resolve_device(device=None) -> torch.device:
+    """Explicit argument > cuda > mps > cpu."""
+    if device is not None:
+        return torch.device(device)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def make_env(task: str, **kwargs):
+    """Construct a task env: ``task`` is ``"tam"`` (TAMTask) or ``"motion"``
+    (MotionTask); ``kwargs`` pass through to the constructor."""
+    if task == "tam":
+        return TAMTask(**kwargs)
+    if task == "motion":
+        return MotionTask(**kwargs)
+    msg = f"Unknown task {task!r}; expected 'tam' or 'motion'"
+    raise ValueError(msg)
+
+
+def make_dataset(env, batch_size: int = 16, seq_len: int = 100) -> ngym.Dataset:
+    """Wrap an env in a neurogym supervised Dataset (env is deep-copied)."""
+    return ngym.Dataset(env, batch_size=batch_size, seq_len=seq_len)
+
+
+def _prepare_inputs(inputs: np.ndarray, encoder) -> np.ndarray:
+    if encoder is not None:
+        return encoder(inputs)
+    return inputs.reshape(*inputs.shape[:2], -1)
+
+
+def train(
+    model,
+    datasets,
+    n_epochs: int = 1000,
+    lr: float = 5e-4,
+    device=None,
+    encoder=None,
+    log_every: int = 100,
+) -> dict:
+    """Train ``model`` on one or more ``ngym.Dataset``s; returns per-epoch
+    ``{"loss": [...], "accuracy": [...]}``."""
+    device = resolve_device(device)
+    model = model.to(device)
+    model.train()
+    if not isinstance(datasets, (list, tuple)):
+        datasets = [datasets]
+
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+    criterion = nn.CrossEntropyLoss()
+    history = {"loss": [], "accuracy": []}
+
+    for epoch in range(n_epochs):
+        batches = [dataset() for dataset in datasets]
+        inputs = np.concatenate([b[0] for b in batches], axis=1)
+        labels = np.concatenate([b[1] for b in batches], axis=1).flatten()
+
+        x = torch.from_numpy(_prepare_inputs(inputs, encoder)).float().to(device)
+        y = torch.from_numpy(labels).long().to(device)
+
+        optimizer.zero_grad()
+        out, _ = model(x)
+        out = out.view(-1, out.shape[-1])
+        loss = criterion(out, y)
+        loss.backward()
+        optimizer.step()
+
+        accuracy = (out.argmax(dim=1) == y).float().mean().item()
+        history["loss"].append(loss.item())
+        history["accuracy"].append(accuracy)
+        if log_every and (epoch + 1) % log_every == 0:
+            print(
+                f"epoch {epoch + 1}/{n_epochs}  "
+                f"loss {loss.item():.4f}  acc {accuracy:.3f}",
+            )
+    return history
+
+
+@dataclass
+class EvalResult:
+    """Result of ``evaluate``: overall accuracy, per-trial records, and
+    per-trial hidden activity ``(T, hidden_size)`` arrays."""
+
+    accuracy: float
+    trials: list = field(default_factory=list)
+    activity: list = field(default_factory=list)
+
+
+def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> EvalResult:
+    """Run ``n_trials`` single trials through ``model``; choice is the argmax
+    of the final timestep's output."""
+    device = resolve_device(device)
+    model = model.to(device)
+    model.eval()
+    env.reset()
+
+    trials, activity = [], []
+    with torch.no_grad():
+        for _ in range(n_trials):
+            env.new_trial()
+            ob, gt = env.ob, env.gt
+            inputs = _prepare_inputs(ob[:, np.newaxis], encoder)
+            x = torch.from_numpy(inputs).float().to(device)
+            pred, hidden = model(x)
+            choice = int(pred[-1, 0].argmax().item())
+            ground_truth = int(gt[-1])
+            trials.append(
+                {
+                    "ground_truth": ground_truth,
+                    "choice": choice,
+                    "correct": choice == ground_truth,
+                },
+            )
+            activity.append(hidden[:, 0].cpu().numpy())
+
+    accuracy = float(np.mean([t["correct"] for t in trials]))
+    return EvalResult(accuracy=accuracy, trials=trials, activity=activity)
+
+
+def cnn_encoder(cnn, device=None):
+    """Batched encoder: runs every frame of a ``(T, B, H, W)`` batch through
+    ``cnn`` in one forward pass, returning ``(T, B, feature_dim)``."""
+    device = resolve_device(device)
+    cnn = cnn.to(device)
+    cnn.eval()
+
+    def encode(inputs: np.ndarray) -> np.ndarray:
+        n_steps, n_batch, height, width = inputs.shape
+        x = torch.from_numpy(
+            inputs.reshape(n_steps * n_batch, 1, height, width),
+        ).float().to(device)
+        with torch.no_grad():
+            _, features = cnn(x)
+        return features.cpu().numpy().reshape(n_steps, n_batch, -1)
+
+    return encode
