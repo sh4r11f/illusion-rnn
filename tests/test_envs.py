@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from illusion_rnn.envs import TAM_CHOICES, TAMTask, rotate_stimuli
-from illusion_rnn.stimuli import SHAPES, TAM_VARIANTS
+from illusion_rnn.envs import MOTION_CHOICES, MotionTask, TAM_CHOICES, TAMTask, rotate_stimuli
+from illusion_rnn.stimuli import MOTION_TYPES, SHAPES, TAM_VARIANTS
 
 
 def _make_tam(**kwargs):
@@ -141,3 +141,96 @@ def test_invalid_args_raise():
         TAMTask(stim_ori="diagonal")
     with pytest.raises(ValueError, match="variant"):
         TAMTask(variant="bogus")
+
+
+def _make_motion(**kwargs):
+    defaults = dict(box_shape="square", motion_type="continuous",
+                    stim_ori="horizontal", img_size=32)
+    defaults.update(kwargs)
+    env = MotionTask(**defaults)
+    env.seed(0)
+    return env
+
+
+@pytest.mark.parametrize("motion_type", MOTION_TYPES)
+@pytest.mark.parametrize("stim_ori", ["horizontal", "vertical"])
+@pytest.mark.parametrize("shape", SHAPES)
+def test_motion_grid(motion_type, stim_ori, shape):
+    env = _make_motion(motion_type=motion_type, stim_ori=stim_ori, box_shape=shape)
+    env.reset()
+    # fixation 100 + 5 frames x 50 + decision 150 = 500 ms; dt 50 -> 10 steps
+    assert env.ob.shape == (10, 32, 32)
+    assert env.gt.shape == (10,)
+    # gt is fixation (6) everywhere except the 3 decision steps
+    assert set(env.gt[:7]) == {MOTION_CHOICES["fixation"]}
+    allowed = {0, 1, 2, 3} if stim_ori == "horizontal" else {0, 2, 4, 5}
+    assert set(env.gt[7:]) <= allowed
+    assert len(set(env.gt[7:])) == 1
+
+
+def test_motion_action_space_frozen():
+    env = _make_motion()
+    assert env.action_space.n == 7
+    assert env.choice_names == {
+        "no_motion": 0, "left": 1, "middle": 2, "right": 3,
+        "down": 4, "up": 5, "fixation": 6,
+    }
+
+
+def test_motion_direction_variability():
+    env = _make_motion()
+    env.reset()
+    gts = {env.new_trial()["ground_truth"] for _ in range(80)}
+    assert gts == {0, 1, 2, 3}
+
+
+def test_no_motion_trials_are_static():
+    env = _make_motion()
+    env.reset()
+    for _ in range(80):
+        trial = env.new_trial()
+        if trial["ground_truth"] == MOTION_CHOICES["no_motion"]:
+            # frames 1-5 are steps 2..6 of the ob; all identical
+            frames = env.ob[2:7]
+            for i in range(1, 5):
+                np.testing.assert_array_equal(frames[i], frames[0])
+            break
+    else:
+        pytest.fail("no no_motion trial sampled in 80 draws")
+
+
+def test_motion_trials_change_frames():
+    env = _make_motion()
+    env.reset()
+    for _ in range(80):
+        trial = env.new_trial()
+        if trial["ground_truth"] != MOTION_CHOICES["no_motion"]:
+            frames = env.ob[2:7]
+            assert any(
+                not np.array_equal(frames[i], frames[0]) for i in range(1, 5)
+            )
+            break
+    else:
+        pytest.fail("no motion trial sampled in 80 draws")
+
+
+def test_motion_step_fixation_index():
+    # neurogym 2.x reset() consumes the trial's first timestep internally,
+    # so exactly one fixation step remains before frame1.
+    env = _make_motion()
+    env.reset()
+    out = env.step(MOTION_CHOICES["fixation"])
+    assert len(out) == 5
+    assert out[1] == 0.0  # fixating during fixation: no penalty
+    env.reset()
+    _, reward, _, _, _ = env.step(MOTION_CHOICES["left"])
+    assert reward == pytest.approx(env.rewards["abort"])
+
+
+def test_motion_vertical_stimuli_do_not_mutate():
+    env = _make_motion(stim_ori="vertical")
+    env.reset()
+    before = env._stimuli["square-cnt-left"][0][0].copy()
+    for _ in range(5):
+        env.new_trial()
+    np.testing.assert_array_equal(env._stimuli["square-cnt-left"][0][0], before)

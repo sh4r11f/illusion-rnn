@@ -196,3 +196,143 @@ class TAMTask(TrialEnv):
                 reward += self.rewards["fail"]
 
         return self.ob_now, reward, False, False, {"new_trial": new_trial, "gt": gt}
+
+
+class MotionTask(TrialEnv):
+    """Real-motion 4AFC task (control condition for TAM).
+
+    Trial structure: fixation (100 ms) -> 5 motion frames (50 ms each) ->
+    decision (150 ms), dt = 50 ms. Ground truth is ``fixation`` (6) outside
+    the decision period and the motion direction during it. ``no_motion``
+    trials repeat a single randomly drawn frame. Horizontal trials sample
+    {no_motion, left, middle, right}; vertical {no_motion, middle, down, up}
+    on stimuli rotated 90° clockwise once at construction.
+
+    Parameters are as in ``TAMTask`` except ``motion_type``
+    (``continuous`` | ``tracking``) replacing ``variant``.
+    """
+
+    def __init__(
+        self,
+        dt: int = 50,
+        box_shape: str = "square",
+        motion_type: str = "continuous",
+        stim_ori: str = "horizontal",
+        stimuli: dict | None = None,
+        sigma: float = 0.0,
+        img_size: int = 64,
+        rewards: dict | None = None,
+        timing: dict | None = None,
+    ):
+        super().__init__(dt=dt)
+        _validate("box_shape", box_shape, SHAPES)
+        _validate("motion_type", motion_type, MOTION_TYPES)
+        _validate("stim_ori", stim_ori, ("horizontal", "vertical"))
+
+        self.box_shape = box_shape
+        self.motion_type = motion_type
+        self.stim_ori = stim_ori
+        self.sigma = sigma
+        self.img_size = img_size
+        self._prefix = {"continuous": "cnt", "tracking": "track"}[motion_type]
+
+        if stimuli is None:
+            stimuli = load_motion(img_size, motion_type=motion_type)
+        if stim_ori == "vertical":
+            stimuli = rotate_stimuli(stimuli)
+        self._stimuli = stimuli
+
+        self.abort = False
+        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
+        if rewards:
+            self.rewards.update(rewards)
+
+        self.timing = {
+            "fixation": 100,
+            "frame1": 50, "frame2": 50, "frame3": 50, "frame4": 50, "frame5": 50,
+            "decision": 150,
+        }
+        if timing:
+            self.timing.update(timing)
+
+        self.ob_shape = (img_size, img_size)
+        self.observation_space = ngym.spaces.Box(
+            -np.inf, np.inf, shape=self.ob_shape, dtype=np.float32,
+        )
+        self.choice_names = dict(MOTION_CHOICES)
+        self.action_space = ngym.spaces.Discrete(7, name=self.choice_names)
+
+    def _sample_direction(self) -> int:
+        if self.stim_ori == "horizontal":
+            options = [0, 1, 2, 3]  # no_motion, left, middle, right
+        else:
+            options = [0, 2, 4, 5]  # no_motion, middle, down, up
+        return int(self.rng.choice(options))
+
+    def _fixation_ob(self) -> np.ndarray:
+        fix = np.zeros(self.ob_shape)
+        center, half = self.img_size // 2, 1
+        fix[center - half:center + half, center - half:center + half] = 1.0
+        return fix
+
+    def _sample_frames(self, direction: int) -> list:
+        if direction == MOTION_CHOICES["no_motion"]:
+            file_dir = ("left", "right")[int(self.rng.randint(2))]
+            exemplars = self._stimuli[f"{self.box_shape}-{self._prefix}-{file_dir}"]
+            exemplar = exemplars[int(self.rng.randint(len(exemplars)))]
+            frame = exemplar[int(self.rng.randint(len(exemplar)))]
+            return [frame] * 5
+        motion_id = _MOTION_ID[direction]
+        exemplars = self._stimuli[f"{self.box_shape}-{self._prefix}-{motion_id}"]
+        return exemplars[int(self.rng.randint(len(exemplars)))]
+
+    def _new_trial(self, **kwargs):
+        direction = self._sample_direction()
+        trial = {
+            "ground_truth": direction,
+            "box_shape": self.box_shape,
+            "motion_type": self.motion_type,
+            "stim_ori": self.stim_ori,
+            "noise": self.sigma,
+        }
+        trial.update(kwargs)
+        frames = self._sample_frames(trial["ground_truth"])
+
+        self.add_period(
+            ["fixation", "frame1", "frame2", "frame3", "frame4", "frame5", "decision"],
+        )
+        self.add_ob(self._fixation_ob(), period=["fixation"])
+        for i, frame in enumerate(frames):
+            self.add_ob(frame, period=[f"frame{i + 1}"])
+        self.add_ob(np.zeros(self.ob_shape), period=["decision"])
+        self.add_randn(
+            0, self.sigma,
+            period=["frame1", "frame2", "frame3", "frame4", "frame5"],
+        )
+
+        self.set_groundtruth(
+            self.choice_names["fixation"],
+            period=["fixation", "frame1", "frame2", "frame3", "frame4", "frame5"],
+        )
+        self.set_groundtruth(trial["ground_truth"], period=["decision"])
+        return trial
+
+    def _step(self, action):
+        new_trial = False
+        reward = 0.0
+        gt = self.gt_now
+        fixation_action = self.choice_names["fixation"]
+
+        if self.in_period("fixation"):
+            if action != fixation_action:
+                new_trial = self.abort
+                reward += self.rewards["abort"]
+        elif self.in_period("decision") and action != fixation_action:
+            new_trial = True
+            if action == gt:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
+
+        return self.ob_now, reward, False, False, {"new_trial": new_trial, "gt": gt}
