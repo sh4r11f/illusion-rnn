@@ -24,7 +24,6 @@ dev = [
     "jupyter",
     "nbconvert",
     "ipykernel",
-    "pandas",
 ]
 
 [tool.hatch.build.targets.wheel]

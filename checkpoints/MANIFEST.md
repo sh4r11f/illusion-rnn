@@ -16,10 +16,15 @@ The `rnn-cnnfeat64_*` models expect inputs produced by
 **img_size=100** environments:
 
     cnn = ShapesCNN()
-    cnn.load_state_dict(torch.load("checkpoints/cnn-shapes_feat64_100px.pt", weights_only=True))
+    cnn.load_state_dict(torch.load("checkpoints/cnn-shapes_feat64_100px.pt", weights_only=True, map_location="cpu"))
     encoder = cnn_encoder(cnn)
     env = make_env("tam", img_size=100, ...)
     evaluate(load_rnn("checkpoints/rnn-cnnfeat64_h2048_tam-horiz.pt"), env, encoder=encoder)
+
+Note: the ShapesCNN was trained on non-inverted (white-background) shape
+images, while `cnn_encoder` feeds it inverted (ink=1) env frames — a
+preserved quirk of the original 2022 pipeline that likely contributes to
+the mediocre cnnfeat accuracies above.
 
 ## Legacy
 

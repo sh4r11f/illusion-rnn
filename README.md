@@ -16,8 +16,8 @@ a shape-correspondence problem: which contours of frame 2 "came from" frame 1.
 That makes TAM a compact probe of how visual systems infer motion from form.
 
 This testbed frames TAM as a supervised trial task: networks are trained to
-report motion direction (left / middle / right, or up / down in the vertical
-variant) either on TAM stimuli directly or on unambiguous frame-by-frame
+report motion direction (left / middle / right — or middle / up / down in the
+vertical variant) either on TAM stimuli directly or on unambiguous frame-by-frame
 motion controls, and are then tested on stimulus variants they never saw
 (outline-only shapes, simplified layouts). The question: does motion inferred
 from form transfer?
@@ -40,6 +40,10 @@ pip install git+https://github.com/sh4r11f/illusion-rnn.git
 ```
 
 ## Quickstart
+
+The snippet below assumes a full repo clone with git LFS (for the shipped
+checkpoints); library-only installs (`pip install git+...`) can still build
+environments and train models, but must download checkpoints separately.
 
 ```python
 import illusion_rnn as ir

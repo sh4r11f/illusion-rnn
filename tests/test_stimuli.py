@@ -58,6 +58,17 @@ def test_unknown_variant_raises():
         load_motion(24, motion_type="bogus")
 
 
+def test_source_override_happy_path(tmp_path):
+    from PIL import Image
+
+    for name in ("square-tam-init-1.jpg", "square-tam-left-1.jpg"):
+        Image.new("L", (8, 8), color=255).save(tmp_path / name)
+    stims = load_tam(16, variant="standard", source=tmp_path)
+    assert len(stims["square-tam-init"]) == 1
+    assert len(stims["square-tam-left"]) == 1
+    assert stims["square-tam-init"][0].shape == (16, 16)
+
+
 def test_empty_source_raises(tmp_path):
     with pytest.raises(FileNotFoundError, match="No .jpg stimuli"):
         load_tam(24, source=tmp_path)
