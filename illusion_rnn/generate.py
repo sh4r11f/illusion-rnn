@@ -93,6 +93,8 @@ RENDERS = ("filled", "outline")
 INK_MATCHES = ("none", "energy")
 FAMILIES = ("balanced", "classic")
 TRANSFORMS = ("growth", "shrink")
+TRANSFORM_MODES = ("growth", "shrink", "growth+shrink")
+CLASSIC_RAISE = 2.0   # raised end is this multiple of the bar's height
 
 
 @dataclass(frozen=True)
@@ -138,6 +140,42 @@ def _render_element(mask: np.ndarray, params: dict, reference_mass: float | None
     return stroke * (reference_mass / stroke_mass)
 
 
+def _render_classic(params: dict, img_size: int) -> tuple:
+    """The 2023 hand-made geometry, rendered analytically.
+
+    frame 1: two small squares at the ends of the track (constant across
+    directions). frame 2: a bar joining them with one end raised, on the side
+    named by the label. Frame 2 is label-readable BY DESIGN -- this family is
+    the diagnostic that measures how much of the 2023 result was static
+    classification, not a task anyone should train on and call generalization.
+    """
+    size = params["shape_size"]
+    left = params["bar_left"]
+    length = params["bar_length"]
+    centre = img_size // 2
+    rows = slice(centre - size // 2, centre - size // 2 + size)
+
+    mask = shape_mask(params["shape"], size)
+    patch = _render_element(mask, params, float(mask.sum()))
+    frame1 = np.zeros((img_size, img_size))
+    frame1[rows, left:left + size] = patch
+    frame1[rows, left + length - size:left + length] = patch
+
+    raised = int(size * CLASSIC_RAISE)
+    raised_top = centre - raised // 2
+    frame2 = np.zeros((img_size, img_size))
+    bar = np.ones((size, length), dtype=bool)
+    frame2[rows, left:left + length] = _render_element(
+        bar, params, float(bar.sum()),
+    )
+    end_left = left + length - size if params["direction"] == "right" else left
+    block = np.ones((raised, size), dtype=bool)
+    frame2[raised_top:raised_top + raised, end_left:end_left + size] = (
+        _render_element(block, params, float(block.sum()))
+    )
+    return frame1, frame2
+
+
 def render_trial(params: dict, img_size: int = 64) -> TrialStimulus:
     """Render one trial from a complete parameter dict.
 
@@ -179,23 +217,27 @@ def render_trial(params: dict, img_size: int = 64) -> TrialStimulus:
         )
         raise ValueError(msg)
 
-    centre = img_size // 2
-    top = centre - size // 2
-    rows = slice(top, top + size)
+    if params["family"] == "classic":
+        frame1, frame2 = _render_classic(params, img_size)
+    else:
+        centre = img_size // 2
+        top = centre - size // 2
+        rows = slice(top, top + size)
 
-    # --- frame 2: the bar. Depends only on (left, length, size).
-    bar = np.ones((size, length), dtype=bool)
-    reference_mass = float(bar.sum())
-    frame2 = np.zeros((img_size, img_size))
-    frame2[rows, left:left + length] = _render_element(bar, params, reference_mass)
+        # --- frame 2: the bar. Depends only on (left, length, size).
+        bar = np.ones((size, length), dtype=bool)
+        frame2 = np.zeros((img_size, img_size))
+        frame2[rows, left:left + length] = _render_element(
+            bar, params, float(bar.sum()),
+        )
 
-    # --- frame 1: the shape, at the end the bar grew FROM.
-    mask = shape_mask(params["shape"], size)
-    shape_left = left if params["direction"] == "right" else left + length - size
-    frame1 = np.zeros((img_size, img_size))
-    frame1[rows, shape_left:shape_left + size] = _render_element(
-        mask, params, float(mask.sum()),
-    )
+        # --- frame 1: the shape, at the end the bar grew FROM.
+        mask = shape_mask(params["shape"], size)
+        shape_left = left if params["direction"] == "right" else left + length - size
+        frame1 = np.zeros((img_size, img_size))
+        frame1[rows, shape_left:shape_left + size] = _render_element(
+            mask, params, float(mask.sum()),
+        )
 
     if params["transform"] == "shrink":
         frame1, frame2 = frame2, frame1
@@ -229,7 +271,7 @@ def sample_params(
     track, which is how the ``position`` train/test split is expressed.
     """
     _validate_choice("family", family, FAMILIES)
-    _validate_choice("transform", transform, TRANSFORMS)
+    _validate_choice("transform", transform, TRANSFORM_MODES)
 
     # 1. bar geometry -- independent of the label
     length = int(rng.integers(bar_length_range[0], bar_length_range[1] + 1))
@@ -247,8 +289,22 @@ def sample_params(
     # 3. the label, drawn last
     direction = str(rng.choice(DIRECTIONS))
 
+    # 4. growth+shrink draws a CONCRETE transform per trial, after direction.
+    #    "growth+shrink" is a sampling mode, not a real value of the
+    #    render_trial-facing "transform" field -- it must never leak into the
+    #    returned params dict. Drawing it here (after direction) mirrors the
+    #    "label drawn last" discipline: the transform draw does not feed back
+    #    into anything above it, so its position relative to `direction`
+    #    cannot introduce a correlation, but drawing it after keeps the
+    #    invariant-relevant draws (which do have to precede direction)
+    #    grouped together and unambiguous to audit.
+    if transform == "growth+shrink":
+        trial_transform = str(rng.choice(TRANSFORMS))
+    else:
+        trial_transform = transform
+
     return dict(
         shape=shape, shape_size=shape_size, bar_left=left, bar_length=length,
-        direction=direction, family=family, transform=transform,
+        direction=direction, family=family, transform=trial_transform,
         render=render, stroke_width=stroke_width, ink_match=ink_match,
     )

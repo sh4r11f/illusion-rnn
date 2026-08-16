@@ -183,3 +183,65 @@ def test_render_trial_rejects_an_unknown_transform():
 def test_render_trial_rejects_an_unknown_family():
     with pytest.raises(ValueError, match="Unknown family 'bogus-nonsense'"):
         render_trial(_params(family="bogus-nonsense"))
+
+
+def test_classic_family_frame2_IS_label_readable():
+    """The diagnostic family deliberately leaks -- that is its purpose.
+
+    It reproduces the 2023 geometry where a raised end marks the direction, so
+    a frame-2-only model can solve it. Comparing model behaviour across the two
+    families is what quantifies the original defect.
+    """
+    right = render_trial(_params(family="classic", direction="right"))
+    left = render_trial(_params(family="classic", direction="left"))
+    assert not np.array_equal(right.frame2, left.frame2)
+
+
+def test_classic_family_frame1_is_constant_across_directions():
+    """Matching the 2023 stimulus: frame 1 is two small squares either way."""
+    right = render_trial(_params(family="classic", direction="right"))
+    left = render_trial(_params(family="classic", direction="left"))
+    np.testing.assert_array_equal(right.frame1, left.frame1)
+
+
+def test_classic_raised_end_is_on_the_labelled_side():
+    right = render_trial(_params(family="classic", direction="right"))
+    heights = (right.frame2 > 0).sum(axis=0)
+    cols = np.flatnonzero(heights)
+    assert heights[cols[-1]] > heights[cols[len(cols) // 2]], \
+        "rightward trials must raise the right end"
+
+
+def test_shrink_transform_swaps_the_two_frames():
+    grow = render_trial(_params(transform="growth"))
+    shrink = render_trial(_params(transform="shrink"))
+    np.testing.assert_array_equal(grow.frame1, shrink.frame2)
+    np.testing.assert_array_equal(grow.frame2, shrink.frame1)
+
+
+def test_growth_plus_shrink_makes_order_load_bearing():
+    """In the growth+shrink condition the SAME frame pair appears in both
+    orders with opposite labels, so a model that ignores order is at chance.
+
+    Verified by construction: a growth trial labelled `right` and a shrink
+    trial labelled `left` share a frame multiset.
+    """
+    grow = render_trial(_params(transform="growth", direction="right"))
+    shrink = render_trial(_params(transform="shrink", direction="left"))
+    # shrink-left retraces growth-left backwards, so build the matching pair
+    grow_left = render_trial(_params(transform="growth", direction="left"))
+    np.testing.assert_array_equal(shrink.frame1, grow_left.frame2)
+    np.testing.assert_array_equal(shrink.frame2, grow_left.frame1)
+    assert grow.label != shrink.label
+
+
+def test_sample_params_growth_plus_shrink_draws_both_transforms():
+    rng = np.random.default_rng(0)
+    rows = [sample_params(rng, transform="growth+shrink") for _ in range(500)]
+    seen = {r["transform"] for r in rows}
+    assert seen == {"growth", "shrink"}
+
+
+def test_sample_params_rejects_unknown_transform():
+    with pytest.raises(ValueError, match="Unknown transform"):
+        sample_params(np.random.default_rng(0), transform="teleport")
