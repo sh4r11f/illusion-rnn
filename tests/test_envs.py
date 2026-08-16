@@ -234,3 +234,73 @@ def test_motion_vertical_stimuli_do_not_mutate():
     for _ in range(5):
         env.new_trial()
     np.testing.assert_array_equal(env._stimuli["square-cnt-left"][0][0], before)
+
+
+from illusion_rnn.envs import TAMCorrespondenceTask
+
+
+def _make_corr(**kwargs):
+    defaults = dict(split="train", img_size=32)
+    defaults.update(kwargs)
+    env = TAMCorrespondenceTask(**defaults)
+    env.seed(0)
+    return env
+
+
+def test_correspondence_trial_structure():
+    """fixation 100 + frame1 50 + frame2 4x50 + decision 100 = 450ms at dt=50."""
+    env = _make_corr()
+    env.reset()
+    assert env.ob.shape == (9, 32, 32)
+    assert env.gt.shape == (9,)
+    # fixation x2 + frame1 carry the fixation label; direction from frame2 on
+    assert set(env.gt[:3]) == {TAM_CHOICES["fixation"]}
+    assert set(env.gt[3:]) <= {TAM_CHOICES["left"], TAM_CHOICES["right"]}
+    assert len(set(env.gt[3:])) == 1
+
+
+def test_correspondence_action_space_is_the_frozen_six():
+    env = _make_corr()
+    assert env.action_space.n == 6
+    assert env.choice_names == TAM_CHOICES
+
+
+def test_frame_indices_locate_the_two_frames_in_the_observation():
+    env = _make_corr()
+    env.reset()
+    f1 = env.ob[env.frame1_index]
+    f2s = [env.ob[i] for i in env.frame2_indices]
+    assert f1.any(), "frame1 index points at an empty observation"
+    for f2 in f2s:
+        np.testing.assert_array_equal(f2, f2s[0])   # frame2 is repeated
+    assert not np.array_equal(f1, f2s[0])
+
+
+def test_frame1_and_frame2_always_differ():
+    env = _make_corr()
+    for _ in range(50):
+        env.new_trial()
+        assert not np.array_equal(
+            env.ob[env.frame1_index], env.ob[env.frame2_indices[0]],
+        )
+
+
+def test_correspondence_is_reproducible_from_a_seed():
+    a, b = _make_corr(), _make_corr()
+    for _ in range(10):
+        a.new_trial(); b.new_trial()
+        np.testing.assert_array_equal(a.ob, b.ob)
+        np.testing.assert_array_equal(a.gt, b.gt)
+
+
+def test_correspondence_rejects_an_unknown_split():
+    with pytest.raises(ValueError, match="Unknown split"):
+        TAMCorrespondenceTask(split="nope")
+
+
+@pytest.mark.parametrize("split", ["train", "test_position", "test_shape", "test_style"])
+def test_every_split_builds_an_env_that_runs(split):
+    env = _make_corr(split=split)
+    for _ in range(20):
+        env.new_trial()
+    assert env.ob.shape == (9, 32, 32)

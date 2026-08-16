@@ -17,7 +17,7 @@ from torch import nn, optim
 
 import neurogym as ngym
 
-from illusion_rnn.envs import MotionTask, TAMTask
+from illusion_rnn.envs import MotionTask, TAMCorrespondenceTask, TAMTask
 
 
 def resolve_device(device=None) -> torch.device:
@@ -32,13 +32,16 @@ def resolve_device(device=None) -> torch.device:
 
 
 def make_env(task: str, **kwargs):
-    """Construct a task env: ``task`` is ``"tam"`` (TAMTask) or ``"motion"``
-    (MotionTask); ``kwargs`` pass through to the constructor."""
+    """Construct a task env: ``task`` is ``"tam"`` (TAMTask), ``"motion"``
+    (MotionTask), or ``"correspondence"`` (TAMCorrespondenceTask); ``kwargs``
+    pass through to the constructor."""
     if task == "tam":
         return TAMTask(**kwargs)
     if task == "motion":
         return MotionTask(**kwargs)
-    msg = f"Unknown task {task!r}; expected 'tam' or 'motion'"
+    if task == "correspondence":
+        return TAMCorrespondenceTask(**kwargs)
+    msg = f"Unknown task {task!r}; expected 'tam', 'motion' or 'correspondence'"
     raise ValueError(msg)
 
 

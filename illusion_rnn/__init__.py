@@ -4,6 +4,7 @@ from illusion_rnn.envs import (
     MOTION_CHOICES,
     TAM_CHOICES,
     MotionTask,
+    TAMCorrespondenceTask,
     TAMTask,
     rotate_stimuli,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "ShapesCNN",
     "TAM_CHOICES",
     "TAM_VARIANTS",
+    "TAMCorrespondenceTask",
     "TAMTask",
     "cnn_encoder",
     "evaluate",

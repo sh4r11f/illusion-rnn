@@ -9,6 +9,7 @@ import numpy as np
 import neurogym as ngym
 from neurogym.core import TrialEnv
 
+from illusion_rnn.generate import SPLITS, render_trial, sampler_for
 from illusion_rnn.stimuli import (
     MOTION_TYPES,
     SHAPES,
@@ -196,6 +197,116 @@ class TAMTask(TrialEnv):
                 reward += self.rewards["fail"]
 
         return self.ob_now, reward, False, False, {"new_trial": new_trial, "gt": gt}
+
+
+class TAMCorrespondenceTask(TrialEnv):
+    """2AFC TAM task whose label depends on the frame1-frame2 relation.
+
+    Unlike ``TAMTask``, frame 1 varies from trial to trial and frame 2 is drawn
+    independently of the direction label. A model must bind the two frames to
+    answer: frame 2 alone is provably uninformative, and frame 1 alone is
+    near-uninformative (see the design spec, section 3).
+
+    Trial structure: fixation (100 ms) -> frame1 (50 ms) -> frame2
+    (``n_repeats`` x 50 ms) -> decision (100 ms), dt = 50. Ground truth is
+    ``fixation`` through frame 1 and the direction from frame 2 onward, matching
+    ``TAMTask`` so the abstention metric means the same thing across both.
+
+    The action space stays ``Discrete(6)`` with the frozen ``TAM_CHOICES``
+    names even though only ``left`` and ``right`` are sampled, so plotting,
+    metrics and the analysis suite are shared.
+    """
+
+    def __init__(
+        self,
+        dt: int = 50,
+        split: str = "train",
+        img_size: int = 64,
+        sigma: float = 0.0,
+        n_repeats: int = 4,
+        rewards: dict | None = None,
+        timing: dict | None = None,
+        **sampler_overrides,
+    ):
+        super().__init__(dt=dt)
+        if isinstance(split, str) and split not in SPLITS:
+            msg = f"Unknown split {split!r}; expected one of {tuple(SPLITS)}"
+            raise ValueError(msg)
+
+        self.split = split
+        self.img_size = img_size
+        self.sigma = sigma
+        self.n_repeats = n_repeats
+        # sampler_for/sample_params default img_size to 64 and are otherwise
+        # unaware of the observation size this env was built with. Without
+        # passing it through explicitly, bar geometry gets sampled for a
+        # 64px canvas while render_trial (below) renders at self.img_size --
+        # for any img_size < 64 that produces bars that spill past the
+        # actual canvas and render_trial raises. Pass it through so the
+        # sampled geometry and the rendered canvas always agree.
+        self._sample = sampler_for(split, img_size=img_size, **sampler_overrides)
+
+        self.abort = False
+        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
+        if rewards:
+            self.rewards.update(rewards)
+
+        self._frame_periods = ["frame1"] + [f"frame2_{i}" for i in range(n_repeats)]
+        self.timing = {"fixation": 100, "decision": 100}
+        self.timing.update({period: 50 for period in self._frame_periods})
+        if timing:
+            self.timing.update(timing)
+
+        self.ob_shape = (img_size, img_size)
+        self.observation_space = ngym.spaces.Box(
+            -np.inf, np.inf, shape=self.ob_shape, dtype=np.float32,
+        )
+        self.choice_names = dict(TAM_CHOICES)
+        self.action_space = ngym.spaces.Discrete(6, name=self.choice_names)
+
+        # Observation-array indices of each frame. Derived from the timing dict
+        # rather than hardcoded so a `timing` override cannot silently
+        # desynchronise the frame-only baselines from the actual observations.
+        n_fix = self.timing["fixation"] // dt
+        self.frame1_index = n_fix
+        self.frame2_indices = tuple(range(n_fix + 1, n_fix + 1 + n_repeats))
+
+    def _new_trial(self, **kwargs):
+        # neurogym's TrialEnv.rng is a legacy np.random.RandomState (it has
+        # .randint/.choice but not .integers), while illusion_rnn.generate's
+        # sample_params was written against the modern np.random.Generator
+        # API (it calls .integers). Bridge the two by drawing one integer
+        # seed from the env's RandomState -- itself deterministic given
+        # env.seed() -- and using it to build a fresh Generator per trial.
+        # This keeps generate.py (frozen, from Tasks 3-6) untouched and
+        # preserves reproducibility: two envs seeded identically draw
+        # identical bridge-seeds and therefore identical params.
+        sampler_seed = int(self.rng.randint(0, 2**32 - 1))
+        params = self._sample(np.random.default_rng(sampler_seed))
+        params.update({k: v for k, v in kwargs.items() if k in params})
+        stimulus = render_trial(params, img_size=self.img_size)
+        direction = self.choice_names[stimulus.label]
+
+        trial = {"ground_truth": direction, "noise": self.sigma, **params}
+
+        self.add_period(["fixation", *self._frame_periods, "decision"])
+        self.add_ob(self._fixation_ob(), period=["fixation"])
+        self.add_ob(stimulus.frame1, period=["frame1"])
+        for period in self._frame_periods[1:]:
+            self.add_ob(stimulus.frame2, period=[period])
+        self.add_ob(np.zeros(self.ob_shape), period=["decision"])
+        self.add_randn(0, self.sigma, period=self._frame_periods)
+
+        self.set_groundtruth(
+            self.choice_names["fixation"], period=["fixation", "frame1"],
+        )
+        self.set_groundtruth(
+            direction, period=[*self._frame_periods[1:], "decision"],
+        )
+        return trial
+
+    _fixation_ob = TAMTask._fixation_ob
+    _step = TAMTask._step
 
 
 class MotionTask(TrialEnv):
