@@ -432,3 +432,55 @@ def sampler_for(split, **overrides):
         return sample_params(rng, **kwargs)
 
     return sample
+
+
+def pixel_label_mi(frames: np.ndarray, labels: np.ndarray, n_bins: int = 8):
+    """Per-pixel mutual information in bits between pixel value and label.
+
+    Pixel values are binned into ``n_bins`` equal-width bins; the label is
+    binary. Returns an ``(H, W)`` array. Used to verify that frame 2 carries no
+    direction information in the balanced family -- and that it DOES in the
+    classic diagnostic family.
+
+    Statistical note: this is the plain "plug-in" (maximum-likelihood) MI
+    estimator -- MI(X;Y) = sum_{x,y} p(x,y) log2(p(x,y) / (p(x)p(y))) with
+    p(x,y), p(x), p(y) all estimated as sample frequencies. That estimator is
+    known to carry a small positive bias for finite samples (roughly
+    (bins-1)(labels-1) / (2 N ln 2) bits), which is why the pass condition for
+    a genuinely-independent pixel is "near the noise floor" rather than
+    exactly zero -- with n_bins=8, 2 labels and N=3000 trials the expected
+    bias is about 0.0017 bits, comfortably under the 0.02-bit checkpoint
+    threshold.
+    """
+    frames = np.asarray(frames, dtype=float)
+    labels = np.asarray(labels).astype(int)
+    n_trials, height, width = frames.shape
+    flat = frames.reshape(n_trials, -1)
+
+    # Per-pixel equal-width binning over that pixel's OWN observed range
+    # (not a fixed 0..1 range) so pixels that are constant across every
+    # trial -- e.g. background corners a shape never reaches -- collapse to
+    # a single bin instead of being spread thin across bins that would
+    # inflate their apparent variance (and hence estimation noise).
+    lo = flat.min(axis=0)
+    hi = flat.max(axis=0)
+    span = np.where(hi > lo, hi - lo, 1.0)   # avoid /0 for constant pixels
+    # (value - lo) / span lands in [0, 1]; the pixel at the maximum observed
+    # value maps to exactly n_bins before flooring, which the clip pulls back
+    # into the last bin instead of leaving it as an out-of-range index.
+    binned = np.clip(((flat - lo) / span * n_bins).astype(int), 0, n_bins - 1)
+
+    mi = np.zeros(flat.shape[1])
+    p_label = np.array([(labels == v).mean() for v in (0, 1)])
+    for pixel in range(flat.shape[1]):
+        col = binned[:, pixel]
+        joint = np.zeros((n_bins, 2))
+        for value in (0, 1):
+            counts = np.bincount(col[labels == value], minlength=n_bins)
+            joint[:, value] = counts
+        joint /= n_trials
+        p_bin = joint.sum(axis=1, keepdims=True)
+        expected = p_bin * p_label[np.newaxis, :]
+        nz = joint > 0
+        mi[pixel] = float((joint[nz] * np.log2(joint[nz] / expected[nz])).sum())
+    return mi.reshape(height, width)

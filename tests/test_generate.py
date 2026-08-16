@@ -295,3 +295,48 @@ def test_every_split_renders_without_error():
 def test_sampler_for_rejects_an_unknown_split():
     with pytest.raises(ValueError, match="Unknown split 'holdout'"):
         sampler_for("holdout")
+
+
+from illusion_rnn.generate import pixel_label_mi
+
+
+def test_pixel_label_mi_detects_a_planted_cue():
+    """Sanity check the detector before trusting it to clear frame 2."""
+    rng = np.random.default_rng(0)
+    labels = rng.integers(0, 2, size=2000)
+    frames = rng.random((2000, 4, 4)) * 0.1
+    frames[labels == 1, 0, 0] = 1.0          # a blatant label cue
+    mi = pixel_label_mi(frames, labels)
+    assert mi[0, 0] > 0.5, "failed to detect a planted cue"
+    assert mi[2, 2] < 0.05, "hallucinated a cue in a null pixel"
+
+
+def test_frame2_carries_no_label_information_in_the_balanced_family():
+    """Statistical form of the load-bearing invariant, over sampled trials.
+
+    The bit-identical test proves it for a fixed geometry; this proves the
+    SAMPLER does not reintroduce a correlation.
+    """
+    sample = sampler_for("train")
+    rng = np.random.default_rng(0)
+    frames, labels = [], []
+    for _ in range(3000):
+        t = render_trial(sample(rng))
+        frames.append(t.frame2)
+        labels.append(t.label == "right")
+    mi = pixel_label_mi(np.array(frames), np.array(labels))
+    assert mi.max() < 0.02, f"frame 2 leaks {mi.max():.4f} bits at {np.unravel_index(mi.argmax(), mi.shape)}"
+
+
+def test_frame2_DOES_carry_label_information_in_the_classic_family():
+    """The diagnostic family must leak -- otherwise it is not diagnosing
+    anything and the comparison across families is meaningless."""
+    sample = sampler_for("train", family="classic")
+    rng = np.random.default_rng(0)
+    frames, labels = [], []
+    for _ in range(3000):
+        t = render_trial(sample(rng))
+        frames.append(t.frame2)
+        labels.append(t.label == "right")
+    mi = pixel_label_mi(np.array(frames), np.array(labels))
+    assert mi.max() > 0.2, "classic family unexpectedly balanced"
