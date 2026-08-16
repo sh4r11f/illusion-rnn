@@ -87,7 +87,12 @@ def train(
 
         optimizer.zero_grad()
         out, _ = model(x)
-        out = out.view(-1, out.shape[-1])
+        # `.reshape` rather than `.view`: FrameOnlyNet and FFStack return
+        # `out.permute(1, 0, 2)`, which is non-contiguous, and `.view` requires
+        # contiguity. `.reshape` is a strict superset (falls back to a copy
+        # only when a view isn't possible) so this is a no-op for RNNNet/
+        # GRUNet/CTRNN, whose outputs are already contiguous.
+        out = out.reshape(-1, out.shape[-1])
         loss = criterion(out, y)
         loss.backward()
         optimizer.step()
