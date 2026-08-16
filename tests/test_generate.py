@@ -69,3 +69,105 @@ def test_ink_mass_sums_pixel_values():
     frame = np.zeros((4, 4))
     frame[0, :2] = 0.5
     assert ink_mass(frame) == pytest.approx(1.0)
+
+
+from illusion_rnn.generate import DIRECTIONS, TrialStimulus, render_trial, sample_params
+
+
+def _params(**overrides):
+    base = dict(
+        shape="square", shape_size=8, bar_left=10, bar_length=24,
+        direction="right", family="balanced", transform="growth",
+        render="filled", stroke_width=1, ink_match="none",
+    )
+    base.update(overrides)
+    return base
+
+
+def test_frame2_is_bit_identical_across_directions():
+    """THE load-bearing invariant of the design.
+
+    Frame 2 is a function of (bar_left, bar_length, shape_size) only. If this
+    ever fails, the frame-2-only baseline is above chance and the whole
+    experiment is void.
+    """
+    right = render_trial(_params(direction="right"))
+    left = render_trial(_params(direction="left"))
+    np.testing.assert_array_equal(right.frame2, left.frame2)
+
+
+def test_frame1_differs_across_directions():
+    right = render_trial(_params(direction="right"))
+    left = render_trial(_params(direction="left"))
+    assert not np.array_equal(right.frame1, left.frame1)
+
+
+def test_frame1_sits_at_the_end_the_bar_grew_from():
+    """Rightward growth starts at the bar's left edge, and vice versa."""
+    right = render_trial(_params(direction="right"))
+    left = render_trial(_params(direction="left"))
+    right_cols = np.flatnonzero(right.frame1.any(axis=0))
+    left_cols = np.flatnonzero(left.frame1.any(axis=0))
+    assert right_cols.min() == 10                  # bar_left
+    assert left_cols.max() == 10 + 24 - 1          # bar_left + bar_length - 1
+
+
+def test_frame1_lies_inside_the_frame2_bar():
+    """The shape is absorbed into the bar -- that is the transformation."""
+    t = render_trial(_params())
+    assert ((t.frame1 > 0) & (t.frame2 == 0)).sum() == 0
+
+
+def test_frames_respect_the_ink_convention():
+    t = render_trial(_params())
+    for frame in (t.frame1, t.frame2):
+        assert frame.dtype == np.float64
+        assert frame.min() >= 0.0
+        assert frame.max() <= 1.0
+        assert frame.shape == (64, 64)
+
+
+def test_label_matches_the_requested_direction():
+    assert render_trial(_params(direction="left")).label == "left"
+    assert render_trial(_params(direction="right")).label == "right"
+
+
+def test_render_trial_rejects_a_bar_that_runs_off_canvas():
+    with pytest.raises(ValueError, match="does not fit"):
+        render_trial(_params(bar_left=50, bar_length=30), img_size=64)
+
+
+def test_render_trial_rejects_a_shape_longer_than_its_bar():
+    with pytest.raises(ValueError, match="shape_size"):
+        render_trial(_params(shape_size=30, bar_length=24))
+
+
+def test_sample_params_draws_frame2_geometry_independently_of_direction():
+    """Statistical form of the invariant: across many samples, the bar geometry
+    distribution must not differ by label."""
+    rng = np.random.default_rng(0)
+    rows = [sample_params(rng) for _ in range(4000)]
+    left = np.array([(r["bar_left"], r["bar_length"]) for r in rows
+                     if r["direction"] == "left"], dtype=float)
+    right = np.array([(r["bar_left"], r["bar_length"]) for r in rows
+                      if r["direction"] == "right"], dtype=float)
+    # means must agree to well within sampling noise
+    assert np.allclose(left.mean(axis=0), right.mean(axis=0), rtol=0.05)
+
+
+def test_sample_params_is_reproducible_from_a_seed():
+    a = [sample_params(np.random.default_rng(7)) for _ in range(3)]
+    b = [sample_params(np.random.default_rng(7)) for _ in range(3)]
+    assert a == b
+
+
+def test_outline_render_has_less_ink_than_filled():
+    filled = render_trial(_params(render="filled"))
+    outline = render_trial(_params(render="outline", stroke_width=1))
+    assert ink_mass(outline.frame1) < ink_mass(filled.frame1)
+
+
+def test_energy_matching_equalizes_ink_mass():
+    filled = render_trial(_params(render="filled"))
+    matched = render_trial(_params(render="outline", ink_match="energy"))
+    assert ink_mass(matched.frame1) == pytest.approx(ink_mass(filled.frame1), rel=1e-9)

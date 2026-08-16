@@ -9,6 +9,8 @@ Ink convention matches ``illusion_rnn.stimuli``: float arrays in [0, 1] with
 ink = 1 on background = 0.
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 
 SHAPE_NAMES = ("square", "circle", "triangle", "cross", "hexagon")
@@ -84,3 +86,157 @@ def outline_mask(mask: np.ndarray, stroke_width: int = 1) -> np.ndarray:
 def ink_mass(frame: np.ndarray) -> float:
     """Total ink in a frame -- the sum of its pixel values."""
     return float(np.asarray(frame).sum())
+
+
+DIRECTIONS = ("left", "right")
+RENDERS = ("filled", "outline")
+INK_MATCHES = ("none", "energy")
+FAMILIES = ("balanced", "classic")
+TRANSFORMS = ("growth", "shrink")
+
+
+@dataclass(frozen=True)
+class TrialStimulus:
+    """One rendered trial: two frames, the direction label, and the exact
+    parameters that produced them (so splits can be defined on parameters)."""
+
+    frame1: np.ndarray
+    frame2: np.ndarray
+    label: str
+    params: dict
+
+
+def _validate_choice(name, value, allowed):
+    if value not in allowed:
+        msg = f"Unknown {name} {value!r}; expected one of {tuple(allowed)}"
+        raise ValueError(msg)
+
+
+def _render_element(mask: np.ndarray, params: dict, reference_mass: float | None):
+    """Apply the render style to a boolean mask, returning a float frame patch.
+
+    ``ink_match="energy"`` rescales an outline's intensity so its total ink
+    equals ``reference_mass`` (the filled render's). Values may exceed 1.0; that
+    is deliberate and documented -- clipping would break the match, and the
+    alternative (thickening the stroke) is available separately via
+    ``stroke_width``.
+    """
+    if params["render"] == "filled":
+        return mask.astype(float)
+
+    stroke = outline_mask(mask, params["stroke_width"]).astype(float)
+    if params["ink_match"] == "none":
+        return stroke
+    stroke_mass = stroke.sum()
+    if stroke_mass == 0:
+        msg = (
+            f"outline of shape {params['shape']!r} at size "
+            f"{params['shape_size']} with stroke_width "
+            f"{params['stroke_width']} is empty; cannot energy-match"
+        )
+        raise ValueError(msg)
+    return stroke * (reference_mass / stroke_mass)
+
+
+def render_trial(params: dict, img_size: int = 64) -> TrialStimulus:
+    """Render one trial from a complete parameter dict.
+
+    Frame 2 is built from ``bar_left``, ``bar_length`` and ``shape_size`` alone
+    -- never from ``direction``. That is what makes the frame-2-only baseline
+    provably 50%, and ``test_frame2_is_bit_identical_across_directions`` pins it.
+    """
+    _validate_choice("shape", params["shape"], SHAPE_NAMES)
+    _validate_choice("direction", params["direction"], DIRECTIONS)
+    _validate_choice("render", params["render"], RENDERS)
+    _validate_choice("ink_match", params["ink_match"], INK_MATCHES)
+
+    size = params["shape_size"]
+    left = params["bar_left"]
+    length = params["bar_length"]
+
+    if size > length:
+        msg = (
+            f"shape_size {size} exceeds bar_length {length}; the shape must fit "
+            f"inside the bar it grows into"
+        )
+        raise ValueError(msg)
+    if left < 0 or left + length > img_size:
+        msg = (
+            f"bar spanning [{left}, {left + length}) does not fit a "
+            f"{img_size}px canvas"
+        )
+        raise ValueError(msg)
+
+    centre = img_size // 2
+    top = centre - size // 2
+    rows = slice(top, top + size)
+
+    # --- frame 2: the bar. Depends only on (left, length, size).
+    bar = np.ones((size, length), dtype=bool)
+    reference_mass = float(bar.sum())
+    frame2 = np.zeros((img_size, img_size))
+    frame2[rows, left:left + length] = _render_element(bar, params, reference_mass)
+
+    # --- frame 1: the shape, at the end the bar grew FROM.
+    mask = shape_mask(params["shape"], size)
+    shape_left = left if params["direction"] == "right" else left + length - size
+    frame1 = np.zeros((img_size, img_size))
+    frame1[rows, shape_left:shape_left + size] = _render_element(
+        mask, params, float(mask.sum()),
+    )
+
+    if params["transform"] == "shrink":
+        frame1, frame2 = frame2, frame1
+
+    return TrialStimulus(
+        frame1=frame1, frame2=frame2, label=params["direction"],
+        params=dict(params),
+    )
+
+
+def sample_params(
+    rng: np.random.Generator,
+    img_size: int = 64,
+    shapes: tuple = ("square", "circle"),
+    bar_length_range: tuple = (16, 28),
+    shape_size: int = 8,
+    bar_centre_range: tuple[float, float] = (0.0, 1.0),
+    family: str = "balanced",
+    transform: str = "growth",
+    render: str = "filled",
+    stroke_width: int = 1,
+    ink_match: str = "none",
+) -> dict:
+    """Draw one trial's parameters.
+
+    ORDER MATTERS. ``bar_length`` and ``bar_left`` are drawn first, from
+    distributions that do not reference ``direction``; ``direction`` is drawn
+    last. That ordering is what makes frame 2 independent of the label.
+
+    ``bar_centre_range`` restricts the bar's centre to a fraction of the usable
+    track, which is how the ``position`` train/test split is expressed.
+    """
+    _validate_choice("family", family, FAMILIES)
+    _validate_choice("transform", transform, TRANSFORMS)
+
+    # 1. bar geometry -- independent of the label
+    length = int(rng.integers(bar_length_range[0], bar_length_range[1] + 1))
+    span = img_size - length
+    if span < 1:
+        msg = f"bar_length {length} leaves no room on a {img_size}px canvas"
+        raise ValueError(msg)
+    low = int(np.floor(bar_centre_range[0] * span))
+    high = int(np.ceil(bar_centre_range[1] * span))
+    left = int(rng.integers(low, max(low + 1, high)))
+
+    # 2. nuisance variables -- also independent of the label
+    shape = str(rng.choice(shapes))
+
+    # 3. the label, drawn last
+    direction = str(rng.choice(DIRECTIONS))
+
+    return dict(
+        shape=shape, shape_size=shape_size, bar_left=left, bar_length=length,
+        direction=direction, family=family, transform=transform,
+        render=render, stroke_width=stroke_width, ink_match=ink_match,
+    )
