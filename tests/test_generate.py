@@ -213,26 +213,31 @@ def test_classic_raised_end_is_on_the_labelled_side():
 
 
 def test_shrink_transform_swaps_the_two_frames():
-    grow = render_trial(_params(transform="growth"))
-    shrink = render_trial(_params(transform="shrink"))
+    grow = render_trial(_params(transform="growth", direction="right"))
+    shrink = render_trial(_params(transform="shrink", direction="left"))
     np.testing.assert_array_equal(grow.frame1, shrink.frame2)
     np.testing.assert_array_equal(grow.frame2, shrink.frame1)
 
 
 def test_growth_plus_shrink_makes_order_load_bearing():
-    """In the growth+shrink condition the SAME frame pair appears in both
-    orders with opposite labels, so a model that ignores order is at chance.
-
-    Verified by construction: a growth trial labelled `right` and a shrink
-    trial labelled `left` share a frame multiset.
-    """
+    """A growth-right trial and a shrink-left trial share IDENTICAL frame
+    content in reversed temporal order, with opposite labels -- so a model
+    that ignores frame order cannot distinguish them, and must be at chance."""
     grow = render_trial(_params(transform="growth", direction="right"))
     shrink = render_trial(_params(transform="shrink", direction="left"))
-    # shrink-left retraces growth-left backwards, so build the matching pair
-    grow_left = render_trial(_params(transform="growth", direction="left"))
-    np.testing.assert_array_equal(shrink.frame1, grow_left.frame2)
-    np.testing.assert_array_equal(shrink.frame2, grow_left.frame1)
+    np.testing.assert_array_equal(grow.frame1, shrink.frame2)
+    np.testing.assert_array_equal(grow.frame2, shrink.frame1)
     assert grow.label != shrink.label
+
+
+def test_render_trial_rejects_classic_overlapping_end_squares():
+    """classic's two end squares must not overlap -- a short bar relative to
+    the shape size would silently merge them instead of raising, which
+    violates the project's 'nothing fails silently' rule."""
+    with pytest.raises(ValueError, match="classic family needs bar_length"):
+        render_trial(
+            _params(family="classic", shape_size=8, bar_length=10, bar_left=10),
+        )
 
 
 def test_sample_params_growth_plus_shrink_draws_both_transforms():

@@ -114,6 +114,10 @@ def _validate_choice(name, value, allowed):
         raise ValueError(msg)
 
 
+def _opposite_direction(direction: str) -> str:
+    return "left" if direction == "right" else "right"
+
+
 def _render_element(mask: np.ndarray, params: dict, reference_mass: float | None):
     """Apply the render style to a boolean mask, returning a float frame patch.
 
@@ -216,31 +220,61 @@ def render_trial(params: dict, img_size: int = 64) -> TrialStimulus:
             f"{img_size}px canvas"
         )
         raise ValueError(msg)
+    if params["family"] == "classic" and length < 2 * size:
+        msg = (
+            f"classic family needs bar_length >= 2*shape_size to keep the two "
+            f"end squares from overlapping; got bar_length={length}, "
+            f"shape_size={size}"
+        )
+        raise ValueError(msg)
 
     if params["family"] == "classic":
         frame1, frame2 = _render_classic(params, img_size)
+        # _render_classic does not consult transform -- it always builds the
+        # (constant-frame1, raised-frame2) pair. "shrink" reverses the two
+        # frames' temporal order here, same as it always has; this family
+        # does not participate in the growth+shrink order-control guarantee
+        # (that is scoped to the balanced family below), so a plain swap is
+        # sufficient and correct.
+        if params["transform"] == "shrink":
+            frame1, frame2 = frame2, frame1
     else:
         centre = img_size // 2
         top = centre - size // 2
         rows = slice(top, top + size)
 
-        # --- frame 2: the bar. Depends only on (left, length, size).
         bar = np.ones((size, length), dtype=bool)
-        frame2 = np.zeros((img_size, img_size))
-        frame2[rows, left:left + length] = _render_element(
+        frame_bar = np.zeros((img_size, img_size))
+        frame_bar[rows, left:left + length] = _render_element(
             bar, params, float(bar.sum()),
         )
 
-        # --- frame 1: the shape, at the end the bar grew FROM.
+        # For "shrink" trials, the shape occupies the end a "growth" trial of
+        # the OPPOSITE direction would use -- this is what lets a growth
+        # trial and a shrink trial share IDENTICAL frame content in reversed
+        # temporal order with opposite labels (the growth+shrink order
+        # control). A growth-right trial places the shape at the left end;
+        # a shrink-left trial must place its (frame2) shape at that SAME
+        # left end, not at the position its own "left" direction would
+        # naively imply -- only then do the two trials' frame1/frame2 pairs
+        # actually match when the array roles are swapped.
+        placement_direction = (
+            params["direction"] if params["transform"] == "growth"
+            else _opposite_direction(params["direction"])
+        )
         mask = shape_mask(params["shape"], size)
-        shape_left = left if params["direction"] == "right" else left + length - size
-        frame1 = np.zeros((img_size, img_size))
-        frame1[rows, shape_left:shape_left + size] = _render_element(
+        shape_left = (
+            left if placement_direction == "right" else left + length - size
+        )
+        frame_shape = np.zeros((img_size, img_size))
+        frame_shape[rows, shape_left:shape_left + size] = _render_element(
             mask, params, float(mask.sum()),
         )
 
-    if params["transform"] == "shrink":
-        frame1, frame2 = frame2, frame1
+        if params["transform"] == "growth":
+            frame1, frame2 = frame_shape, frame_bar
+        else:
+            frame1, frame2 = frame_bar, frame_shape
 
     return TrialStimulus(
         frame1=frame1, frame2=frame2, label=params["direction"],
