@@ -235,7 +235,10 @@ def test_run_analyses_script_smoke(tmp_path):
     assert proc.returncode == 0, proc.stderr[-2000:]
     dynamics = np.load(tmp_path / "dynamics.npz")
     rsa = np.load(tmp_path / "rsa.npz")
-    for variant in ("standard", "outline", "basic"):
+    # "basic" is excluded from the script's default --variants (all of its
+    # images duplicate TAM_task, see tests/test_stimuli_integrity.py), so the
+    # smoke test only checks the two genuinely disjoint variants.
+    for variant in ("standard", "outline"):
         assert f"{variant}_trajectories" in dynamics
         assert f"{variant}_mean_trajectories" in dynamics
         assert f"{variant}_unit_mean" in dynamics
@@ -244,8 +247,9 @@ def test_run_analyses_script_smoke(tmp_path):
         assert rsa[f"{variant}_unit_rdms"].shape == (3, 5, 5)
         assert not np.isnan(rsa[f"{variant}_condition_rdm"]).any()
     assert dynamics["components"].shape[0] == 2
-    assert rsa["cross_rdm"].shape == (9, 9)
-    assert len(rsa["cross_keys"]) == 9
+    # 2 variants (standard, outline) x 3 directions = 6 cross-variant keys.
+    assert rsa["cross_rdm"].shape == (6, 6)
+    assert len(rsa["cross_keys"]) == 6
     meta = json.loads((tmp_path / "meta.json").read_text())
     assert meta["n_trials"] == 60
-    assert set(meta["accuracy"]) == {"standard", "outline", "basic"}
+    assert set(meta["accuracy"]) == {"standard", "outline"}

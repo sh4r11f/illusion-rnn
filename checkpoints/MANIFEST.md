@@ -6,7 +6,7 @@ fixation=0, left=1, middle=2, right=3, down=4, up=5.
 
 | File | Model | Input | Trained on | Eval (horizontal, mean of 3 shapes x 100 trials, seed 0) |
 |---|---|---|---|---|
-| `rnn-pixel_h2048_tam-horiz.pt` | RNNNet 4096->2048->6, dt=50 | raw 64x64 frames, flattened | horizontal standard TAM, all shapes (2023) | standard mean 0.967 (square 1.0, circle 1.0, triangle 0.9), outline 0.100, basic 0.967 |
+| `rnn-pixel_h2048_tam-horiz.pt` | RNNNet 4096->2048->6, dt=50 | raw 64x64 frames, flattened | horizontal standard TAM, all shapes (2023) | standard mean 0.967 (square 1.0, circle 1.0, triangle 0.9), outline 0.100 (77.7% abstention — mostly refuses rather than errs; committed accuracy 0.448 on the trials it does answer) |
 | `rnn-cnnfeat64_h1024_tam-horiz.pt` | RNNNet 64->1024->6, dt=50 | 64-d ShapesCNN features of 100x100 frames | horizontal standard TAM, all shapes (2023) | standard mean 0.767 (square 0.79, circle 0.70, triangle 0.81) |
 | `rnn-cnnfeat64_h2048_tam-horiz.pt` | RNNNet 64->2048->6, dt=50 | 64-d ShapesCNN features of 100x100 frames | horizontal standard TAM, all shapes (2023) | standard mean 0.620 (square 0.79, circle 0.26 — below chance ~0.33, triangle 0.81) |
 | `cnn-shapes_feat64_100px.pt` | ShapesCNN (100px, 64-d, 9 classes) | 100x100 grayscale shape images | 2D geometric shapes dataset (El Korchi & Ghanou, 2020) | n/a (feature extractor) |
@@ -37,3 +37,8 @@ companion of the archived notebooks; they do not fit the current envs.
 Trained in 2022-2023 with the original `src/` code (see `notebooks/legacy/`).
 Verified to load and evaluated under the ported neurogym 2.x environments
 on 2026-08-13.
+
+`TAM_basic` duplicates `TAM_task`: all 24 of its images are byte-identical to
+`TAM_task` images (21 share filenames, 3 are internal duplicates). It is
+therefore not a held-out variant, and was removed from the transfer-comparison
+reporting above on 2026-08-16 (see `tests/test_stimuli_integrity.py`).

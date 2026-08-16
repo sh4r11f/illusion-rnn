@@ -54,8 +54,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--checkpoint", type=Path,
                         default=Path("checkpoints/rnn-pixel_h2048_tam-horiz.pt"))
+    # "basic" is deliberately excluded: all 24 of its images are byte-identical
+    # to TAM_task images (21 share filenames, 3 are internal duplicates), so it
+    # is not a held-out variant -- see tests/test_stimuli_integrity.py.
     parser.add_argument("--variants", nargs="+",
-                        default=["standard", "outline", "basic"])
+                        default=["standard", "outline"])
     parser.add_argument("--n-trials", type=int, default=300,
                         help="per variant (split across the 3 shapes)")
     parser.add_argument("--seed", type=int, default=0)

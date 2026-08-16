@@ -69,12 +69,26 @@ See `notebooks/01_quickstart.ipynb` (tour + generalization result) and
 
 ## The generalization result
 
-The reference RNN — trained only on the *standard* TAM set — transfers (or
-fails to, per variant) as follows:
+The reference RNN — trained only on the *standard* TAM set — reaches 0.967
+mean accuracy in-distribution (on `standard`, i.e. the training condition
+itself), then drops to 0.100 mean accuracy on the genuinely held-out
+`outline` variant (unseen at training time). That drop is not a story of
+confidently wrong answers: the model abstains (reports "fixation" instead of
+committing to a direction) on 77.7% of outline trials, and even restricted to
+the trials where it does commit, accuracy is only 0.448 — better than the
+0.33 chance rate, but far below in-distribution performance. In short, on
+outline stimuli it mostly refuses to answer rather than answering wrong.
 
 ![Generalization across TAM variants](figures/generalization.png)
 
 Exact numbers and every shipped model: [`checkpoints/MANIFEST.md`](checkpoints/MANIFEST.md).
+
+Note: `TAM_basic`, a third stimulus directory shipped alongside `standard`
+and `outline`, is **not** a held-out variant — all 24 of its images are
+byte-identical to `TAM_task` images (21 share filenames, 3 are internal
+duplicates; see `tests/test_stimuli_integrity.py`). Evaluating on it measures
+performance on training data, not transfer, so it has been removed from the
+comparison above.
 
 ## Analyses
 
