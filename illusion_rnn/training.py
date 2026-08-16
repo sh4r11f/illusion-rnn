@@ -64,9 +64,15 @@ def train(
     device=None,
     encoder=None,
     log_every: int = 100,
+    input_transform=None,
 ) -> dict:
     """Train ``model`` on one or more ``ngym.Dataset``s; returns per-epoch
-    ``{"loss": [...], "accuracy": [...]}``."""
+    ``{"loss": [...], "accuracy": [...]}``.
+
+    ``input_transform``, if given, is applied to the ``(T, B, F)`` tensor
+    after encoding (and before it reaches the model). It exists so the
+    frame-order control can permute frames without a separate training loop.
+    """
     device = resolve_device(device)
     model = model.to(device)
     model.train()
@@ -83,6 +89,8 @@ def train(
         labels = np.concatenate([b[1] for b in batches], axis=1).flatten()
 
         x = torch.from_numpy(_prepare_inputs(inputs, encoder)).float().to(device)
+        if input_transform is not None:
+            x = input_transform(x)
         y = torch.from_numpy(labels).long().to(device)
 
         optimizer.zero_grad()
@@ -153,9 +161,16 @@ class EvalResult:
     activity: list = field(default_factory=list)
 
 
-def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> EvalResult:
+def evaluate(model, env, n_trials: int = 100, device=None, encoder=None,
+             input_transform=None) -> EvalResult:
     """Run ``n_trials`` single trials through ``model``; choice is the argmax
-    of the final timestep's output."""
+    of the final timestep's output.
+
+    ``input_transform``, if given, is applied to the ``(T, B, F)`` tensor
+    after encoding (and before it reaches the model) -- same hook as
+    ``train``'s, so a shuffled-input model is evaluated under the same
+    transform it was trained with.
+    """
     device = resolve_device(device)
     model = model.to(device)
     model.eval()
@@ -168,6 +183,8 @@ def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> Eval
             ob, gt = env.ob, env.gt
             inputs = _prepare_inputs(ob[:, np.newaxis], encoder)
             x = torch.from_numpy(inputs).float().to(device)
+            if input_transform is not None:
+                x = input_transform(x)
             pred, hidden = model(x)
             choice = int(pred[-1, 0].argmax().item())
             ground_truth = int(gt[-1])
