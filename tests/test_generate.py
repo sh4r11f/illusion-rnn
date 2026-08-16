@@ -250,3 +250,48 @@ def test_sample_params_growth_plus_shrink_draws_both_transforms():
 def test_sample_params_rejects_unknown_transform():
     with pytest.raises(ValueError, match="Unknown transform"):
         sample_params(np.random.default_rng(0), transform="teleport")
+
+
+from illusion_rnn.generate import SPLITS, Split, sampler_for
+
+
+def test_the_four_splits_exist():
+    assert set(SPLITS) == {"train", "test_position", "test_shape", "test_style"}
+
+
+def test_train_and_test_shape_use_disjoint_shapes():
+    assert not (set(SPLITS["train"].shapes) & set(SPLITS["test_shape"].shapes))
+
+
+def test_train_and_test_position_use_disjoint_bar_centres():
+    """Sampled bar positions must not overlap between the two splits."""
+    train = sampler_for("train")
+    test = sampler_for("test_position")
+    rng = np.random.default_rng(0)
+    train_pos = {train(rng)["bar_left"] for _ in range(3000)}
+    test_pos = {test(rng)["bar_left"] for _ in range(3000)}
+    assert not (train_pos & test_pos), sorted(train_pos & test_pos)[:10]
+
+
+def test_train_and_test_style_use_disjoint_render_styles():
+    assert SPLITS["train"].render != SPLITS["test_style"].render
+    assert SPLITS["test_style"].ink_match == "energy"
+
+
+def test_every_split_samples_both_labels():
+    rng = np.random.default_rng(0)
+    for name in SPLITS:
+        labels = {sampler_for(name)(rng)["direction"] for _ in range(200)}
+        assert labels == {"left", "right"}, name
+
+
+def test_every_split_renders_without_error():
+    rng = np.random.default_rng(0)
+    for name in SPLITS:
+        for _ in range(50):
+            render_trial(sampler_for(name)(rng))
+
+
+def test_sampler_for_rejects_an_unknown_split():
+    with pytest.raises(ValueError, match="Unknown split 'holdout'"):
+        sampler_for("holdout")

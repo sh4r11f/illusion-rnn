@@ -308,13 +308,44 @@ def sample_params(
     _validate_choice("transform", transform, TRANSFORM_MODES)
 
     # 1. bar geometry -- independent of the label
-    length = int(rng.integers(bar_length_range[0], bar_length_range[1] + 1))
-    span = img_size - length
-    if span < 1:
-        msg = f"bar_length {length} leaves no room on a {img_size}px canvas"
+    #
+    # Map the centre range onto an ABSOLUTE pixel band, anchored to the
+    # longest bar the range can produce, rather than onto a span that moves
+    # with the sampled length. A fractional-of-`span` mapping ties `left`'s
+    # usable range to `length`: a long train-split bar and a short
+    # test-split bar can then land on the very same `bar_left` pixel even
+    # though their bar_centre_range fractions differ, silently overlapping
+    # the two splits. Anchoring the band to `bar_length_range[1]` (the
+    # longest bar this range will ever draw) and then capping `length` to
+    # what still fits inside `high` keeps every bar's centre within the
+    # band regardless of its individual length, so the bands the splits
+    # are built from stay genuinely disjoint pixel-for-pixel.
+    usable = img_size - bar_length_range[1]
+    if usable < 1:
+        msg = (
+            f"bar_length_range[1]={bar_length_range[1]} leaves no room on a "
+            f"{img_size}px canvas"
+        )
         raise ValueError(msg)
-    low = int(np.floor(bar_centre_range[0] * span))
-    high = int(np.ceil(bar_centre_range[1] * span))
+    # Both bounds use ceil (not floor for `low`), so that two splits sharing
+    # a boundary fraction (e.g. train's 0.6 upper edge and test_position's
+    # 0.6 lower edge) partition the pixel band cleanly instead of both
+    # claiming the same pixel. With usable=36 and fraction 0.6, the boundary
+    # sits at a non-integer 21.6: ceil(21.6)=22 is used as both train's
+    # exclusive `high` (so train covers pixels 0..21, all < 21.6) and
+    # test_position's inclusive `low` (so test_position starts at pixel 22,
+    # the first integer >= 21.6). Using floor for `low` instead would give
+    # 21, which duplicates train's last pixel -- a genuine one-pixel overlap
+    # this project's tests must catch, not paper over.
+    low = int(np.ceil(bar_centre_range[0] * usable))
+    high = int(np.ceil(bar_centre_range[1] * usable))
+    # Cap bar_length to what fits within `high` so the later `left + length`
+    # placement cannot spill past the band's right edge -- a clamp on `left`
+    # instead would reintroduce the same length-dependent overlap this fix
+    # removes.
+    length = int(rng.integers(
+        bar_length_range[0], min(bar_length_range[1], img_size - high) + 1,
+    ))
     left = int(rng.integers(low, max(low + 1, high)))
 
     # 2. nuisance variables -- also independent of the label
@@ -342,3 +373,62 @@ def sample_params(
         direction=direction, family=family, transform=trial_transform,
         render=render, stroke_width=stroke_width, ink_match=ink_match,
     )
+
+
+TRAIN_SHAPES = ("square", "circle")
+HELDOUT_SHAPES = ("triangle", "cross", "hexagon")
+
+
+@dataclass(frozen=True)
+class Split:
+    """A named restriction on the generator's parameter space.
+
+    Splits are defined on parameters rather than on rendered images, so
+    disjointness between train and each test set is checkable rather than
+    hoped for.
+    """
+
+    name: str
+    shapes: tuple = TRAIN_SHAPES
+    bar_centre_range: tuple = (0.0, 0.6)
+    render: str = "filled"
+    ink_match: str = "none"
+    stroke_width: int = 1
+
+
+SPLITS = {
+    # bar centres are disjoint by construction: train uses the lower 60% of the
+    # usable track, test_position the upper 40%.
+    "train": Split("train", bar_centre_range=(0.0, 0.6)),
+    "test_position": Split("test_position", bar_centre_range=(0.6, 1.0)),
+    "test_shape": Split("test_shape", shapes=HELDOUT_SHAPES),
+    "test_style": Split(
+        "test_style", render="outline", ink_match="energy", stroke_width=1,
+    ),
+}
+
+
+def sampler_for(split, **overrides):
+    """Return a ``rng -> params`` callable bound to ``split``.
+
+    ``overrides`` pass through to ``sample_params`` so a caller can vary
+    ``family``, ``transform`` or ``stroke_width`` without redefining a split.
+    """
+    if isinstance(split, str):
+        if split not in SPLITS:
+            msg = f"Unknown split {split!r}; expected one of {tuple(SPLITS)}"
+            raise ValueError(msg)
+        split = SPLITS[split]
+
+    def sample(rng: np.random.Generator) -> dict:
+        kwargs = dict(
+            shapes=split.shapes,
+            bar_centre_range=split.bar_centre_range,
+            render=split.render,
+            ink_match=split.ink_match,
+            stroke_width=split.stroke_width,
+        )
+        kwargs.update(overrides)
+        return sample_params(rng, **kwargs)
+
+    return sample
