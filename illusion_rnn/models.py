@@ -226,6 +226,15 @@ class FrameOnlyNet(nn.Module):
 
     def forward(self, x: torch.Tensor):
         n_steps, batch, _ = x.shape
+        # ``out`` is reshaped using ``self.n_steps`` (fixed at construction)
+        # while ``activity`` would be expanded using the actual ``x.shape[0]``
+        # below -- if the caller passes a trial with a different T, those two
+        # returned tensors would silently disagree on their T dimension. Fail
+        # loudly instead, matching FFStack's fixed-size first layer, which
+        # already raises on a T mismatch.
+        if n_steps != self.n_steps:
+            msg = f"expected {self.n_steps} timesteps, got {n_steps}"
+            raise ValueError(msg)
         hidden = self.net(x[self.frame_index])
         out = self.fc(hidden).reshape(batch, self.n_steps, self.output_size)
         activity = hidden.unsqueeze(0).expand(n_steps, batch, hidden.shape[-1])

@@ -109,6 +109,20 @@ def test_ffstack_output_varies_across_time():
     assert not torch.allclose(out[0], out[-1])
 
 
+def test_frame_only_net_rejects_out_of_range_frame_index():
+    with pytest.raises(ValueError, match="frame_index"):
+        FrameOnlyNet(64, 16, 6, n_steps=9, frame_index=9)
+
+
+def test_frame_only_net_rejects_mismatched_timestep_count():
+    """Silently disagreeing out/activity shapes would violate the
+    no-silent-failure convention -- a wrong-T call must raise, not
+    return shape-mismatched tensors."""
+    model = FrameOnlyNet(64, 16, 6, n_steps=9, frame_index=3)
+    with pytest.raises(ValueError):
+        model(torch.randn(5, 4, 64))
+
+
 def test_shuffle_frames_permutes_only_the_named_timesteps():
     x = torch.arange(T * 1 * 2, dtype=torch.float32).reshape(T, 1, 2)
     g = torch.Generator().manual_seed(0)
