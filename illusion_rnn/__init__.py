@@ -8,7 +8,16 @@ from illusion_rnn.envs import (
     TAMTask,
     rotate_stimuli,
 )
-from illusion_rnn.models import CTRNN, RNNNet, ShapesCNN, load_rnn
+from illusion_rnn.models import (
+    CTRNN,
+    FFStack,
+    FrameOnlyNet,
+    GRUNet,
+    RNNNet,
+    ShapesCNN,
+    load_rnn,
+    shuffle_frames,
+)
 from illusion_rnn.plotting import plot_training_curves, plot_trials
 from illusion_rnn.stimuli import (
     MOTION_TYPES,
@@ -31,6 +40,9 @@ __version__ = "1.0.0"
 
 __all__ = [
     "CTRNN",
+    "FFStack",
+    "FrameOnlyNet",
+    "GRUNet",
     "MOTION_CHOICES",
     "MOTION_TYPES",
     "EvalResult",
@@ -53,6 +65,7 @@ __all__ = [
     "plot_trials",
     "resolve_device",
     "rotate_stimuli",
+    "shuffle_frames",
     "train",
     "__version__",
 ]
