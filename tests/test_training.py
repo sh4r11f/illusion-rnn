@@ -98,3 +98,53 @@ def test_cnn_encoder_shapes():
 
 def test_resolve_device_explicit():
     assert resolve_device("cpu").type == "cpu"
+
+
+def test_summarize_trials_counts_abstention_separately():
+    """A model answering the fixation class is abstaining, not answering wrong.
+
+    Ground truth is never `fixation` at the decision step, so any fixation
+    choice is a refusal to commit. Folding those into `accuracy` is what made
+    the 2023 outline number (0.100) read as below-chance confusion.
+    """
+    from illusion_rnn.training import summarize_trials
+
+    trials = [
+        {"ground_truth": 1, "choice": 1, "correct": True},   # correct
+        {"ground_truth": 1, "choice": 3, "correct": False},  # wrong direction
+        {"ground_truth": 3, "choice": 0, "correct": False},  # abstained
+        {"ground_truth": 3, "choice": 0, "correct": False},  # abstained
+    ]
+    acc, abstention, committed, confusion = summarize_trials(trials, n_actions=6)
+    assert acc == 0.25                      # 1 of 4
+    assert abstention == 0.5                # 2 of 4 answered fixation
+    assert committed == 0.5                 # 1 of the 2 that committed
+    assert confusion[1, 1] == 1
+    assert confusion[1, 3] == 1
+    assert confusion[3, 0] == 2
+    assert confusion.sum() == 4
+
+
+def test_summarize_trials_all_abstained_gives_nan_committed_accuracy():
+    """Committed accuracy over zero committed trials must be NaN, not 0.0.
+
+    Returning 0.0 would silently claim the model got everything wrong when in
+    fact it answered nothing.
+    """
+    from illusion_rnn.training import summarize_trials
+
+    trials = [{"ground_truth": 1, "choice": 0, "correct": False}]
+    acc, abstention, committed, _ = summarize_trials(trials, n_actions=6)
+    assert acc == 0.0
+    assert abstention == 1.0
+    assert np.isnan(committed)
+
+
+def test_eval_result_exposes_new_fields():
+    result = EvalResult(
+        accuracy=0.5, abstention_rate=0.25,
+        committed_accuracy=0.667, confusion=np.zeros((6, 6)),
+    )
+    assert result.abstention_rate == 0.25
+    assert result.committed_accuracy == 0.667
+    assert result.confusion.shape == (6, 6)

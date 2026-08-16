@@ -100,12 +100,47 @@ def train(
     return history
 
 
+def summarize_trials(trials: list, n_actions: int, abstain_action: int = 0):
+    """Reduce per-trial records to (accuracy, abstention_rate, committed_accuracy,
+    confusion).
+
+    `abstain_action` is the fixation class. Ground truth is never fixation at the
+    decision step, so choosing it is a refusal to commit rather than a wrong
+    answer -- the two are reported separately because collapsing them hides the
+    difference between "guessed wrong" and "never left the null state".
+
+    `committed_accuracy` is NaN (not 0.0) when nothing was committed, so an
+    all-abstain run cannot be misread as an all-wrong run.
+    """
+    n = len(trials)
+    correct = sum(bool(t["correct"]) for t in trials)
+    abstained = sum(t["choice"] == abstain_action for t in trials)
+    committed_n = n - abstained
+
+    confusion = np.zeros((n_actions, n_actions), dtype=int)
+    for t in trials:
+        confusion[t["ground_truth"], t["choice"]] += 1
+
+    accuracy = correct / n if n else float("nan")
+    abstention_rate = abstained / n if n else float("nan")
+    committed_accuracy = correct / committed_n if committed_n else float("nan")
+    return accuracy, abstention_rate, committed_accuracy, confusion
+
+
 @dataclass
 class EvalResult:
-    """Result of ``evaluate``: overall accuracy, per-trial records, and
-    per-trial hidden activity ``(T, hidden_size)`` arrays."""
+    """Result of ``evaluate``.
+
+    ``accuracy`` counts abstentions as errors (the historical definition, kept
+    so existing numbers stay comparable). ``abstention_rate`` and
+    ``committed_accuracy`` separate the two failure modes; ``confusion`` is
+    indexed ``[ground_truth, choice]``.
+    """
 
     accuracy: float
+    abstention_rate: float = float("nan")
+    committed_accuracy: float = float("nan")
+    confusion: np.ndarray | None = None
     trials: list = field(default_factory=list)
     activity: list = field(default_factory=list)
 
@@ -137,8 +172,17 @@ def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> Eval
             )
             activity.append(hidden[:, 0].cpu().numpy())
 
-    accuracy = float(np.mean([t["correct"] for t in trials]))
-    return EvalResult(accuracy=accuracy, trials=trials, activity=activity)
+    accuracy, abstention_rate, committed_accuracy, confusion = summarize_trials(
+        trials, n_actions=env.action_space.n,
+    )
+    return EvalResult(
+        accuracy=accuracy,
+        abstention_rate=abstention_rate,
+        committed_accuracy=committed_accuracy,
+        confusion=confusion,
+        trials=trials,
+        activity=activity,
+    )
 
 
 def cnn_encoder(cnn, device=None):
