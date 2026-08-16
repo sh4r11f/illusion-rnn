@@ -141,14 +141,26 @@ def _render_element(mask: np.ndarray, params: dict, reference_mass: float | None
 def render_trial(params: dict, img_size: int = 64) -> TrialStimulus:
     """Render one trial from a complete parameter dict.
 
-    Frame 2 is built from ``bar_left``, ``bar_length`` and ``shape_size`` alone
-    -- never from ``direction``. That is what makes the frame-2-only baseline
-    provably 50%, and ``test_frame2_is_bit_identical_across_directions`` pins it.
+    For ``transform="growth"`` (the primary condition), frame 2 is built from
+    ``bar_left``, ``bar_length`` and ``shape_size`` alone -- never from
+    ``direction``. That is what makes the frame-2-only baseline provably 50%,
+    and ``test_frame2_is_bit_identical_across_directions`` pins it for this
+    condition.
+
+    This guarantee is scoped to ``transform="growth"`` and does NOT extend to
+    ``transform="shrink"``: the frame1/frame2 swap below deliberately makes
+    the *shrink* trial's ``frame2`` direction-dependent, because a
+    growth-labelled-"right" trial and a shrink-labelled-"left" trial are meant
+    to share the same underlying frame pair in reversed temporal order (the
+    order-control condition Task 5 builds on top of this). Do not assume the
+    frame-2-identity invariant holds for shrink trials.
     """
     _validate_choice("shape", params["shape"], SHAPE_NAMES)
     _validate_choice("direction", params["direction"], DIRECTIONS)
     _validate_choice("render", params["render"], RENDERS)
     _validate_choice("ink_match", params["ink_match"], INK_MATCHES)
+    _validate_choice("transform", params["transform"], TRANSFORMS)
+    _validate_choice("family", params["family"], FAMILIES)
 
     size = params["shape_size"]
     left = params["bar_left"]

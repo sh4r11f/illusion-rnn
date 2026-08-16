@@ -171,3 +171,15 @@ def test_energy_matching_equalizes_ink_mass():
     filled = render_trial(_params(render="filled"))
     matched = render_trial(_params(render="outline", ink_match="energy"))
     assert ink_mass(matched.frame1) == pytest.approx(ink_mass(filled.frame1), rel=1e-9)
+
+
+def test_render_trial_rejects_an_unknown_transform():
+    """Nothing should fail silently: a bogus transform must not fall through
+    to growth-like behaviour, it must raise."""
+    with pytest.raises(ValueError, match="Unknown transform 'bogus-nonsense'"):
+        render_trial(_params(transform="bogus-nonsense"))
+
+
+def test_render_trial_rejects_an_unknown_family():
+    with pytest.raises(ValueError, match="Unknown family 'bogus-nonsense'"):
+        render_trial(_params(family="bogus-nonsense"))
