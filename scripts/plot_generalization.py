@@ -10,8 +10,10 @@ checkpoints/MANIFEST.md.
 
 Usage:
     uv run python scripts/plot_generalization.py
+    uv run python scripts/plot_generalization.py --n-trials 20 --out /tmp/x.png
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -25,24 +27,29 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from illusion_rnn import SHAPES, evaluate, load_rnn, make_env  # noqa: E402
 
-CHECKPOINT = Path("checkpoints/rnn-pixel_h2048_tam-horiz.pt")
 VARIANTS = ("standard", "outline")
-N_TRIALS = 100
-SEED = 0
-OUT = Path("figures/generalization.png")
 
 
 def main():
-    if not CHECKPOINT.exists() or CHECKPOINT.stat().st_size <= 1024:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--checkpoint", type=Path,
+                        default=Path("checkpoints/rnn-pixel_h2048_tam-horiz.pt"))
+    parser.add_argument("--n-trials", type=int, default=100,
+                        help="per shape per variant")
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--out", type=Path, default=Path("figures/generalization.png"))
+    args = parser.parse_args()
+
+    if not args.checkpoint.exists() or args.checkpoint.stat().st_size <= 1024:
         msg = (
-            f"{CHECKPOINT} is missing or an LFS pointer; run "
+            f"{args.checkpoint} is missing or an LFS pointer; run "
             "'git lfs install --local && git lfs checkout' first"
         )
         raise SystemExit(msg)
 
-    model = load_rnn(CHECKPOINT)
+    model = load_rnn(args.checkpoint)
 
-    # results[variant][shape] = accuracy over N_TRIALS trials
+    # results[variant][shape] = accuracy over args.n_trials trials
     results = {}
     for variant in VARIANTS:
         accs = []
@@ -51,8 +58,8 @@ def main():
                 "tam", box_shape=shape, variant=variant,
                 stim_ori="horizontal", img_size=64,
             )
-            env.seed(SEED)
-            r = evaluate(model, env, n_trials=N_TRIALS, device="cpu")
+            env.seed(args.seed)
+            r = evaluate(model, env, n_trials=args.n_trials, device="cpu")
             accs.append(r.accuracy)
         results[variant] = accs
         print(f"{variant:9s}", {s: round(a, 3) for s, a in zip(SHAPES, accs)})
@@ -70,13 +77,13 @@ def main():
     ax.set_xticks(x)
     ax.set_xticklabels(VARIANTS)
     ax.set_ylim(0, 1.05)
-    ax.set_ylabel(f"Accuracy ({N_TRIALS} trials/bar)")
+    ax.set_ylabel(f"Accuracy ({args.n_trials} trials/bar)")
     ax.set_title("Reference RNN: TAM variant generalization (horizontal)")
     ax.legend(frameon=False)
     fig.tight_layout()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, dpi=150, bbox_inches="tight")
-    print(f"wrote {OUT}")
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(args.out, dpi=150, bbox_inches="tight")
+    print(f"wrote {args.out}")
 
 
 if __name__ == "__main__":
