@@ -185,6 +185,7 @@ background = 0, matching the existing loader convention in `stimuli.py`.
 | `stroke_width` | 1–4 px | outline only |
 | `ink_match` | `none` \| `energy` | `energy` scales outline intensity so total ink mass equals the filled render |
 | `family` | `balanced` \| `classic` | |
+| `transform` | `growth` \| `growth+shrink` | see §5.3; `growth` is primary |
 | `direction` | left, right | 2AFC; chance 50% |
 
 `family="classic"` reproduces the hand-made L-shape geometry
@@ -235,8 +236,43 @@ All models keep the existing contract:
 | `FF1Only` | frame 1 only | ~55%, measured | the other static baseline |
 
 `CTRNN-shuffled` is not a class but a training flag: frames are permuted in time
-per trial. Because reversing frame order flips the correct label, its ceiling is
-**50%** — the cleanest control in the set.
+per trial.
+
+**Correction to the order-control claim.** An earlier draft asserted that
+shuffling frames caps accuracy at 50%. That is false for a growth-only TAM
+design, and the reason is structural: frame 1 is a shape and frame 2 is a bar,
+so the two are distinguishable *by content*. A model that sees both in any order
+can identify which is which and recover the direction. Whenever the two frames
+differ in form — which is exactly what makes apparent motion
+*transformational* — temporal order carries no information beyond binding. The
+shuffled control's real ceiling is 100%, and it answers a narrower question:
+does the model need order, or merely access to both frames? `FFStack` already
+answers a version of that, so the two are near-redundant.
+
+**Recovering an exact order control: the `growth+shrink` condition.** Adding
+retraction trials makes order load-bearing. The same two frames then appear in
+both orders with opposite labels:
+
+| frame 1 | frame 2 | label |
+|---|---|---|
+| shape at `a` | bar `[a, a+L]` | right — grew rightward |
+| bar `[a, a+L]` | shape at `a` | left — retracted leftward |
+
+Order alone separates them, so the shuffled ceiling is **exactly 50%**. The cost
+is that each frame now appears in both roles, which raises the static floors to
+~75%.
+
+The two conditions therefore trade off, and the generator ships both as a
+`transform` flag rather than picking one:
+
+| condition | frame-2 floor | frame-1 floor | shuffled ceiling |
+|---|---|---|---|
+| `growth` (primary) | **50%, provable** | ~55%, measured | 100% |
+| `growth+shrink` (secondary) | ~75% | ~75% | **50%, provable** |
+
+`growth` is primary because the static floors are the load-bearing part of the
+2023 critique. `growth+shrink` is reported alongside it as the airtight order
+control. Each condition answers one question exactly; neither answers both.
 
 Feedforward models return a constant-across-time `activity` tensor to satisfy
 the shared contract, so `evaluate()` and the analysis suite work unchanged.
