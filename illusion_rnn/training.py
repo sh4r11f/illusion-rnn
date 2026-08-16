@@ -174,6 +174,7 @@ def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> Eval
 
     accuracy, abstention_rate, committed_accuracy, confusion = summarize_trials(
         trials, n_actions=env.action_space.n,
+        abstain_action=env.choice_names["fixation"],
     )
     return EvalResult(
         accuracy=accuracy,
