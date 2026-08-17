@@ -1,4 +1,32 @@
 {
+  "config": {
+    "architectures": [
+      "RNNNet",
+      "GRUNet",
+      "FFStack",
+      "FF1Only",
+      "FF2Only",
+      "RNNNet-shuffled"
+    ],
+    "families": [
+      "balanced",
+      "classic"
+    ],
+    "hidden_sizes": [
+      256
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "img_size": 64,
+    "n_epochs": 1500,
+    "n_eval_trials": 500,
+    "transform": "growth"
+  },
   "records": [
     {
       "architecture": "RNNNet",

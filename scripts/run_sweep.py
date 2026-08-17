@@ -11,7 +11,7 @@ import argparse
 import json
 from pathlib import Path
 
-from illusion_rnn.sweep import ARCHITECTURES, aggregate, run_grid
+from illusion_rnn.sweep import FULL_GRID, aggregate, run_grid
 
 
 def main():
@@ -29,11 +29,10 @@ def main():
             img_size=32, n_epochs=200, n_eval_trials=100,
         )
     else:
-        config = dict(
-            architectures=ARCHITECTURES, families=("balanced", "classic"),
-            hidden_sizes=(256,), seeds=tuple(range(args.seeds)),
-            img_size=64, n_epochs=1500, n_eval_trials=500,
-        )
+        # The full grid is the one shared definition in illusion_rnn.sweep so
+        # this entry point and scripts/hf_sweep.py (the Hugging Face Jobs
+        # runner) cannot drift apart -- see FULL_GRID's docstring comment.
+        config = dict(FULL_GRID, seeds=tuple(range(args.seeds)))
 
     records = run_grid(**config)
     summary = aggregate(records)

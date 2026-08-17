@@ -20,6 +20,23 @@ ARCHITECTURES = (
     "RNNNet", "GRUNet", "FFStack", "FF1Only", "FF2Only", "RNNNet-shuffled",
 )
 
+# The one authoritative definition of "the full grid" -- both the local
+# runner (scripts/run_sweep.py, non-quick mode) and the Hugging Face Jobs
+# runner (scripts/hf_sweep.py) build their `run_grid(**...)` call and their
+# emitted `config` block from this dict, so the two entry points cannot
+# silently drift apart the way they used to (each previously hardcoded its
+# own copy of "the full grid").
+FULL_GRID = dict(
+    architectures=ARCHITECTURES,
+    families=("balanced", "classic"),
+    hidden_sizes=(256,),
+    seeds=tuple(range(5)),
+    img_size=64,
+    n_epochs=1500,
+    n_eval_trials=500,
+    transform="growth",
+)
+
 
 def build_model(name, *, input_size, hidden_size, output_size, n_steps, env):
     """Construct one architecture by name.
