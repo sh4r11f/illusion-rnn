@@ -253,3 +253,14 @@ def test_run_analyses_script_smoke(tmp_path):
     meta = json.loads((tmp_path / "meta.json").read_text())
     assert meta["n_trials"] == 60
     assert set(meta["accuracy"]) == {"standard", "outline"}
+    # abstention_rate and committed_accuracy must be persisted alongside
+    # accuracy -- README.md and checkpoints/MANIFEST.md report figures for
+    # both (e.g. outline's 77.7% abstention, 0.448 committed accuracy) and
+    # those numbers need a committed artifact to rest on, not just prose.
+    assert set(meta["abstention_rate"]) == {"standard", "outline"}
+    assert set(meta["committed_accuracy"]) == {"standard", "outline"}
+    for variant in ("standard", "outline"):
+        assert 0.0 <= meta["abstention_rate"][variant] <= 1.0
+        # committed_accuracy can be NaN if a run committed on nothing, but
+        # with n_trials=60 that should not happen for either variant here.
+        assert 0.0 <= meta["committed_accuracy"][variant] <= 1.0

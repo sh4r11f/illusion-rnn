@@ -15,7 +15,15 @@
     "standard": 0.967,
     "outline": 0.1
   },
+  "abstention_rate": {
+    "standard": 0.0,
+    "outline": 0.777
+  },
+  "committed_accuracy": {
+    "standard": 0.967,
+    "outline": 0.448
+  },
   "n_active_units": 1047,
   "package_version": "1.0.0",
-  "date": "2026-08-16T14:56:15+00:00"
+  "date": "2026-08-17T03:04:15+00:00"
 }

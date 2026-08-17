@@ -29,8 +29,26 @@ DT_MS = 50.0  # default TAMTask dt; envs below are constructed with defaults
 
 
 def collect_variant(model, variant, n_trials, seed, device):
-    """Shape-balanced evaluation; returns (activity, labels, mean accuracy)."""
-    activities, labels, accuracies = [], [], []
+    """Shape-balanced evaluation; returns (activity, labels, mean accuracy,
+    pooled abstention_rate, pooled committed_accuracy).
+
+    ``accuracy`` stays a macro mean across shapes (matches the per-shape
+    breakdown printed elsewhere). ``abstention_rate`` and
+    ``committed_accuracy``, though, are computed by summing each shape's
+    confusion matrix and reducing the pooled counts -- NOT by averaging the
+    three per-shape ``EvalResult.committed_accuracy`` values. That distinction
+    matters: on stimuli where the model abstains on every trial for a given
+    shape (e.g. circle/triangle under `outline`), that shape's
+    ``committed_accuracy`` is NaN by design (see ``summarize_trials``), and a
+    naive mean of three values propagates that NaN to the whole variant even
+    though the variant DID produce committed trials overall (e.g. square).
+    Pooling counts first avoids that silent NaN-through-averaging failure and
+    matches the pooled-trial framing already used elsewhere in this repo for
+    committed accuracy (e.g. README.md's "outline ... committed accuracy is
+    0.448").
+    """
+    activities, labels, accuracies, confusions = [], [], [], []
+    abstain_action = None
     per_shape = max(1, n_trials // len(SHAPES))
     for shape in SHAPES:
         env = make_env(
@@ -38,15 +56,29 @@ def collect_variant(model, variant, n_trials, seed, device):
             stim_ori="horizontal", img_size=64,
         )
         env.seed(seed)
+        if abstain_action is None:
+            abstain_action = env.choice_names["fixation"]
         result = evaluate(model, env, n_trials=per_shape, device=device)
         activity, trial_labels = an.stack_activity(result)
         activities.append(activity)
         labels.append(trial_labels)
         accuracies.append(result.accuracy)
+        confusions.append(result.confusion)
+
+    pooled_confusion = np.sum(confusions, axis=0)
+    n = int(pooled_confusion.sum())
+    correct = int(np.trace(pooled_confusion))
+    abstained = int(pooled_confusion[:, abstain_action].sum())
+    committed_n = n - abstained
+    abstention_rate = abstained / n if n else float("nan")
+    committed_accuracy = correct / committed_n if committed_n else float("nan")
+
     return (
         np.concatenate(activities, axis=0),
         np.concatenate(labels, axis=0),
         float(np.mean(accuracies)),
+        float(abstention_rate),
+        float(committed_accuracy),
     )
 
 
@@ -86,8 +118,10 @@ def main():
     # ---- evaluate ----------------------------------------------------------
     runs = {}
     accuracy = {}
+    abstention_rate = {}
+    committed_accuracy = {}
     for variant in args.variants:
-        activity, labels, acc = collect_variant(
+        activity, labels, acc, abstain, committed = collect_variant(
             model, variant, args.n_trials, args.seed, args.device,
         )
         cond_mean, cond_sem, _ = an.condition_average(
@@ -95,7 +129,10 @@ def main():
         )
         runs[variant] = (activity, labels, cond_mean, cond_sem)
         accuracy[variant] = round(acc, 3)
-        print(f"{variant}: n={len(labels)} accuracy={acc:.3f}")
+        abstention_rate[variant] = round(abstain, 3)
+        committed_accuracy[variant] = round(committed, 3)
+        print(f"{variant}: n={len(labels)} accuracy={acc:.3f} "
+              f"abstention_rate={abstain:.3f} committed_accuracy={committed:.3f}")
 
     # ---- dynamics ----------------------------------------------------------
     basis_variant = "standard" if "standard" in runs else args.variants[0]
@@ -174,6 +211,8 @@ def main():
         "rdm_top_k": args.rdm_top_k,
         "device": args.device,
         "accuracy": accuracy,
+        "abstention_rate": abstention_rate,
+        "committed_accuracy": committed_accuracy,
         "n_active_units": int(mask.sum()),
         "package_version": __version__,
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
