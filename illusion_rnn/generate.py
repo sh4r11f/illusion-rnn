@@ -399,6 +399,28 @@ class Split:
 SPLITS = {
     # bar centres are disjoint by construction: train uses the lower 60% of the
     # usable track, test_position the upper 40%.
+    #
+    # A consequence of that position split: restricting bar_centre_range
+    # narrows the range of `bar_left` (and hence of `shape_left`, frame 1's
+    # only observable), which makes shape position MORE diagnostic of
+    # direction, not less. Concretely, a frame-1-only Bayes-optimal
+    # classifier (majority-vote-by-shape-position over sample_params draws;
+    # see scripts/verify_baselines.py) scores:
+    #
+    #   bar_centre_range=(0.0, 1.0)  full track        0.697
+    #   bar_centre_range=(0.0, 0.6)  this "train" split 0.818  <-- narrower
+    #   bar_centre_range=(0.6, 1.0)  "test_position"    0.942  <-- narrower still
+    #
+    # So the FF1Only baseline landing at ~0.818 on this split is NOT a case
+    # of a static/frame-1-only model mysteriously beating theory -- it is
+    # simply sitting at the Bayes-optimal ceiling for the position band
+    # `train` restricts itself to. An earlier note attributed the ~0.82
+    # figure to "a smooth neural classifier beating a per-pixel
+    # majority-vote heuristic"; that explanation is wrong and has been
+    # superseded by this measured, position-split explanation. The honest
+    # framing for any binding model evaluated on `train`: it must beat
+    # ~0.82, and that ~0.82 is an artifact of our own position split, not
+    # evidence that frame-1-only information is unusually rich.
     "train": Split("train", bar_centre_range=(0.0, 0.6)),
     "test_position": Split("test_position", bar_centre_range=(0.6, 1.0)),
     "test_shape": Split("test_shape", shapes=HELDOUT_SHAPES),

@@ -4,10 +4,17 @@ Trains each model once at 64px and prints accuracy with the abstention split.
 Expected, on the balanced/growth condition:
 
     FF2Only  ~0.50   provable ceiling
-    FF1Only  ~0.675  measured floor (see spec section 3; the spec's original
-                      "~55%" design-time guess was superseded during Task 4 by
-                      this measured figure -- do not be alarmed if FF1Only
-                      lands well above 0.55)
+    FF1Only  ~0.818  measured Bayes-optimal ceiling for the `train` split's
+                      bar_centre_range=(0.0, 0.6) -- narrowing that band
+                      makes shape position MORE diagnostic of direction, not
+                      less (see the comment on SPLITS["train"] in
+                      illusion_rnn/generate.py for the full explanation and
+                      the by-band numbers). This is NOT a smooth neural
+                      classifier beating a per-pixel heuristic; a static
+                      frame-1-only Bayes-optimal classifier already lands
+                      here. Do not be alarmed if FF1Only lands well above the
+                      spec's original "~55%" design-time guess -- that guess
+                      predates this measurement and has been superseded by it.
     FFStack  high    has both frames, no recurrence
     GRUNet   high    recurrence-type control for RNNNet
     RNNNet   high    the binding model
