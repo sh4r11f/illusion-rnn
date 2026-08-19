@@ -61,16 +61,25 @@ def build_model(name, *, input_size, hidden_size, output_size, n_steps, env):
 
 
 def run_cell(*, architecture, family, hidden_size, seed, img_size=64,
-             transform="growth", n_epochs=1500, batch_size=64,
+             transform="growth", n_repeats=4, n_epochs=1500, batch_size=64,
              n_eval_trials=500, device=None):
     """Train one model and evaluate it on every split. Returns one record per
-    split."""
+    split.
+
+    ``n_repeats`` is how many timesteps frame 2 occupies. It matters for the
+    frame-order control: at the default 4, a shuffled model can still
+    identify frame 1 as the lone non-repeated frame by COUNT rather than by
+    position, so shuffling does not actually destroy order information. Only
+    at ``n_repeats=1`` does a permutation genuinely erase which frame came
+    first. See the README's order-control table.
+    """
     torch.manual_seed(seed)
     rng_seed = seed
 
     def env_for(split, eval_seed):
         env = make_env("correspondence", split=split, img_size=img_size,
-                       family=family, transform=transform)
+                       family=family, transform=transform,
+                       n_repeats=n_repeats)
         env.seed(eval_seed)
         env.new_trial()
         return env
@@ -110,7 +119,7 @@ def run_cell(*, architecture, family, hidden_size, seed, img_size=64,
         records.append({
             "architecture": architecture, "family": family,
             "hidden_size": hidden_size, "seed": seed, "split": split,
-            "transform": transform,
+            "transform": transform, "n_repeats": n_repeats,
             "accuracy": result.accuracy,
             "abstention_rate": result.abstention_rate,
             "committed_accuracy": result.committed_accuracy,

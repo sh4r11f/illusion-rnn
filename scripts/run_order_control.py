@@ -25,6 +25,7 @@ Runtime: 2 architectures x 5 seeds = 10 training runs at the same config as
 the main sweep (img_size=64, hidden=256, n_epochs=1500). On MPS this is
 several minutes per cell; expect this script to run for a while.
 """
+import argparse
 import json
 from pathlib import Path
 
@@ -41,14 +42,30 @@ CONFIG = dict(
 
 
 def main():
-    records = run_grid(**CONFIG)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--n-repeats", type=int, default=4,
+        help="timesteps frame 2 occupies. At the default 4 the shuffle "
+             "control is vacuous -- a shuffled model identifies frame 1 as "
+             "the lone non-repeated frame by count. Pass 1 for the "
+             "condition where shuffling genuinely destroys order.",
+    )
+    parser.add_argument("--out", default=None,
+                        help="output path; defaults to a name derived from "
+                             "--n-repeats")
+    args = parser.parse_args()
+
+    config = dict(CONFIG, n_repeats=args.n_repeats)
+    records = run_grid(**config)
     summary = aggregate(records)
 
-    out = Path("results/sweep_order.json")
+    default = ("results/sweep_order.json" if args.n_repeats == 4
+               else f"results/sweep_order_n{args.n_repeats}.json")
+    out = Path(args.out or default)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(
         {"config": {k: list(v) if isinstance(v, tuple) else v
-                    for k, v in CONFIG.items()},
+                    for k, v in config.items()},
          "records": records, "summary": summary}, indent=2,
     ))
     print(f"wrote {out}  ({len(records)} records, {len(summary)} cells)")

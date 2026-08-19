@@ -215,7 +215,8 @@ near-total outline failure.
 uv run python scripts/verify_generator.py    # checkpoint 1: frame-2 label independence
 uv run python scripts/verify_baselines.py    # checkpoint 2: baselines land at their ceilings
 uv run python scripts/run_sweep.py --quick   # a fast local grid
-uv run python scripts/run_order_control.py   # the growth+shrink order control
+uv run python scripts/run_order_control.py                 # order control (n_repeats=4)
+uv run python scripts/run_order_control.py --n-repeats 1   # ... and the condition where it works
 ```
 
 The full grid was run on Hugging Face Jobs (`scripts/hf_sweep.py`, ~1h on one
