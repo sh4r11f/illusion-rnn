@@ -2,8 +2,7 @@
   "checkpoint": "checkpoints/rnn-pixel_h2048_tam-horiz.pt",
   "variants": [
     "standard",
-    "outline",
-    "basic"
+    "outline"
   ],
   "n_trials": 300,
   "seed": 0,
@@ -14,10 +13,17 @@
   "device": "cpu",
   "accuracy": {
     "standard": 0.967,
-    "outline": 0.1,
-    "basic": 0.967
+    "outline": 0.1
+  },
+  "abstention_rate": {
+    "standard": 0.0,
+    "outline": 0.777
+  },
+  "committed_accuracy": {
+    "standard": 0.967,
+    "outline": 0.448
   },
   "n_active_units": 1047,
   "package_version": "1.0.0",
-  "date": "2026-08-14T18:53:15+00:00"
+  "date": "2026-08-17T03:04:15+00:00"
 }

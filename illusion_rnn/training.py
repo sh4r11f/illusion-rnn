@@ -17,7 +17,7 @@ from torch import nn, optim
 
 import neurogym as ngym
 
-from illusion_rnn.envs import MotionTask, TAMTask
+from illusion_rnn.envs import MotionTask, TAMCorrespondenceTask, TAMTask
 
 
 def resolve_device(device=None) -> torch.device:
@@ -32,13 +32,16 @@ def resolve_device(device=None) -> torch.device:
 
 
 def make_env(task: str, **kwargs):
-    """Construct a task env: ``task`` is ``"tam"`` (TAMTask) or ``"motion"``
-    (MotionTask); ``kwargs`` pass through to the constructor."""
+    """Construct a task env: ``task`` is ``"tam"`` (TAMTask), ``"motion"``
+    (MotionTask), or ``"correspondence"`` (TAMCorrespondenceTask); ``kwargs``
+    pass through to the constructor."""
     if task == "tam":
         return TAMTask(**kwargs)
     if task == "motion":
         return MotionTask(**kwargs)
-    msg = f"Unknown task {task!r}; expected 'tam' or 'motion'"
+    if task == "correspondence":
+        return TAMCorrespondenceTask(**kwargs)
+    msg = f"Unknown task {task!r}; expected 'tam', 'motion' or 'correspondence'"
     raise ValueError(msg)
 
 
@@ -61,9 +64,15 @@ def train(
     device=None,
     encoder=None,
     log_every: int = 100,
+    input_transform=None,
 ) -> dict:
     """Train ``model`` on one or more ``ngym.Dataset``s; returns per-epoch
-    ``{"loss": [...], "accuracy": [...]}``."""
+    ``{"loss": [...], "accuracy": [...]}``.
+
+    ``input_transform``, if given, is applied to the ``(T, B, F)`` tensor
+    after encoding (and before it reaches the model). It exists so the
+    frame-order control can permute frames without a separate training loop.
+    """
     device = resolve_device(device)
     model = model.to(device)
     model.train()
@@ -80,11 +89,18 @@ def train(
         labels = np.concatenate([b[1] for b in batches], axis=1).flatten()
 
         x = torch.from_numpy(_prepare_inputs(inputs, encoder)).float().to(device)
+        if input_transform is not None:
+            x = input_transform(x)
         y = torch.from_numpy(labels).long().to(device)
 
         optimizer.zero_grad()
         out, _ = model(x)
-        out = out.view(-1, out.shape[-1])
+        # `.reshape` rather than `.view`: FrameOnlyNet and FFStack return
+        # `out.permute(1, 0, 2)`, which is non-contiguous, and `.view` requires
+        # contiguity. `.reshape` is a strict superset (falls back to a copy
+        # only when a view isn't possible) so this is a no-op for RNNNet/
+        # GRUNet/CTRNN, whose outputs are already contiguous.
+        out = out.reshape(-1, out.shape[-1])
         loss = criterion(out, y)
         loss.backward()
         optimizer.step()
@@ -100,19 +116,61 @@ def train(
     return history
 
 
+def summarize_trials(trials: list, n_actions: int, abstain_action: int = 0):
+    """Reduce per-trial records to (accuracy, abstention_rate, committed_accuracy,
+    confusion).
+
+    `abstain_action` is the fixation class. Ground truth is never fixation at the
+    decision step, so choosing it is a refusal to commit rather than a wrong
+    answer -- the two are reported separately because collapsing them hides the
+    difference between "guessed wrong" and "never left the null state".
+
+    `committed_accuracy` is NaN (not 0.0) when nothing was committed, so an
+    all-abstain run cannot be misread as an all-wrong run.
+    """
+    n = len(trials)
+    correct = sum(bool(t["correct"]) for t in trials)
+    abstained = sum(t["choice"] == abstain_action for t in trials)
+    committed_n = n - abstained
+
+    confusion = np.zeros((n_actions, n_actions), dtype=int)
+    for t in trials:
+        confusion[t["ground_truth"], t["choice"]] += 1
+
+    accuracy = correct / n if n else float("nan")
+    abstention_rate = abstained / n if n else float("nan")
+    committed_accuracy = correct / committed_n if committed_n else float("nan")
+    return accuracy, abstention_rate, committed_accuracy, confusion
+
+
 @dataclass
 class EvalResult:
-    """Result of ``evaluate``: overall accuracy, per-trial records, and
-    per-trial hidden activity ``(T, hidden_size)`` arrays."""
+    """Result of ``evaluate``.
+
+    ``accuracy`` counts abstentions as errors (the historical definition, kept
+    so existing numbers stay comparable). ``abstention_rate`` and
+    ``committed_accuracy`` separate the two failure modes; ``confusion`` is
+    indexed ``[ground_truth, choice]``.
+    """
 
     accuracy: float
+    abstention_rate: float = float("nan")
+    committed_accuracy: float = float("nan")
+    confusion: np.ndarray | None = None
     trials: list = field(default_factory=list)
     activity: list = field(default_factory=list)
 
 
-def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> EvalResult:
+def evaluate(model, env, n_trials: int = 100, device=None, encoder=None,
+             input_transform=None) -> EvalResult:
     """Run ``n_trials`` single trials through ``model``; choice is the argmax
-    of the final timestep's output."""
+    of the final timestep's output.
+
+    ``input_transform``, if given, is applied to the ``(T, B, F)`` tensor
+    after encoding (and before it reaches the model) -- same hook as
+    ``train``'s, so a shuffled-input model is evaluated under the same
+    transform it was trained with.
+    """
     device = resolve_device(device)
     model = model.to(device)
     model.eval()
@@ -125,6 +183,8 @@ def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> Eval
             ob, gt = env.ob, env.gt
             inputs = _prepare_inputs(ob[:, np.newaxis], encoder)
             x = torch.from_numpy(inputs).float().to(device)
+            if input_transform is not None:
+                x = input_transform(x)
             pred, hidden = model(x)
             choice = int(pred[-1, 0].argmax().item())
             ground_truth = int(gt[-1])
@@ -137,8 +197,18 @@ def evaluate(model, env, n_trials: int = 100, device=None, encoder=None) -> Eval
             )
             activity.append(hidden[:, 0].cpu().numpy())
 
-    accuracy = float(np.mean([t["correct"] for t in trials]))
-    return EvalResult(accuracy=accuracy, trials=trials, activity=activity)
+    accuracy, abstention_rate, committed_accuracy, confusion = summarize_trials(
+        trials, n_actions=env.action_space.n,
+        abstain_action=env.choice_names["fixation"],
+    )
+    return EvalResult(
+        accuracy=accuracy,
+        abstention_rate=abstention_rate,
+        committed_accuracy=committed_accuracy,
+        confusion=confusion,
+        trials=trials,
+        activity=activity,
+    )
 
 
 def cnn_encoder(cnn, device=None):

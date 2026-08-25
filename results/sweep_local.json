@@ -1,0 +1,548 @@
+{
+  "config": {
+    "architectures": [
+      "FF2Only",
+      "RNNNet"
+    ],
+    "families": [
+      "balanced"
+    ],
+    "hidden_sizes": [
+      64
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "img_size": 32,
+    "n_epochs": 200,
+    "n_eval_trials": 100
+  },
+  "records": [
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 0.59,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.59
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.42,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.42
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 0.59,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.59
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.49,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.49
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 0.49,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.49
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.5,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.5
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 0.49,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.49
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.52,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.52
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 0.54,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.54
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.48,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.48
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 0.54,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.54
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.54,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.54
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 0.53,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.53
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.52,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.52
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 0.53,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.53
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.53,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.53
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 0.49,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.49
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.51,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.51
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 0.49,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.49
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.57,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.57
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 0,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.87,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.87
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.86,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.86
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 1,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.81,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.81
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.87,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.87
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 2,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.84,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.84
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.9,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.9
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 3,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.86,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.86
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "train",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_position",
+      "transform": "growth",
+      "accuracy": 0.92,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.92
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_shape",
+      "transform": "growth",
+      "accuracy": 1.0,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "seed": 4,
+      "split": "test_style",
+      "transform": "growth",
+      "accuracy": 0.84,
+      "abstention_rate": 0.0,
+      "committed_accuracy": 0.84
+    }
+  ],
+  "summary": [
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "train",
+      "n_seeds": 5,
+      "accuracy_mean": 0.5280000000000001,
+      "accuracy_ci_low": 0.491647415497657,
+      "accuracy_ci_high": 0.5643525845023433
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_position",
+      "n_seeds": 5,
+      "accuracy_mean": 0.48599999999999993,
+      "accuracy_ci_low": 0.4511582778841228,
+      "accuracy_ci_high": 0.5208417221158771
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_shape",
+      "n_seeds": 5,
+      "accuracy_mean": 0.5280000000000001,
+      "accuracy_ci_low": 0.491647415497657,
+      "accuracy_ci_high": 0.5643525845023433
+    },
+    {
+      "architecture": "FF2Only",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_style",
+      "n_seeds": 5,
+      "accuracy_mean": 0.53,
+      "accuracy_ci_low": 0.5044447265716057,
+      "accuracy_ci_high": 0.5555552734283944
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "train",
+      "n_seeds": 5,
+      "accuracy_mean": 1.0,
+      "accuracy_ci_low": 1.0,
+      "accuracy_ci_high": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_position",
+      "n_seeds": 5,
+      "accuracy_mean": 0.9099999999999999,
+      "accuracy_ci_low": 0.8611963935758841,
+      "accuracy_ci_high": 0.9588036064241158
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_shape",
+      "n_seeds": 5,
+      "accuracy_mean": 1.0,
+      "accuracy_ci_low": 1.0,
+      "accuracy_ci_high": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "family": "balanced",
+      "hidden_size": 64,
+      "split": "test_style",
+      "n_seeds": 5,
+      "accuracy_mean": 0.844,
+      "accuracy_ci_low": 0.8238205649236655,
+      "accuracy_ci_high": 0.8641794350763344
+    }
+  ]
+}

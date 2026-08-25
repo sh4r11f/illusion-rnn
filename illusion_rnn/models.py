@@ -145,3 +145,115 @@ def load_rnn(path: Path | str, dt: float = 50, map_location: str = "cpu") -> RNN
     model.load_state_dict(state_dict)
     model.eval()
     return model
+
+
+class GRUNet(nn.Module):
+    """GRU with a linear readout -- a recurrence-type control for ``RNNNet``.
+
+    Same contract as ``RNNNet``: ``(T, B, input_size)`` in,
+    ``(out (T, B, output_size), activity (T, B, hidden_size))`` out.
+    """
+
+    def __init__(self, input_size: int, hidden_size: int, output_size: int):
+        super().__init__()
+        self.rnn = nn.GRU(input_size, hidden_size)
+        self.fc = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x: torch.Tensor):
+        activity, _ = self.rnn(x)
+        return self.fc(activity), activity
+
+
+class FFStack(nn.Module):
+    """Feedforward MLP over every timestep concatenated -- no recurrence.
+
+    Isolates whether *recurrence* matters or merely *access to both frames*:
+    this model sees the whole trial at once but has no state.
+
+    It emits a distinct prediction per timestep (the MLP maps to
+    ``n_steps * output_size``) so it can answer ``fixation`` early and a
+    direction late. Broadcasting one prediction across all timesteps would
+    handicap it against the recurrent models under the per-timestep loss and
+    make the comparison unfair.
+    """
+
+    def __init__(self, input_size: int, hidden_size: int, output_size: int,
+                 n_steps: int):
+        super().__init__()
+        self.n_steps = n_steps
+        self.output_size = output_size
+        self.net = nn.Sequential(
+            nn.Linear(input_size * n_steps, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(),
+        )
+        self.fc = nn.Linear(hidden_size, n_steps * output_size)
+
+    def forward(self, x: torch.Tensor):
+        n_steps, batch, _ = x.shape
+        flat = x.permute(1, 0, 2).reshape(batch, -1)
+        hidden = self.net(flat)
+        out = self.fc(hidden).reshape(batch, self.n_steps, self.output_size)
+        activity = hidden.unsqueeze(0).expand(n_steps, batch, hidden.shape[-1])
+        return out.permute(1, 0, 2), activity
+
+
+class FrameOnlyNet(nn.Module):
+    """Feedforward MLP that sees exactly ONE timestep of the trial.
+
+    ``frame_index=env.frame2_indices[0]`` gives the frame-2-only baseline, whose
+    ceiling on the balanced family is provably 50%.
+    ``frame_index=env.frame1_index`` gives the frame-1-only baseline.
+
+    The single-timestep restriction is enforced by indexing, not by masking, so
+    there is no path by which other timesteps can reach the output --
+    ``test_frame_only_net_reads_exactly_one_timestep`` verifies it empirically.
+    """
+
+    def __init__(self, input_size: int, hidden_size: int, output_size: int,
+                 n_steps: int, frame_index: int):
+        super().__init__()
+        if not 0 <= frame_index < n_steps:
+            msg = f"frame_index {frame_index} out of range for {n_steps} steps"
+            raise ValueError(msg)
+        self.n_steps = n_steps
+        self.frame_index = frame_index
+        self.output_size = output_size
+        self.net = nn.Sequential(
+            nn.Linear(input_size, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(),
+        )
+        self.fc = nn.Linear(hidden_size, n_steps * output_size)
+
+    def forward(self, x: torch.Tensor):
+        n_steps, batch, _ = x.shape
+        # ``out`` is reshaped using ``self.n_steps`` (fixed at construction)
+        # while ``activity`` would be expanded using the actual ``x.shape[0]``
+        # below -- if the caller passes a trial with a different T, those two
+        # returned tensors would silently disagree on their T dimension. Fail
+        # loudly instead, matching FFStack's fixed-size first layer, which
+        # already raises on a T mismatch.
+        if n_steps != self.n_steps:
+            msg = f"expected {self.n_steps} timesteps, got {n_steps}"
+            raise ValueError(msg)
+        hidden = self.net(x[self.frame_index])
+        out = self.fc(hidden).reshape(batch, self.n_steps, self.output_size)
+        activity = hidden.unsqueeze(0).expand(n_steps, batch, hidden.shape[-1])
+        return out.permute(1, 0, 2), activity
+
+
+def shuffle_frames(x: torch.Tensor, frame_indices, generator=None) -> torch.Tensor:
+    """Randomly permute the named timesteps of ``x`` independently per trial.
+
+    Used for the order control. On the ``growth+shrink`` condition this caps
+    accuracy at 50%, because the same frame pair appears in both orders with
+    opposite labels. On the growth-only condition it does NOT -- frame 1 is a
+    shape and frame 2 is a bar, so a model can tell them apart by content and
+    order carries nothing extra.
+    """
+    idx = list(frame_indices)
+    out = x.clone()
+    batch = x.shape[1]
+    for b in range(batch):
+        perm = torch.randperm(len(idx), generator=generator)
+        out[idx, b] = x[[idx[p] for p in perm], b]
+    return out

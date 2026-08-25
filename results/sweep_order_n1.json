@@ -1,0 +1,68 @@
+{
+  "records": [
+    {
+      "architecture": "RNNNet",
+      "seed": 0,
+      "accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "seed": 1,
+      "accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "seed": 2,
+      "accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "seed": 3,
+      "accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet",
+      "seed": 4,
+      "accuracy": 1.0
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "seed": 0,
+      "accuracy": 0.536
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "seed": 1,
+      "accuracy": 0.506
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "seed": 2,
+      "accuracy": 0.53
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "seed": 3,
+      "accuracy": 0.536
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "seed": 4,
+      "accuracy": 0.514
+    }
+  ],
+  "summary": [
+    {
+      "architecture": "RNNNet",
+      "mean": 1.0,
+      "ci_low": 1.0,
+      "ci_high": 1.0
+    },
+    {
+      "architecture": "RNNNet-shuffled",
+      "mean": 0.5244,
+      "ci_low": 0.51241992587669,
+      "ci_high": 0.5363800741233099
+    }
+  ]
+}

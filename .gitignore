@@ -161,3 +161,6 @@ cython_debug/
 
 # extracted shape dataset (from data/shape_dataset/shape_dataset.zip)
 data/shape_dataset/extracted/
+
+# Local git worktrees (subagent-driven-development isolation)
+.worktrees/

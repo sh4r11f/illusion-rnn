@@ -31,3 +31,5 @@ packages = ["illusion_rnn"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: trains a model; excluded from the default CI run"]
+addopts = "-m 'not slow'"

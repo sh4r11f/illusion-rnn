@@ -98,3 +98,114 @@ def test_cnn_encoder_shapes():
 
 def test_resolve_device_explicit():
     assert resolve_device("cpu").type == "cpu"
+
+
+def test_summarize_trials_counts_abstention_separately():
+    """A model answering the fixation class is abstaining, not answering wrong.
+
+    Ground truth is never `fixation` at the decision step, so any fixation
+    choice is a refusal to commit. Folding those into `accuracy` is what made
+    the 2023 outline number (0.100) read as below-chance confusion.
+    """
+    from illusion_rnn.training import summarize_trials
+
+    trials = [
+        {"ground_truth": 1, "choice": 1, "correct": True},   # correct
+        {"ground_truth": 1, "choice": 3, "correct": False},  # wrong direction
+        {"ground_truth": 3, "choice": 0, "correct": False},  # abstained
+        {"ground_truth": 3, "choice": 0, "correct": False},  # abstained
+    ]
+    acc, abstention, committed, confusion = summarize_trials(trials, n_actions=6)
+    assert acc == 0.25                      # 1 of 4
+    assert abstention == 0.5                # 2 of 4 answered fixation
+    assert committed == 0.5                 # 1 of the 2 that committed
+    assert confusion[1, 1] == 1
+    assert confusion[1, 3] == 1
+    assert confusion[3, 0] == 2
+    assert confusion.sum() == 4
+
+
+def test_summarize_trials_all_abstained_gives_nan_committed_accuracy():
+    """Committed accuracy over zero committed trials must be NaN, not 0.0.
+
+    Returning 0.0 would silently claim the model got everything wrong when in
+    fact it answered nothing.
+    """
+    from illusion_rnn.training import summarize_trials
+
+    trials = [{"ground_truth": 1, "choice": 0, "correct": False}]
+    acc, abstention, committed, _ = summarize_trials(trials, n_actions=6)
+    assert acc == 0.0
+    assert abstention == 1.0
+    assert np.isnan(committed)
+
+
+def test_summarize_trials_with_non_zero_abstain_action():
+    """Abstention is correctly identified even when the fixation action is not 0.
+
+    MotionTask has fixation=6, while action 0 is "no_motion" (a real answer).
+    The abstain_action parameter ensures the right action is treated as abstention.
+    """
+    from illusion_rnn.training import summarize_trials
+
+    # Simulate a MotionTask scenario: fixation is action 6, action 0 is a real answer
+    trials = [
+        {"ground_truth": 1, "choice": 1, "correct": True},   # correct (left)
+        {"ground_truth": 2, "choice": 0, "correct": False},  # wrong but NOT abstention (no_motion)
+        {"ground_truth": 3, "choice": 6, "correct": False},  # abstained (fixation)
+        {"ground_truth": 2, "choice": 6, "correct": False},  # abstained (fixation)
+    ]
+    acc, abstention, committed, confusion = summarize_trials(
+        trials, n_actions=7, abstain_action=6,
+    )
+    assert acc == 0.25                      # 1 of 4 correct
+    assert abstention == 0.5                # 2 of 4 abstained (action 6)
+    assert committed == 0.5                 # 1 of 2 committed answered correct
+    assert confusion[1, 1] == 1
+    assert confusion[2, 0] == 1             # action 0 is NOT counted as abstention
+    assert confusion[3, 6] == 1             # action 6 IS counted as abstention
+    assert confusion[2, 6] == 1
+    assert confusion.sum() == 4
+
+
+def test_evaluate_motion_task_uses_correct_abstain_action():
+    """Verify that evaluate() derives abstain_action from env.choice_names.
+
+    MotionTask has fixation at index 6, not 0. This test ensures that evaluate()
+    correctly passes env.choice_names["fixation"] to summarize_trials(), so that
+    action 6 is treated as abstention and action 0 ("no_motion") is not.
+    """
+    motion_env = make_env("motion", box_shape="circle", motion_type="continuous",
+                          stim_ori="horizontal", img_size=16)
+    motion_env.seed(0)
+
+    # MotionTask has 7 actions (0-6) with fixation at 6
+    assert motion_env.action_space.n == 7
+    assert motion_env.choice_names["fixation"] == 6
+
+    # Run a tiny evaluation
+    model = RNNNet(input_size=16 * 16, hidden_size=16, output_size=7, dt=50)
+    result = evaluate(model, motion_env, n_trials=10, device="cpu")
+
+    # Verify that result has the new metrics
+    assert hasattr(result, "abstention_rate")
+    assert hasattr(result, "committed_accuracy")
+    assert hasattr(result, "confusion")
+
+    # The confusion matrix should have shape (7, 7) for MotionTask
+    assert result.confusion.shape == (7, 7)
+
+    # Verify that the function successfully completed without errors
+    # (i.e., it correctly found env.choice_names["fixation"])
+    assert 0.0 <= result.abstention_rate <= 1.0
+    assert np.isnan(result.committed_accuracy) or 0.0 <= result.committed_accuracy <= 1.0
+
+
+def test_eval_result_exposes_new_fields():
+    result = EvalResult(
+        accuracy=0.5, abstention_rate=0.25,
+        committed_accuracy=0.667, confusion=np.zeros((6, 6)),
+    )
+    assert result.abstention_rate == 0.25
+    assert result.committed_accuracy == 0.667
+    assert result.confusion.shape == (6, 6)
