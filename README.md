@@ -171,11 +171,11 @@ transfer fine (`RNNNet` 1.000 on `test_shape`); held-out *positions* do not.
 **The frame-order control only works when each frame is shown once.** Shuffling
 frame order should destroy the answer under `transform="growth+shrink"`, where
 the same frame pair appears in both orders with opposite labels. It doesn't —
-at the default `n_repeats=4`, `RNNNet-shuffled` still scores 0.998:
+at the default `n_repeats=4`, `RNNNet-shuffled` still scores 0.999:
 
 | | `RNNNet` | `RNNNet-shuffled` |
 |---|---|---|
-| `n_repeats=4` (default) | 1.000 | **0.998** — control is vacuous |
+| `n_repeats=4` (default) | 1.000 | **0.999** — control is vacuous |
 | `n_repeats=1` | 1.000 | **0.524** — control works |
 
 The reason is repetition, not order: with frame 2 shown 4× and frame 1 once, the
@@ -218,6 +218,9 @@ uv run python scripts/run_sweep.py --quick   # a fast local grid
 uv run python scripts/run_order_control.py                 # order control (n_repeats=4)
 uv run python scripts/run_order_control.py --n-repeats 1   # ... and the condition where it works
 ```
+
+Full results, the three unplanned findings, and notes on what this does and
+does not show: [`docs/findings/2026-08-25-correspondence-results.md`](docs/findings/2026-08-25-correspondence-results.md).
 
 The full grid was run on Hugging Face Jobs (`scripts/hf_sweep.py`, ~1h on one
 L4). `uv run pytest -m slow` runs the two training-based gate tests, which are
