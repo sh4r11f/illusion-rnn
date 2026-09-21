@@ -164,3 +164,6 @@ data/shape_dataset/extracted/
 
 # Local git worktrees (subagent-driven-development isolation)
 .worktrees/
+
+# The documentation book. Build output, rebuilt from the markdown; not source.
+docs/*-docs.pdf

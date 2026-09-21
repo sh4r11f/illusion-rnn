@@ -1,0 +1,9 @@
+# Not documentation for a person — keep out of the docs book.
+#
+# The three files under docs/superpowers/plans/ are task-by-task work orders
+# addressed to agentic workers ("REQUIRED SUB-SKILL: ...", checkbox steps), not
+# prose anyone reads. Their design specs, under docs/superpowers/specs/, ARE in
+# the book — that is where the reasoning lives.
+docs/superpowers/plans/**
+CLAUDE.md
+.claude/**
