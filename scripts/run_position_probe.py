@@ -13,6 +13,7 @@ import numpy as np
 import torch
 
 from illusion_rnn import apparent as ap
+from illusion_rnn.analysis import ridge_predict
 
 FAMILIAR = ("square", "circle", "triangle")
 NOVEL = "cross"
@@ -82,17 +83,6 @@ def extract(model, endpoints, *, patches=False):
     return np.concatenate(states), np.concatenate(detected) if detected else None
 
 
-def ridge_predict(x, y, test_x):
-    """One affine map from state to all blank (x,y)'s; scale on fit trials only."""
-    x = x.astype(np.float64)
-    mu, sd = x.mean(0), x.std(0).clip(min=1e-8)
-    z = (x - mu) / sd
-    target = y.reshape(len(y), -1).astype(np.float64)
-    bias = target.mean(0)
-    w = np.linalg.solve(z.T @ z + ALPHA * np.eye(z.shape[1]), z.T @ (target - bias))
-    return (((test_x - mu) / sd) @ w + bias).reshape(-1, *y.shape[1:])
-
-
 def score(test, predictions, patch_xy):
     truth = test.centres[:, 1:-1]
     novel = (test.shapes == NOVEL)[:, None]
@@ -129,7 +119,7 @@ def run_seed(seed, directory, fit, test):
     def probe(patches=False):
         x, _ = extract(model, fit.endpoints)
         test_x, xy = extract(model, test.endpoints, patches=patches)
-        return ridge_predict(x, truth, test_x), xy
+        return ridge_predict(x, truth, test_x, alpha=ALPHA), xy
 
     # The random control is the same architecture at its original initialization.
     random, _ = probe()

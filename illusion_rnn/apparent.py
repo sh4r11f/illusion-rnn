@@ -247,13 +247,14 @@ def train_imputation(
     seed: int = 0,
     device=None,
     log_every: int = 500,
+    motion_sampler=sample_motion,
     **motion_kwargs,
 ) -> dict:
     """Train ``model`` to reconstruct full movies from masked ones.
 
     The loss is pixel-wise binary cross-entropy over *every* frame, shown or
     blanked. Returns ``{"loss": [...]}`` per step. ``motion_kwargs`` pass
-    through to ``sample_motion``.
+    through to ``motion_sampler`` (``sample_motion`` by default).
     """
     device = resolve_device(device)
     model = model.to(device)
@@ -264,7 +265,7 @@ def train_imputation(
     history = {"loss": []}
 
     for step in range(n_steps):
-        batch = sample_motion(rng, batch_size, n_frames=model.n_frames, **motion_kwargs)
+        batch = motion_sampler(rng, batch_size, n_frames=model.n_frames, **motion_kwargs)
         visible = sample_masks(rng, batch_size, model.n_frames, max_gap=max_gap)
         x = _to_model_input(apply_mask(batch.frames, visible), device)
         target = _to_model_input(batch.frames, device)

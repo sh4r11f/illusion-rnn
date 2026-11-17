@@ -377,6 +377,58 @@ The latter command does not train the RNN. It writes the figure and
 for all, detected and undetected frames, including the per-timepoint mean
 (no-input) and straight-line controls.
 
+### Acceleration versus path: can a third flash distinguish the alternatives?
+
+For each pair of endpoints, generate **nine** movies of the same shape over the
+same eight frames: steady motion, speeding up, or slowing down, each along a
+straight line or a 120° circular arc bending left or right. Normalized distance
+along the path at normalized time `t` is `t`, `t²`, or `2t − t²`. This varies
+**tangential acceleration**, not just the endpoint distance. The arcs are longer
+than the straight chord, so mean speed is matched across timing profiles *within*
+each path, not across path shapes. Only after constructing a trajectory do we
+round to pixels.
+
+![Acceleration and path variants, and three-choice accuracy](figures/trajectory_experiment.png)
+
+The three original gap-limited CTRNNs received 2,000 additional pixel-imputation
+training steps each on randomly masked examples of all nine combinations (maximum
+training gap four). At test we either show frames 1 and 8, or also show frame 4.
+**Both conditions are scored on the same five hidden frames**, never the cue.
+One ridge readout per frozen RNN predicts all five positions from its final
+state; it is fitted on 4,096 other movies in both cue conditions, excluding test
+endpoint pairs. The test crosses all nine variants with the same 192 endpoint
+pairs and uses identical stimuli across network seeds.
+
+| Readout / display | Acceleration choice | Path choice | Position error (px) |
+|---|---:|---:|---:|
+| Adapted RNN, endpoints only | 33% | 33% | 3.35 |
+| Original straight-trained RNN, endpoints + cue | 82% | 78% | 1.86 |
+| Adapted RNN, endpoints + cue | 84% | 78% | 1.85 |
+| Straight lines between visible flashes, with cue | 99.6% | 77% | 1.21 |
+
+For each choice, score the candidate whose blank-frame positions are closest on
+average to the readout. The **other factor is held fixed** (three candidates,
+fractional credit for ties); these are not nine-way classification accuracies.
+Chance with endpoints only is a consequence of identical inputs, not a model
+failure. Both networks retain information about the cue; adaptation changes
+linear decodability little. With the cue, the *rendered patch* lands within
+2 px on 62% of blank frames before adaptation and 72% after (non-detections
+count as misses); without it, the adapted network scores 15%. The network
+uses intermediate evidence, but the simple
+piecewise-linear baseline has lower position error; this is not evidence for
+an internal acceleration law.
+
+```bash
+# Starting checkpoints: use run_apparent_motion.py --save-dir as above.
+uv run python scripts/run_trajectory_experiment.py adapt --base checkpoints/apparent --checkpoints checkpoints/trajectory
+OPENBLAS_NUM_THREADS=2 uv run python scripts/run_trajectory_experiment.py evaluate --checkpoints checkpoints/trajectory --base checkpoints/apparent
+```
+
+The evaluation writes `results/trajectory_experiment.json` (including the 3×3
+error breakdown for each seed) and the figure. `evaluate --base` also probes
+the original networks **before** adaptation on the same movies with freshly
+fitted readouts.
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract

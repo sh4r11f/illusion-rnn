@@ -22,6 +22,17 @@ from dataclasses import dataclass
 import numpy as np
 
 
+def ridge_predict(x, y, test_x, alpha=1.0):
+    """Train-only standardization and an affine ridge readout for multiframe targets."""
+    x = x.astype(np.float64)
+    mu, sd = x.mean(0), x.std(0).clip(min=1e-8)
+    z = (x - mu) / sd
+    target = y.reshape(len(y), -1).astype(np.float64)
+    bias = target.mean(0)
+    w = np.linalg.solve(z.T @ z + alpha * np.eye(z.shape[1]), z.T @ (target - bias))
+    return (((test_x - mu) / sd) @ w + bias).reshape(-1, *y.shape[1:])
+
+
 def stack_activity(result):
     """Stack an ``EvalResult`` into ``(activity (n_trials, T, N), labels)``."""
     activity = np.stack(result.activity, axis=0).astype(np.float64)
