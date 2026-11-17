@@ -172,8 +172,16 @@ def main():
             steps, hidden, seeds, n_trials = 300, 64, 1, 50
         prior = {}
         if args.eval_only:
-            prior = {(r["condition"], r["seed"]): r["final_loss"]
-                     for r in json.loads(out.read_text())["records"]}
+            if not args.save_dir:
+                parser.error("--eval-only needs --save-dir")
+            # Training metadata is not in the checkpoints: carry it over from an
+            # earlier results file when there is one, otherwise leave it unknown.
+            steps = None
+            if out.exists():
+                earlier = json.loads(out.read_text())
+                steps = earlier["config"].get("n_steps")
+                prior = {(r["condition"], r["seed"]): r["final_loss"]
+                         for r in earlier["records"]}
         jobs = [(c, s, steps, hidden, n_trials, args.save_dir, args.eval_only,
                  prior.get((c, s)))
                 for c in CONDITIONS for s in range(seeds)]
