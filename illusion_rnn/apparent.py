@@ -357,6 +357,123 @@ def imputation_metrics(recon: np.ndarray, batch: MotionBatch, visible: np.ndarra
     }
 
 
+def _dilate(mask: np.ndarray, radius: int) -> np.ndarray:
+    """Binary dilation with a square structuring element; no wrap-around."""
+    if radius < 1:
+        return mask.copy()
+    height, width = mask.shape
+    padded = np.pad(mask, radius)
+    out = np.zeros_like(mask)
+    for dy in range(2 * radius + 1):
+        for dx in range(2 * radius + 1):
+            out |= padded[dy:dy + height, dx:dx + width]
+    return out
+
+
+def _largest_patch(weights: np.ndarray, threshold: float):
+    """Ink-weighted centre ``(x, y)`` of the 4-connected region of
+    ``weights > threshold`` holding the most ink, or None if there is none."""
+    active = weights > threshold
+    height, width = active.shape
+    seen = np.zeros_like(active)
+    best_mass, best = 0.0, None
+    for y0, x0 in zip(*np.nonzero(active)):
+        if seen[y0, x0]:
+            continue
+        seen[y0, x0] = True
+        stack, pixels = [(y0, x0)], []
+        while stack:
+            y, x = stack.pop()
+            pixels.append((y, x))
+            for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                if 0 <= ny < height and 0 <= nx < width and active[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        ys, xs = np.array(pixels).T
+        w = weights[ys, xs]
+        if w.sum() > best_mass:
+            best_mass = float(w.sum())
+            best = np.array([(w * xs).sum(), (w * ys).sum()]) / w.sum()
+    return best
+
+
+def patch_position_metrics(recon: np.ndarray, batch: MotionBatch, visible: np.ndarray,
+                           threshold: float = 0.25, margin: int = 1) -> dict:
+    """Where is the patch the network drew, ignoring shape and ink amount?
+
+    In every blanked frame, ink inside the start-frame footprint (the shape in
+    frame 0, dilated by ``margin`` pixels) is discarded, so ink that is merely
+    held at the start position does not count. The predicted position is the
+    ink-weighted centre of the largest remaining connected region above
+    ``threshold``. All distances are in pixels, over moving trials only.
+
+    - ``patch_found``   fraction of blanked frames with any such patch,
+    - ``patch_err``     mean distance from the patch centre to the true centre
+      (``patch_err_median``: median; ``patch_err_frac``: mean error divided by
+      the trial's a-to-b distance),
+    - ``truth_err``     the same measurement applied to the true movie. It is
+      not 0: discarding the start footprint clips the true shape in the first
+      frames after the start, so this is the best ``patch_err`` attainable,
+    - ``stay_err``, ``jump_err``, ``midpoint_err``  what a centre sitting at
+      the start, at the nearer endpoint, or halfway between the endpoints
+      would score on the frames where a patch was found,
+    - ``by_frame``      ``patch_found``, ``patch_err``, ``truth_err`` and
+      ``jump_err`` per frame index (None where no frame qualifies).
+    """
+    n_frames = visible.shape[1]
+    rows = {key: [] for key in ("frame", "err", "frac", "truth", "stay", "jump", "mid")}
+    n_blanked = np.zeros(n_frames, dtype=int)
+
+    for i in range(len(visible)):
+        a, b = batch.centres[i, 0], batch.centres[i, -1]
+        dist = float(np.linalg.norm(b - a))
+        if dist == 0:
+            continue
+        keep = ~_dilate(batch.frames[i, 0] > 0.5, margin)
+        for t in np.flatnonzero(~visible[i]):
+            n_blanked[t] += 1
+            centre = _largest_patch(recon[i, t] * keep, threshold)
+            if centre is None:
+                continue
+            true = batch.centres[i, t]
+            truth = _largest_patch(batch.frames[i, t] * keep, threshold)
+            rows["frame"].append(t)
+            rows["err"].append(np.linalg.norm(centre - true))
+            rows["frac"].append(np.linalg.norm(centre - true) / dist)
+            rows["truth"].append(np.nan if truth is None else np.linalg.norm(truth - true))
+            rows["stay"].append(np.linalg.norm(a - true))
+            rows["jump"].append(min(np.linalg.norm(a - true), np.linalg.norm(b - true)))
+            rows["mid"].append(np.linalg.norm((a + b) / 2 - true))
+
+    rows = {key: np.array(values, dtype=float) for key, values in rows.items()}
+    total = int(n_blanked.sum())
+
+    def mean(values):
+        values = values[~np.isnan(values)]
+        return float(values.mean()) if len(values) else None
+
+    by_frame = {}
+    for t in np.flatnonzero(n_blanked):
+        sel = rows["frame"] == t
+        by_frame[int(t)] = {
+            "patch_found": float(sel.sum() / n_blanked[t]),
+            "patch_err": mean(rows["err"][sel]),
+            "truth_err": mean(rows["truth"][sel]),
+            "jump_err": mean(rows["jump"][sel]),
+        }
+    return {
+        "patch_found": len(rows["err"]) / total if total else None,
+        "patch_err": mean(rows["err"]),
+        "patch_err_median": float(np.median(rows["err"])) if len(rows["err"]) else None,
+        "patch_err_frac": mean(rows["frac"]),
+        "truth_err": mean(rows["truth"]),
+        "stay_err": mean(rows["stay"]),
+        "jump_err": mean(rows["jump"]),
+        "midpoint_err": mean(rows["mid"]),
+        "by_frame": by_frame,
+    }
+
+
 def evaluate_imputation(
     model,
     condition: str = "apparent",
@@ -388,4 +505,6 @@ def evaluate_imputation(
         raise ValueError(msg)
     batch = sample_motion(rng, n_trials, n_frames=n_frames, **motion_kwargs)
     recon = reconstruct(model, batch.frames, visible, device=device)
-    return imputation_metrics(recon, batch, visible)
+    result = imputation_metrics(recon, batch, visible)
+    result["position"] = patch_position_metrics(recon, batch, visible)
+    return result

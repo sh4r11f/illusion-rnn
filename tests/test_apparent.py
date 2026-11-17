@@ -143,3 +143,46 @@ def test_training_reduces_loss_and_evaluates():
                                   **kwargs)["n_blanked"] == 8
     with pytest.raises(ValueError, match="Unknown condition"):
         ap.evaluate_imputation(model, "nope", device="cpu")
+
+
+def test_patch_position_perfect_reconstruction_is_at_the_floor():
+    batch = _batch(n=60, shapes=("square",), p_static=0.0, disp_range=(0.6, 0.75))
+    visible = ap.endpoint_mask(60, 8)
+    result = ap.patch_position_metrics(batch.frames, batch, visible)
+    assert result["patch_err"] == pytest.approx(result["truth_err"])
+    assert result["patch_err"] < result["jump_err"] < result["stay_err"]
+    # far from the start nothing is clipped, so the centre is exact
+    assert result["by_frame"][6]["patch_err"] == pytest.approx(0.0, abs=1e-4)
+
+
+def test_patch_position_ignores_ink_held_at_start():
+    batch = _batch(n=30, shapes=("square",), p_static=0.0, disp_range=(0.6, 0.75))
+    visible = ap.endpoint_mask(30, 8)
+    held = np.repeat(batch.frames[:, :1], 8, axis=1)
+    assert ap.patch_position_metrics(held, batch, visible)["patch_found"] == 0.0
+    # faint, misshapen ink at the right place still scores as the right place
+    faint = np.maximum(0.3 * batch.frames, held)
+    result = ap.patch_position_metrics(faint, batch, visible)
+    assert result["by_frame"][6]["patch_found"] == 1.0
+    assert result["by_frame"][6]["patch_err"] == pytest.approx(0.0, abs=1e-4)
+
+
+def test_patch_position_jump_scores_as_jump_and_static_is_skipped():
+    batch = _batch(n=30, shapes=("square",), p_static=0.0, disp_range=(0.6, 0.75))
+    visible = ap.endpoint_mask(30, 8)
+    jump = np.repeat(batch.frames[:, -1:], 8, axis=1)
+    result = ap.patch_position_metrics(jump, batch, visible)
+    assert result["by_frame"][6]["patch_err"] == pytest.approx(
+        result["by_frame"][6]["jump_err"], abs=1e-4)
+    assert result["by_frame"][2]["patch_err"] > result["by_frame"][2]["jump_err"]
+    static = _batch(n=5, p_static=1.0)
+    assert ap.patch_position_metrics(static.frames, static, ap.endpoint_mask(5, 8))[
+        "patch_found"] is None
+
+
+def test_largest_patch_picks_heaviest_region():
+    weights = np.zeros((8, 8))
+    weights[0, 0] = 0.9
+    weights[4:6, 4:6] = 0.5
+    np.testing.assert_allclose(ap._largest_patch(weights, 0.25), [4.5, 4.5])
+    assert ap._largest_patch(weights, 0.95) is None

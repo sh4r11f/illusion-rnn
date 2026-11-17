@@ -286,6 +286,31 @@ the ink, and individual reconstructions are fragmented rather than one clean
 moving shape (see the bottom row of the figure). Performance degrades smoothly
 up to 5 blanked frames and drops sharply at 6.
 
+### Position, not pixels
+
+IoU punishes wrong shape and missing ink even when the ink is in the right
+place. `patch_position_metrics` scores position only: in each blanked frame it
+discards ink inside the start-frame footprint (ink merely held at a does not
+count), takes the largest remaining connected patch, and measures the distance
+from its centre to where the shape would actually have been. Apparent-motion
+test, means over 3 seeds; mean a-b distance is about 16 px:
+
+| | patch found | centre error (px) | if the patch sat at the nearer endpoint |
+|---|---|---|---|
+| training gaps <= 4 (test never trained) | 55% of frames | 1.78 | 3.64 |
+| training gaps unbounded | 86% | 1.55 | 3.96 |
+| online readout | 48% | 4.41 | 4.17 |
+| true movie scored the same way | 100% | 0.87 | |
+
+In the two middle frames (t4, t5), where a jump to either endpoint is 5.4 px
+off, the patch is 1.8 and 1.6 px off. So when the network draws something away
+from the start, it draws it at the interpolated position, not at an endpoint
+-- but in the never-trained condition it draws such a patch in only about half
+of the blanked frames. The error is conditional on a patch being found, and
+the 0.87 px floor is the bias of discarding the start footprint (it clips the
+true shape in the first frames after a). The numbers are stable across
+detection thresholds 0.1-0.5 (error 1.95-1.60 px, patch found 71%-39%).
+
 The online readout fails at long gaps as it must (5 px error, slope 0.48): it
 has not seen b when it has to draw the intermediate frames.
 

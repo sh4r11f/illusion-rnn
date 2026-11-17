@@ -34,13 +34,16 @@ LABELS = {
 
 
 def run_one(job):
-    condition, seed, n_steps, hidden, n_trials = job
+    condition, seed, n_steps, hidden, n_trials, save_dir = job
     readout, max_gap = CONDITIONS[condition]
     torch.set_num_threads(2)
     torch.manual_seed(seed)
     model = ap.ImputationNet(IMG_SIZE**2, hidden, N_FRAMES, readout=readout)
     history = ap.train_imputation(model, n_steps=n_steps, max_gap=max_gap, seed=seed,
                                   device="cpu", log_every=0, img_size=IMG_SIZE)
+    if save_dir:
+        Path(save_dir).mkdir(parents=True, exist_ok=True)
+        torch.save(model.state_dict(), Path(save_dir) / f"{condition}_seed{seed}.pt")
     kwargs = {"n_trials": n_trials, "device": "cpu", "img_size": IMG_SIZE,
               "seed": 10_000 + seed}
     record = {
@@ -70,8 +73,8 @@ def plot(results_path: Path, figure_path: Path):
     examples = np.load(results_path.with_suffix(".npz"))
     gaps = list(range(1, N_FRAMES - 1))
 
-    fig = plt.figure(figsize=(13, 4.6))
-    grid = fig.add_gridspec(3, N_FRAMES + 7, wspace=0.08, hspace=0.08)
+    fig = plt.figure(figsize=(18, 4.6))
+    grid = fig.add_gridspec(3, N_FRAMES + 14, wspace=0.08, hspace=0.08)
     truth = examples["truth"][0]
     rows = [
         ("shown", ap.apply_mask(truth[None], ap.endpoint_mask(1, N_FRAMES))[0]),
@@ -89,7 +92,7 @@ def plot(results_path: Path, figure_path: Path):
             if r == 0:
                 ax.set_title(f"t{t + 1}", fontsize=8)
 
-    ax = fig.add_subplot(grid[:, N_FRAMES + 2:])
+    ax = fig.add_subplot(grid[:, N_FRAMES + 2:N_FRAMES + 7])
     for condition in CONDITIONS:
         runs = [rec for rec in records if rec["condition"] == condition]
         if not runs:
@@ -107,6 +110,35 @@ def plot(results_path: Path, figure_path: Path):
     ax.set_ylim(0, 1)
     ax.legend(fontsize=7, loc="lower left")
     ax.set_title(f"mean and range over seeds (n={len(jump)})", fontsize=9)
+    ax = fig.add_subplot(grid[:, N_FRAMES + 9:])
+    frames = [str(t) for t in range(1, N_FRAMES - 1)]
+    xs = [int(t) + 1 for t in frames]
+    apparent = str(N_FRAMES - 2)
+
+    def per_frame(condition, key):
+        runs = [rec["gap"][apparent]["position"]["by_frame"] for rec in records
+                if rec["condition"] == condition]
+        return np.array([[np.nan if run[t][key] is None else run[t][key] for t in frames]
+                         for run in runs], dtype=float)
+
+    for condition in CONDITIONS:
+        values = per_frame(condition, "patch_err")
+        if not len(values):
+            continue
+        line, = ax.plot(xs, np.nanmean(values, axis=0), marker="o", label=LABELS[condition])
+        ax.fill_between(xs, np.nanmin(values, axis=0), np.nanmax(values, axis=0),
+                        color=line.get_color(), alpha=0.2)
+    ax.plot(xs, np.nanmean(per_frame("held-out", "jump_err"), axis=0), "k--", lw=1,
+            label="patch at the nearer endpoint")
+    ax.plot(xs, np.nanmean(per_frame("held-out", "truth_err"), axis=0), "k:", lw=1,
+            label="true movie (best attainable)")
+    ax.set_xticks(xs, [f"t{x}" for x in xs])
+    ax.set_xlabel("blanked frame (apparent-motion test)")
+    ax.set_ylabel("patch centre error (px)")
+    ax.set_ylim(bottom=0)
+    ax.legend(fontsize=7)
+    ax.set_title("position of the drawn patch, start-position ink discarded", fontsize=9)
+
     figure_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(figure_path, dpi=150, bbox_inches="tight")
     print(f"wrote {figure_path}")
@@ -120,6 +152,7 @@ def main():
     parser.add_argument("--steps", type=int, default=20_000)
     parser.add_argument("--hidden", type=int, default=512)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--save-dir", default=None, help="write model state dicts here")
     parser.add_argument("--out", default="results/apparent_motion.json")
     parser.add_argument("--figure", default="figures/apparent_motion.png")
     args = parser.parse_args()
@@ -129,7 +162,7 @@ def main():
         steps, hidden, seeds, n_trials = args.steps, args.hidden, args.seeds, 500
         if args.quick:
             steps, hidden, seeds, n_trials = 300, 64, 1, 50
-        jobs = [(c, s, steps, hidden, n_trials) for c in CONDITIONS for s in range(seeds)]
+        jobs = [(c, s, steps, hidden, n_trials, args.save_dir) for c in CONDITIONS for s in range(seeds)]
         with ProcessPoolExecutor(max_workers=args.workers) as pool:
             done = list(pool.map(run_one, jobs))
         records = [record for record, _ in done]
