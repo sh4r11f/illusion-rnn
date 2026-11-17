@@ -429,6 +429,59 @@ error breakdown for each seed) and the figure. `evaluate --base` also probes
 the original networks **before** adaptation on the same movies with freshly
 fitted readouts.
 
+### Forecasting acceleration without seeing the endpoint
+
+Show frames 1–4, then four blanks: no endpoint or intermediate cue. The
+**last two visible images are pixel-identical** for the speeding-up, steady,
+and slowing-down members of each matched set on a given path. Earlier frames
+carry the acceleration evidence. Continuing the last measured displacement
+must therefore give the *same* forecast for all three, while correctly
+continuing the acceleration must separate their future positions.
+
+![Endpoint-free forecasts on matched straight trajectories](figures/prefix_forecast.png)
+
+At the **fourth hidden frame on straight paths**, the frozen, varied-motion
+RNN shows little of the true separation:
+
+| Forecast | True fast–slow separation recovered | Mean position error (px) |
+|---|---:|---:|
+| Continue last observed velocity | 0% | 3.68 |
+| RNN's rendered ink centre (all frames) | 11% | 4.15 |
+| Largest non-start patch (when detected) | 19% | 4.77 |
+| Linear position probe on the RNN state | 23% | 5.47 |
+| Same probe on an untrained RNN | 9% | 7.61 |
+| Quadratic fit to the four visible centroids | 100% | 4.98 |
+
+For separation, project the predicted speed-up/slow-down difference onto the
+true difference, summed across matched pairs and normalized by the summed
+squared true separation. A gain of 1 means the correct *average contrast*,
+not accurate individual forecasts: pixel rounding makes the quadratic fit
+noisy. On the two non-steady straight conditions, the endpoint ink centre is
+closer to the last-velocity forecast than to the true endpoint 67% of the
+time (ties split). Mean error includes all three timing profiles. Patch error is conditional
+on detection (78% of movies); patch separation requires both detections (71%
+of pairs). On left and right arcs, the rendered ink centre also recovers only
+about 11% of the final separation. These are weak responses to motion history,
+not evidence that the RNN faithfully applies either kinematic law.
+
+**Protocol.** Test the same three adapted RNNs without retraining them. In
+each of 256 test groups, all nine movies share the object and position at the
+last flash. The last arclength step `v` and path geometry are shared within
+each acceleration comparison; successive steps change by 0 or ±16–23% of `v`
+per frame, never reversing. The renderer fits all alternatives jointly on the
+canvas. Only the first four images enter the model; its usual after-sequence
+decoder reads the final state after the blanks. The separate ridge probes
+learn from 512 other nine-movie groups, excluding any last-two-flash image
+pair in the test set. A probe can learn a forecasting rule from labels; the
+unmodified pixel decoder does not get those labels.
+
+```bash
+OPENBLAS_NUM_THREADS=2 uv run python scripts/run_prefix_forecast.py --checkpoints checkpoints/trajectory
+```
+
+The runner writes `results/prefix_forecast.json` with per-horizon results for
+each path, timing profile and seed, and `figures/prefix_forecast.png`.
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
