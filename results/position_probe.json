@@ -1,0 +1,1144 @@
+{
+  "config": {
+    "checkpoint_condition": "held-out",
+    "fit_trials": 4096,
+    "test_trials": 2048,
+    "fit_seed": 41001,
+    "test_seed": 41002,
+    "novel_shape": "cross",
+    "held_out_xy_interval": [
+      11,
+      21
+    ],
+    "ridge_alpha": 1.0,
+    "patch_threshold": 0.25,
+    "start_margin_px": 1
+  },
+  "records": [
+    {
+      "seed": 0,
+      "scores": {
+        "overall": {
+          "all": {
+            "n_frames": 12288,
+            "n_trials": 2048,
+            "probe": {
+              "mean_px": 2.2007659521893475,
+              "within_2px": 0.541015625
+            },
+            "untrained": {
+              "mean_px": 6.4701471984976395,
+              "within_2px": 0.08829752604166667
+            },
+            "constant": {
+              "mean_px": 7.3247833251953125,
+              "within_2px": 0.047444661458333336
+            },
+            "endpoint_line": {
+              "mean_px": 0.4698204589389588,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.742888171329501,
+              "within_2px": 0.4016927083333333
+            }
+          },
+          "found": {
+            "n_frames": 7062,
+            "n_trials": 1824,
+            "probe": {
+              "mean_px": 2.19109530515731,
+              "within_2px": 0.5455961483998867
+            },
+            "untrained": {
+              "mean_px": 6.6603233589512225,
+              "within_2px": 0.09190031152647975
+            },
+            "constant": {
+              "mean_px": 7.6272735595703125,
+              "within_2px": 0.03894080996884735
+            },
+            "endpoint_line": {
+              "mean_px": 0.47243266141516654,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.742888171329501,
+              "within_2px": 0.6989521382044747
+            }
+          },
+          "missing": {
+            "n_frames": 5226,
+            "n_trials": 1588,
+            "probe": {
+              "mean_px": 2.2138340940454992,
+              "within_2px": 0.5348258706467661
+            },
+            "untrained": {
+              "mean_px": 6.213158288217653,
+              "within_2px": 0.08342900880214313
+            },
+            "constant": {
+              "mean_px": 6.916023254394531,
+              "within_2px": 0.05893608878683505
+            },
+            "endpoint_line": {
+              "mean_px": 0.46629053664906617,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "familiar": {
+          "all": {
+            "n_frames": 6175,
+            "n_trials": 1458,
+            "probe": {
+              "mean_px": 2.1394860812465213,
+              "within_2px": 0.5674493927125506
+            },
+            "untrained": {
+              "mean_px": 6.703188488330272,
+              "within_2px": 0.09651821862348178
+            },
+            "constant": {
+              "mean_px": 9.016544342041016,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4714467556300897,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.772585624051851,
+              "within_2px": 0.41246963562753036
+            }
+          },
+          "found": {
+            "n_frames": 3709,
+            "n_trials": 1246,
+            "probe": {
+              "mean_px": 2.0985221346120655,
+              "within_2px": 0.5713130223779994
+            },
+            "untrained": {
+              "mean_px": 6.685741620721698,
+              "within_2px": 0.10784578053383662
+            },
+            "constant": {
+              "mean_px": 9.22842788696289,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.47506667780353623,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.772585624051851,
+              "within_2px": 0.6867080075492047
+            }
+          },
+          "missing": {
+            "n_frames": 2466,
+            "n_trials": 970,
+            "probe": {
+              "mean_px": 2.20109811614806,
+              "within_2px": 0.5616382806163828
+            },
+            "untrained": {
+              "mean_px": 6.729429539409024,
+              "within_2px": 0.07948094079480941
+            },
+            "constant": {
+              "mean_px": 8.69786262512207,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4660021930423712,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "shape": {
+          "all": {
+            "n_frames": 2182,
+            "n_trials": 513,
+            "probe": {
+              "mean_px": 1.8936818021224788,
+              "within_2px": 0.6351970669110908
+            },
+            "untrained": {
+              "mean_px": 6.880368998639298,
+              "within_2px": 0.06828597616865262
+            },
+            "constant": {
+              "mean_px": 8.977115631103516,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.472099965562835,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.9058295588838172,
+              "within_2px": 0.38084326306141153
+            }
+          },
+          "found": {
+            "n_frames": 1288,
+            "n_trials": 432,
+            "probe": {
+              "mean_px": 1.7979863816043187,
+              "within_2px": 0.6669254658385093
+            },
+            "untrained": {
+              "mean_px": 7.209934680024018,
+              "within_2px": 0.07763975155279502
+            },
+            "constant": {
+              "mean_px": 9.052390098571777,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4725550946738616,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.9058295588838172,
+              "within_2px": 0.6451863354037267
+            }
+          },
+          "missing": {
+            "n_frames": 894,
+            "n_trials": 312,
+            "probe": {
+              "mean_px": 2.0315517144573674,
+              "within_2px": 0.5894854586129754
+            },
+            "untrained": {
+              "mean_px": 6.405558486756169,
+              "within_2px": 0.05480984340044743
+            },
+            "constant": {
+              "mean_px": 8.868666648864746,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4714442538234588,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "location": {
+          "all": {
+            "n_frames": 2909,
+            "n_trials": 927,
+            "probe": {
+              "mean_px": 2.555859285665587,
+              "within_2px": 0.4293571674114816
+            },
+            "untrained": {
+              "mean_px": 5.910689261531947,
+              "within_2px": 0.08215881746304572
+            },
+            "constant": {
+              "mean_px": 3.7583067417144775,
+              "within_2px": 0.14575455482983843
+            },
+            "endpoint_line": {
+              "mean_px": 0.46995299819642417,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5707296910621917,
+              "within_2px": 0.38604331385355795
+            }
+          },
+          "found": {
+            "n_frames": 1475,
+            "n_trials": 604,
+            "probe": {
+              "mean_px": 2.753217873747276,
+              "within_2px": 0.3952542372881356
+            },
+            "untrained": {
+              "mean_px": 6.278740773817918,
+              "within_2px": 0.06915254237288136
+            },
+            "constant": {
+              "mean_px": 3.900972843170166,
+              "within_2px": 0.12338983050847457
+            },
+            "endpoint_line": {
+              "mean_px": 0.47119518327786153,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5707296910621917,
+              "within_2px": 0.7613559322033898
+            }
+          },
+          "missing": {
+            "n_frames": 1434,
+            "n_trials": 627,
+            "probe": {
+              "mean_px": 2.3528579485522734,
+              "within_2px": 0.46443514644351463
+            },
+            "untrained": {
+              "mean_px": 5.532114658587869,
+              "within_2px": 0.09553695955369595
+            },
+            "constant": {
+              "mean_px": 3.6115610599517822,
+              "within_2px": 0.16875871687587168
+            },
+            "endpoint_line": {
+              "mean_px": 0.4686752973630071,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "both": {
+          "all": {
+            "n_frames": 1022,
+            "n_trials": 320,
+            "probe": {
+              "mean_px": 2.2159267265880573,
+              "within_2px": 0.4980430528375734
+            },
+            "untrained": {
+              "mean_px": 5.778688495961043,
+              "within_2px": 0.09882583170254403
+            },
+            "constant": {
+              "mean_px": 3.7268049716949463,
+              "within_2px": 0.15557729941291584
+            },
+            "endpoint_line": {
+              "mean_px": 0.45475018279316887,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.6308837629856447,
+              "within_2px": 0.42563600782778865
+            }
+          },
+          "found": {
+            "n_frames": 590,
+            "n_trials": 220,
+            "probe": {
+              "mean_px": 2.2259213973918306,
+              "within_2px": 0.49491525423728816
+            },
+            "untrained": {
+              "mean_px": 6.254659966787114,
+              "within_2px": 0.07966101694915254
+            },
+            "constant": {
+              "mean_px": 3.766362428665161,
+              "within_2px": 0.1576271186440678
+            },
+            "endpoint_line": {
+              "mean_px": 0.4587004909590014,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.6308837629856447,
+              "within_2px": 0.7372881355932204
+            }
+          },
+          "missing": {
+            "n_frames": 432,
+            "n_trials": 191,
+            "probe": {
+              "mean_px": 2.202276597481051,
+              "within_2px": 0.5023148148148148
+            },
+            "untrained": {
+              "mean_px": 5.128634866823585,
+              "within_2px": 0.125
+            },
+            "constant": {
+              "mean_px": 3.6727797985076904,
+              "within_2px": 0.1527777777777778
+            },
+            "endpoint_line": {
+              "mean_px": 0.44935508599261054,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "scores": {
+        "overall": {
+          "all": {
+            "n_frames": 12288,
+            "n_trials": 2048,
+            "probe": {
+              "mean_px": 2.0260315531676754,
+              "within_2px": 0.5838216145833334
+            },
+            "untrained": {
+              "mean_px": 6.343387834773892,
+              "within_2px": 0.083984375
+            },
+            "constant": {
+              "mean_px": 7.3247833251953125,
+              "within_2px": 0.047444661458333336
+            },
+            "endpoint_line": {
+              "mean_px": 0.4698204589389588,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5711677607152603,
+              "within_2px": 0.4151204427083333
+            }
+          },
+          "found": {
+            "n_frames": 6870,
+            "n_trials": 1734,
+            "probe": {
+              "mean_px": 2.0857040326602854,
+              "within_2px": 0.5601164483260553
+            },
+            "untrained": {
+              "mean_px": 6.330913331900354,
+              "within_2px": 0.0911208151382824
+            },
+            "constant": {
+              "mean_px": 7.610142707824707,
+              "within_2px": 0.04104803493449782
+            },
+            "endpoint_line": {
+              "mean_px": 0.4684095927384688,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5711677607152603,
+              "within_2px": 0.7425036390101892
+            }
+          },
+          "missing": {
+            "n_frames": 5418,
+            "n_trials": 1657,
+            "probe": {
+              "mean_px": 1.9503671135009668,
+              "within_2px": 0.6138796603912883
+            },
+            "untrained": {
+              "mean_px": 6.359205449159496,
+              "within_2px": 0.07493540051679587
+            },
+            "constant": {
+              "mean_px": 6.962949752807617,
+              "within_2px": 0.05555555555555555
+            },
+            "endpoint_line": {
+              "mean_px": 0.47160943103149594,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "familiar": {
+          "all": {
+            "n_frames": 6175,
+            "n_trials": 1458,
+            "probe": {
+              "mean_px": 1.9420967122877275,
+              "within_2px": 0.622995951417004
+            },
+            "untrained": {
+              "mean_px": 6.583490589537816,
+              "within_2px": 0.08518218623481781
+            },
+            "constant": {
+              "mean_px": 9.016544342041016,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4714467556300897,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.6411227691379926,
+              "within_2px": 0.4291497975708502
+            }
+          },
+          "found": {
+            "n_frames": 3646,
+            "n_trials": 1195,
+            "probe": {
+              "mean_px": 1.9212967013872564,
+              "within_2px": 0.6162918266593527
+            },
+            "untrained": {
+              "mean_px": 6.298845958551018,
+              "within_2px": 0.0995611629182666
+            },
+            "constant": {
+              "mean_px": 9.199846267700195,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.46729310060339346,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.6411227691379926,
+              "within_2px": 0.7268239166209545
+            }
+          },
+          "missing": {
+            "n_frames": 2529,
+            "n_trials": 1027,
+            "probe": {
+              "mean_px": 1.9720836002842157,
+              "within_2px": 0.6326611308817714
+            },
+            "untrained": {
+              "mean_px": 6.993856079683275,
+              "within_2px": 0.06445235270858046
+            },
+            "constant": {
+              "mean_px": 8.752284049987793,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4774349826871612,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "shape": {
+          "all": {
+            "n_frames": 2182,
+            "n_trials": 513,
+            "probe": {
+              "mean_px": 1.8471264368995448,
+              "within_2px": 0.6154903758020165
+            },
+            "untrained": {
+              "mean_px": 6.794575021767997,
+              "within_2px": 0.06507791017415215
+            },
+            "constant": {
+              "mean_px": 8.977115631103516,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.472099965562835,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5930653091223332,
+              "within_2px": 0.40375802016498624
+            }
+          },
+          "found": {
+            "n_frames": 1237,
+            "n_trials": 401,
+            "probe": {
+              "mean_px": 1.83115440894788,
+              "within_2px": 0.6095392077607114
+            },
+            "untrained": {
+              "mean_px": 6.8212464266770505,
+              "within_2px": 0.06709781729991916
+            },
+            "constant": {
+              "mean_px": 9.055756568908691,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4715477893848902,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5930653091223332,
+              "within_2px": 0.7122069523039612
+            }
+          },
+          "missing": {
+            "n_frames": 945,
+            "n_trials": 314,
+            "probe": {
+              "mean_px": 1.8680337369801894,
+              "within_2px": 0.6232804232804233
+            },
+            "untrained": {
+              "mean_px": 6.7596622938605915,
+              "within_2px": 0.06243386243386243
+            },
+            "constant": {
+              "mean_px": 8.874173164367676,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.47282276125819755,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "location": {
+          "all": {
+            "n_frames": 2909,
+            "n_trials": 927,
+            "probe": {
+              "mean_px": 2.3371537495517316,
+              "within_2px": 0.480577518047439
+            },
+            "untrained": {
+              "mean_px": 5.742950137816576,
+              "within_2px": 0.09315916122378824
+            },
+            "constant": {
+              "mean_px": 3.7583067417144775,
+              "within_2px": 0.14575455482983843
+            },
+            "endpoint_line": {
+              "mean_px": 0.46995299819642417,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.4029288145609018,
+              "within_2px": 0.40220006875214853
+            }
+          },
+          "found": {
+            "n_frames": 1468,
+            "n_trials": 582,
+            "probe": {
+              "mean_px": 2.660878533740075,
+              "within_2px": 0.3978201634877384
+            },
+            "untrained": {
+              "mean_px": 6.048378205618804,
+              "within_2px": 0.09264305177111716
+            },
+            "constant": {
+              "mean_px": 3.808222770690918,
+              "within_2px": 0.13760217983651227
+            },
+            "endpoint_line": {
+              "mean_px": 0.46931170049129955,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.4029288145609018,
+              "within_2px": 0.7970027247956403
+            }
+          },
+          "missing": {
+            "n_frames": 1441,
+            "n_trials": 645,
+            "probe": {
+              "mean_px": 2.0073633379011495,
+              "within_2px": 0.5648854961832062
+            },
+            "untrained": {
+              "mean_px": 5.431799267911187,
+              "within_2px": 0.0936849410131853
+            },
+            "constant": {
+              "mean_px": 3.7074549198150635,
+              "within_2px": 0.15405968077723803
+            },
+            "endpoint_line": {
+              "mean_px": 0.47060631188908414,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "both": {
+          "all": {
+            "n_frames": 1022,
+            "n_trials": 320,
+            "probe": {
+              "mean_px": 2.029567890593825,
+              "within_2px": 0.5733855185909981
+            },
+            "untrained": {
+              "mean_px": 5.638444887377078,
+              "within_2px": 0.09099804305283757
+            },
+            "constant": {
+              "mean_px": 3.7268049716949463,
+              "within_2px": 0.15557729941291584
+            },
+            "endpoint_line": {
+              "mean_px": 0.45475018279316887,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5034058047726153,
+              "within_2px": 0.3913894324853229
+            }
+          },
+          "found": {
+            "n_frames": 519,
+            "n_trials": 194,
+            "probe": {
+              "mean_px": 2.2204840842375075,
+              "within_2px": 0.5067437379576107
+            },
+            "untrained": {
+              "mean_px": 6.186668958825645,
+              "within_2px": 0.08477842003853564
+            },
+            "constant": {
+              "mean_px": 3.7506699562072754,
+              "within_2px": 0.15414258188824662
+            },
+            "endpoint_line": {
+              "mean_px": 0.46622170620996367,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5034058047726153,
+              "within_2px": 0.7707129094412332
+            }
+          },
+          "missing": {
+            "n_frames": 503,
+            "n_trials": 206,
+            "probe": {
+              "mean_px": 1.8325788160390117,
+              "within_2px": 0.6421471172962226
+            },
+            "untrained": {
+              "mean_px": 5.07278227687647,
+              "within_2px": 0.09741550695825049
+            },
+            "constant": {
+              "mean_px": 3.702180862426758,
+              "within_2px": 0.15705765407554673
+            },
+            "endpoint_line": {
+              "mean_px": 0.4429137600231559,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "scores": {
+        "overall": {
+          "all": {
+            "n_frames": 12288,
+            "n_trials": 2048,
+            "probe": {
+              "mean_px": 2.020854291065866,
+              "within_2px": 0.5857747395833334
+            },
+            "untrained": {
+              "mean_px": 6.468478553020302,
+              "within_2px": 0.091552734375
+            },
+            "constant": {
+              "mean_px": 7.3247833251953125,
+              "within_2px": 0.047444661458333336
+            },
+            "endpoint_line": {
+              "mean_px": 0.4698204589389588,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.7525727974271756,
+              "within_2px": 0.376220703125
+            }
+          },
+          "found": {
+            "n_frames": 6735,
+            "n_trials": 1779,
+            "probe": {
+              "mean_px": 2.033595940047805,
+              "within_2px": 0.5802524127691165
+            },
+            "untrained": {
+              "mean_px": 6.6697171555642285,
+              "within_2px": 0.10170749814402376
+            },
+            "constant": {
+              "mean_px": 7.505500793457031,
+              "within_2px": 0.04320712694877506
+            },
+            "endpoint_line": {
+              "mean_px": 0.4692370990495806,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.7525727974271756,
+              "within_2px": 0.6864142538975501
+            }
+          },
+          "missing": {
+            "n_frames": 5553,
+            "n_trials": 1599,
+            "probe": {
+              "mean_px": 2.0054004812525474,
+              "within_2px": 0.5924725373671889
+            },
+            "untrained": {
+              "mean_px": 6.22440472119366,
+              "within_2px": 0.07923644876643256
+            },
+            "constant": {
+              "mean_px": 7.1055989265441895,
+              "within_2px": 0.052584188726814335
+            },
+            "endpoint_line": {
+              "mean_px": 0.4705279915978751,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "familiar": {
+          "all": {
+            "n_frames": 6175,
+            "n_trials": 1458,
+            "probe": {
+              "mean_px": 1.9036520058829753,
+              "within_2px": 0.6231578947368421
+            },
+            "untrained": {
+              "mean_px": 6.584288933953726,
+              "within_2px": 0.09214574898785426
+            },
+            "constant": {
+              "mean_px": 9.016544342041016,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4714467556300897,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.8908484726216557,
+              "within_2px": 0.3682591093117409
+            }
+          },
+          "found": {
+            "n_frames": 3500,
+            "n_trials": 1213,
+            "probe": {
+              "mean_px": 1.8519597531105667,
+              "within_2px": 0.6308571428571429
+            },
+            "untrained": {
+              "mean_px": 6.574030835662542,
+              "within_2px": 0.11428571428571428
+            },
+            "constant": {
+              "mean_px": 9.151562690734863,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.47082510055529153,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.8908484726216557,
+              "within_2px": 0.6497142857142857
+            }
+          },
+          "missing": {
+            "n_frames": 2675,
+            "n_trials": 987,
+            "probe": {
+              "mean_px": 1.9712867291365948,
+              "within_2px": 0.6130841121495327
+            },
+            "untrained": {
+              "mean_px": 6.597710744802003,
+              "within_2px": 0.06317757009345794
+            },
+            "constant": {
+              "mean_px": 8.839885711669922,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4722601361017881,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "shape": {
+          "all": {
+            "n_frames": 2182,
+            "n_trials": 513,
+            "probe": {
+              "mean_px": 1.8388750744231745,
+              "within_2px": 0.6388634280476627
+            },
+            "untrained": {
+              "mean_px": 6.9409696709045265,
+              "within_2px": 0.07745187901008249
+            },
+            "constant": {
+              "mean_px": 8.977115631103516,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.472099965562835,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.7875384489631185,
+              "within_2px": 0.3524289642529789
+            }
+          },
+          "found": {
+            "n_frames": 1183,
+            "n_trials": 416,
+            "probe": {
+              "mean_px": 1.8026174273754898,
+              "within_2px": 0.6382079459002535
+            },
+            "untrained": {
+              "mean_px": 7.22293282339425,
+              "within_2px": 0.08791208791208792
+            },
+            "constant": {
+              "mean_px": 9.047107696533203,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.47155691535452515,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.7875384489631185,
+              "within_2px": 0.6500422654268808
+            }
+          },
+          "missing": {
+            "n_frames": 999,
+            "n_trials": 330,
+            "probe": {
+              "mean_px": 1.8818108066127754,
+              "within_2px": 0.6396396396396397
+            },
+            "untrained": {
+              "mean_px": 6.607073365203483,
+              "within_2px": 0.06506506506506507
+            },
+            "constant": {
+              "mean_px": 8.894231796264648,
+              "within_2px": 0.0
+            },
+            "endpoint_line": {
+              "mean_px": 0.4727430370307335,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "location": {
+          "all": {
+            "n_frames": 2909,
+            "n_trials": 927,
+            "probe": {
+              "mean_px": 2.36359887175821,
+              "within_2px": 0.48676521141285667
+            },
+            "untrained": {
+              "mean_px": 6.048705361279979,
+              "within_2px": 0.10244070127191475
+            },
+            "constant": {
+              "mean_px": 3.7583067417144775,
+              "within_2px": 0.14575455482983843
+            },
+            "endpoint_line": {
+              "mean_px": 0.46995299819642417,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.478241205177471,
+              "within_2px": 0.40701271914747333
+            }
+          },
+          "found": {
+            "n_frames": 1518,
+            "n_trials": 610,
+            "probe": {
+              "mean_px": 2.5722329169398663,
+              "within_2px": 0.4413702239789196
+            },
+            "untrained": {
+              "mean_px": 6.561733085314391,
+              "within_2px": 0.08827404479578392
+            },
+            "constant": {
+              "mean_px": 3.841996908187866,
+              "within_2px": 0.1324110671936759
+            },
+            "endpoint_line": {
+              "mean_px": 0.46622897737185803,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.478241205177471,
+              "within_2px": 0.7799736495388669
+            }
+          },
+          "missing": {
+            "n_frames": 1391,
+            "n_trials": 617,
+            "probe": {
+              "mean_px": 2.135916283270968,
+              "within_2px": 0.5363048166786485
+            },
+            "untrained": {
+              "mean_px": 5.48883757904832,
+              "within_2px": 0.11790079079798706
+            },
+            "constant": {
+              "mean_px": 3.6669750213623047,
+              "within_2px": 0.16031631919482386
+            },
+            "endpoint_line": {
+              "mean_px": 0.47401702667355666,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        },
+        "both": {
+          "all": {
+            "n_frames": 1022,
+            "n_trials": 320,
+            "probe": {
+              "mean_px": 2.1419489842993973,
+              "within_2px": 0.5283757338551859
+            },
+            "untrained": {
+              "mean_px": 5.954795082653698,
+              "within_2px": 0.08708414872798434
+            },
+            "constant": {
+              "mean_px": 3.7268049716949463,
+              "within_2px": 0.15557729941291584
+            },
+            "endpoint_line": {
+              "mean_px": 0.45475018279316887,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5486516889765276,
+              "within_2px": 0.38747553816046965
+            }
+          },
+          "found": {
+            "n_frames": 534,
+            "n_trials": 203,
+            "probe": {
+              "mean_px": 2.2046133629870037,
+              "within_2px": 0.5149812734082397
+            },
+            "untrained": {
+              "mean_px": 6.37827109423882,
+              "within_2px": 0.08801498127340825
+            },
+            "constant": {
+              "mean_px": 3.7157256603240967,
+              "within_2px": 0.16853932584269662
+            },
+            "endpoint_line": {
+              "mean_px": 0.46224080831558295,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": 1.5486516889765276,
+              "within_2px": 0.7415730337078652
+            }
+          },
+          "missing": {
+            "n_frames": 488,
+            "n_trials": 206,
+            "probe": {
+              "mean_px": 2.073377717456812,
+              "within_2px": 0.5430327868852459
+            },
+            "untrained": {
+              "mean_px": 5.491401250304404,
+              "within_2px": 0.0860655737704918
+            },
+            "constant": {
+              "mean_px": 3.7389285564422607,
+              "within_2px": 0.1413934426229508
+            },
+            "endpoint_line": {
+              "mean_px": 0.4465534737174124,
+              "within_2px": 1.0
+            },
+            "patch": {
+              "mean_px": null,
+              "within_2px": 0.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

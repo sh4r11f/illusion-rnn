@@ -327,6 +327,56 @@ uv run python scripts/run_apparent_motion.py --quick   # smoke run
 uv run python scripts/run_apparent_motion.py           # ~1h on 8 CPU cores
 ```
 
+### Can position be read out when no patch is drawn?
+
+Yes, in this task. With both flashes shown, a linear readout of the **frozen
+final hidden state** predicts the six missing (x, y) ink centroids. Across
+three gap-limited CTRNN checkpoints, mean error is **2.06 px on frames without
+a detected patch** and **2.10 px on frames with one**. Detection uses the same
+threshold and start-footprint exclusion as above; “no patch” does not mean
+zero ink.
+
+![Linear position readout on detected and undetected frames](figures/position_probe.png)
+
+Each row below is restricted to blank frames **without** a detected patch.
+The two probes are fitted identically and scored on exactly the same frames
+within each seed; only the RNN weights differ.
+
+| Held out of probe fitting | Trained state: mean error (px) | Untrained state (px) | Trained state within 2 px |
+|---|---:|---:|---:|
+| Neither | 2.05 | 6.77 | 60% |
+| Shape (cross) | 1.93 | 6.59 | 62% |
+| Location (central tile) | 2.17 | 5.48 | 52% |
+| Both | 2.04 | 5.23 | 56% |
+
+**Protocol.** Fit one affine ridge readout per checkpoint (12 outputs; activity
+standardized on fitting trials only, fixed penalty 1). The 4,096 fitting
+movies use squares, circles and triangles; no frame's centroid enters the
+central tile (both coordinates in `[11, 21)` on the 32 px canvas). The 2,048
+fresh test movies include crosses. No pair of endpoint images repeats, and
+the same test movies are used for every seed. Test frames are grouped by
+their true centroid; different frames of one movie can fall in different
+location groups. The cross is new to **both** the probe and recurrent network;
+the location is held out of the **probe only**.
+
+**What the result supports.** Across *all* blank frames, the hidden-state
+readout lands within 2 px on 57%; the rendered patch does so on 40%, counting
+missing patches as misses. Training makes position more accessible to a
+linear readout than it is in the same network at random initialization.
+It does **not** establish that the RNN internally simulates a moving shape:
+storing both endpoints would suffice. Straight-line interpolation of the two
+visible ink centroids has only 0.47 px mean error (the movie is rasterized).
+
+```bash
+uv run python scripts/run_apparent_motion.py --save-dir checkpoints/apparent
+OPENBLAS_NUM_THREADS=2 uv run python scripts/run_position_probe.py --checkpoints checkpoints/apparent
+```
+
+The latter command does not train the RNN. It writes the figure and
+`results/position_probe.json`, with per-seed frame counts, distances and rates
+for all, detected and undetected frames, including the per-timepoint mean
+(no-input) and straight-line controls.
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
