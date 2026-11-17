@@ -34,21 +34,27 @@ LABELS = {
 
 
 def run_one(job):
-    condition, seed, n_steps, hidden, n_trials, save_dir = job
+    condition, seed, n_steps, hidden, n_trials, save_dir, eval_only, prior_loss = job
     readout, max_gap = CONDITIONS[condition]
     torch.set_num_threads(2)
     torch.manual_seed(seed)
     model = ap.ImputationNet(IMG_SIZE**2, hidden, N_FRAMES, readout=readout)
-    history = ap.train_imputation(model, n_steps=n_steps, max_gap=max_gap, seed=seed,
-                                  device="cpu", log_every=0, img_size=IMG_SIZE)
-    if save_dir:
-        Path(save_dir).mkdir(parents=True, exist_ok=True)
-        torch.save(model.state_dict(), Path(save_dir) / f"{condition}_seed{seed}.pt")
+    checkpoint = Path(save_dir) / f"{condition}_seed{seed}.pt" if save_dir else None
+    if eval_only:
+        model.load_state_dict(torch.load(checkpoint))
+        final_loss = prior_loss
+    else:
+        history = ap.train_imputation(model, n_steps=n_steps, max_gap=max_gap, seed=seed,
+                                      device="cpu", log_every=0, img_size=IMG_SIZE)
+        final_loss = float(np.mean(history["loss"][-100:]))
+        if checkpoint:
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            torch.save(model.state_dict(), checkpoint)
     kwargs = {"n_trials": n_trials, "device": "cpu", "img_size": IMG_SIZE,
               "seed": 10_000 + seed}
     record = {
         "condition": condition, "readout": readout, "max_gap": max_gap, "seed": seed,
-        "final_loss": float(np.mean(history["loss"][-100:])),
+        "final_loss": final_loss,
         "gap": {str(g): ap.evaluate_imputation(model, "gap", gap=g, **kwargs)
                 for g in range(1, N_FRAMES - 1)},
         "flicker": ap.evaluate_imputation(model, "flicker", **kwargs),
@@ -153,6 +159,8 @@ def main():
     parser.add_argument("--hidden", type=int, default=512)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--save-dir", default=None, help="write model state dicts here")
+    parser.add_argument("--eval-only", action="store_true",
+                        help="re-evaluate the models in --save-dir without retraining")
     parser.add_argument("--out", default="results/apparent_motion.json")
     parser.add_argument("--figure", default="figures/apparent_motion.png")
     args = parser.parse_args()
@@ -162,7 +170,13 @@ def main():
         steps, hidden, seeds, n_trials = args.steps, args.hidden, args.seeds, 500
         if args.quick:
             steps, hidden, seeds, n_trials = 300, 64, 1, 50
-        jobs = [(c, s, steps, hidden, n_trials, args.save_dir) for c in CONDITIONS for s in range(seeds)]
+        prior = {}
+        if args.eval_only:
+            prior = {(r["condition"], r["seed"]): r["final_loss"]
+                     for r in json.loads(out.read_text())["records"]}
+        jobs = [(c, s, steps, hidden, n_trials, args.save_dir, args.eval_only,
+                 prior.get((c, s)))
+                for c in CONDITIONS for s in range(seeds)]
         with ProcessPoolExecutor(max_workers=args.workers) as pool:
             done = list(pool.map(run_one, jobs))
         records = [record for record, _ in done]
@@ -173,7 +187,8 @@ def main():
         config = {"n_frames": N_FRAMES, "img_size": IMG_SIZE, "n_steps": steps,
                   "hidden_size": hidden, "seeds": seeds, "n_eval_trials": n_trials,
                   "cell": "ctrnn"}
-        out.write_text(json.dumps({"config": config, "records": records}, indent=2))
+        out.write_text(json.dumps({"config": config, "records": records}, indent=2,
+                                  allow_nan=False))
         np.savez_compressed(out.with_suffix(".npz"), **arrays)
         print(f"wrote {out}")
 

@@ -32,7 +32,7 @@ CELLS = ("ctrnn", "gru")
 @dataclass(frozen=True)
 class MotionBatch:
     """``frames`` (B, T, H, W) is the unmasked movie, ``centres`` (B, T, 2) the
-    shape centre in every frame, ``sizes`` (B,) the shape box side in pixels."""
+    shape's ink centroid in every frame, ``sizes`` (B,) the shape box side in pixels."""
 
     frames: np.ndarray
     centres: np.ndarray
@@ -86,7 +86,11 @@ def sample_motion(
         size = int(rng.integers(size_range[0], size_range[1] + 1))
         lo, hi = size / 2, img_size - size / 2 - 0.5
         static = rng.random() < p_static
-        while True:
+        if not static and disp_range[0] * img_size > np.sqrt(2) * (hi - lo):
+            msg = (f"a size-{size} shape cannot move {disp_range[0]:g} x {img_size} px "
+                   f"on a {img_size} px canvas; lower disp_range or size_range")
+            raise ValueError(msg)
+        for attempt in range(10_000):
             a = rng.uniform(lo, hi, size=2)
             if static:
                 b = a
@@ -96,13 +100,20 @@ def sample_motion(
             b = a + dist * np.array([np.cos(angle), np.sin(angle)])
             if np.all(b >= lo) and np.all(b <= hi):
                 break
+        else:
+            msg = "could not fit a trajectory on the canvas; check disp_range and size_range"
+            raise ValueError(msg)
         path = a + fractions * (b - a)
-        # The rendered centre is the rounded one, so that is the ground truth.
+        # The rendered box centre is the rounded one.
         offset = (size - 1) / 2
         path = np.round(path - offset) + offset
         for t in range(n_frames):
             frames[i, t] = _render(shape, size, path[t], img_size)
-        centres[i] = path
+        # Ground truth is the ink centroid, which is what the metrics measure
+        # on reconstructions; for a triangle it sits below the box centre.
+        mask = _mask(shape, size)
+        ys, xs = np.nonzero(mask)
+        centres[i] = path + (np.array([xs.mean(), ys.mean()]) - offset)
         sizes[i] = size
         names.append(shape)
     return MotionBatch(frames, centres, sizes, tuple(names))
@@ -341,9 +352,9 @@ def imputation_metrics(recon: np.ndarray, batch: MotionBatch, visible: np.ndarra
                 recon_frac.append(float((centroid - a) @ axis) / norm)
 
     def mean(values):
-        return float(np.mean(values)) if len(values) else float("nan")
+        return float(np.mean(values)) if len(values) else None
 
-    slope = float("nan")
+    slope = None  # undefined when nothing moves; None keeps the results valid JSON
     if len(set(np.round(true_frac, 6))) > 1:
         slope = float(np.polyfit(true_frac, recon_frac, 1)[0])
     return {

@@ -269,12 +269,12 @@ CTRNN, `hidden=512`, 32px, 20,000 steps, 3 seeds, 500 test trials each
 
 | blanked frames at test | IoU with true frame | centroid error (px) | ink drawn / true ink |
 |---|---|---|---|
-| 1 (trained) | 0.743 | 0.66 | 1.02 |
-| 4 (trained, longest) | 0.638 | 0.80 | 0.98 |
-| 5 (never trained) | 0.539 | 0.99 | 0.86 |
-| **6 = apparent motion (never trained)** | **0.225** | **2.34** | **0.46** |
-| 6, model trained with unbounded gaps | 0.422 | 1.47 | 0.93 |
-| 6, online readout | 0.087 | 5.00 | 1.03 |
+| 1 (trained) | 0.743 | 0.45 | 1.02 |
+| 4 (trained, longest) | 0.638 | 0.63 | 0.98 |
+| 5 (never trained) | 0.539 | 0.85 | 0.86 |
+| **6 = apparent motion (never trained)** | **0.225** | **2.25** | **0.46** |
+| 6, model trained with unbounded gaps | 0.422 | 1.36 | 0.93 |
+| 6, online readout | 0.087 | 4.95 | 1.03 |
 
 Fill-in on apparent motion is **partial**. The ink the network draws in the
 blanked frames does travel from a to b (regression slope of the reconstructed
@@ -297,19 +297,19 @@ test, means over 3 seeds; mean a-b distance is about 16 px:
 
 | | patch found | centre error (px) | if the patch sat at the nearer endpoint |
 |---|---|---|---|
-| training gaps <= 4 (test never trained) | 55% of frames | 1.78 | 3.64 |
-| training gaps unbounded | 86% | 1.55 | 3.96 |
-| online readout | 48% | 4.41 | 4.17 |
-| true movie scored the same way | 100% | 0.87 | |
+| training gaps <= 4 (test never trained) | 55% of frames | 1.68 | 3.64 |
+| training gaps unbounded | 86% | 1.45 | 3.96 |
+| online readout | 48% | 4.36 | 4.17 |
+| true movie scored the same way | 100% | 0.66 | |
 
 In the two middle frames (t4, t5), where a jump to either endpoint is 5.4 px
-off, the patch is 1.8 and 1.6 px off. So when the network draws something away
+off, the patch is 1.7 and 1.5 px off. So when the network draws something away
 from the start, it draws it at the interpolated position, not at an endpoint
 -- but in the never-trained condition it draws such a patch in only about half
 of the blanked frames. The error is conditional on a patch being found, and
-the 0.87 px floor is the bias of discarding the start footprint (it clips the
+the 0.66 px floor is the bias of discarding the start footprint (it clips the
 true shape in the first frames after a). The numbers are stable across
-detection thresholds 0.1-0.5 (error 1.95-1.60 px, patch found 71%-39%).
+detection thresholds 0.1-0.5 (error 1.85-1.48 px, patch found 71%-39%).
 
 The online readout fails at long gaps as it must (5 px error, slope 0.48): it
 has not seen b when it has to draw the intermediate frames.

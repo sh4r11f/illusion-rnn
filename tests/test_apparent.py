@@ -20,7 +20,7 @@ def test_sample_motion_shapes_and_ink():
 
 
 def test_centres_match_rendered_ink_and_move_linearly():
-    batch = _batch(shapes=("square",), p_static=0.0)
+    batch = _batch(p_static=0.0)
     yy, xx = np.mgrid[0:32, 0:32]
     ink = batch.frames.sum(axis=(2, 3))
     cx = (batch.frames * xx).sum(axis=(2, 3)) / ink
@@ -38,6 +38,20 @@ def test_disp_range_and_static():
     assert dist.min() >= 0.25 * 32 - 1.5 and dist.max() <= 0.75 * 32 + 1.5
     static = _batch(p_static=1.0)
     assert np.all(static.frames == static.frames[:, :1])
+
+
+def test_infeasible_geometry_raises_instead_of_hanging():
+    with pytest.raises(ValueError, match="cannot move"):
+        _batch(img_size=10, size_range=(8, 8), p_static=0.0)
+
+
+def test_perfect_triangle_has_zero_position_error():
+    batch = _batch(n=30, shapes=("triangle",), p_static=0.0, disp_range=(0.6, 0.75))
+    visible = ap.endpoint_mask(30, 8)
+    assert ap.imputation_metrics(batch.frames, batch, visible)["pos_err"] == pytest.approx(
+        0.0, abs=1e-4)
+    assert ap.patch_position_metrics(batch.frames, batch, visible)["by_frame"][6][
+        "patch_err"] == pytest.approx(0.0, abs=1e-4)
 
 
 def test_unknown_shape_raises():
@@ -126,7 +140,7 @@ def test_metrics_handle_blank_reconstruction():
     batch = _batch(n=5, p_static=0.0)
     result = ap.imputation_metrics(np.zeros_like(batch.frames), batch, ap.endpoint_mask(5, 8))
     assert result["iou_true"] == 0.0 and result["ink_ratio"] == 0.0
-    assert np.isnan(result["path_slope"])
+    assert result["path_slope"] is None and result["pos_err"] is None
 
 
 def test_training_reduces_loss_and_evaluates():
