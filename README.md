@@ -226,6 +226,82 @@ The full grid was run on Hugging Face Jobs (`scripts/hf_sweep.py`, ~1h on one
 L4). `uv run pytest -m slow` runs the two training-based gate tests, which are
 excluded from the default suite.
 
+## Classical apparent motion as imputation
+
+`illusion_rnn/apparent.py` adds a second, self-supervised paradigm. A shape
+translates at constant velocity from point a to point b over 8 frames. The
+network sees the movie with some frames blanked and is trained to reconstruct
+the **whole** movie. The test is the limiting case: only the two endpoint
+frames are shown, which is the classical apparent-motion display. The question
+is whether the reconstruction of the blanked frames contains the intermediate
+positions.
+
+```python
+import illusion_rnn as ir
+
+model = ir.ImputationNet(input_size=32 * 32, hidden_size=512, n_frames=8)
+ir.train_imputation(model, n_steps=20_000, max_gap=4, img_size=32)
+print(ir.evaluate_imputation(model, "apparent", img_size=32))
+```
+
+Design choices that the result depends on:
+
+- **Readout after the sequence.** `readout="final"` decodes all frames from the
+  hidden state after the last frame, so a blanked frame can be reconstructed
+  using the endpoint that came after it. `readout="online"` decodes each frame
+  at its own timestep and can only extrapolate; it is the comparison.
+- **The test is out of the training distribution.** `max_gap` caps the run of
+  consecutive blanked frames in training (4 here); the apparent-motion test
+  blanks 6. A second model trained with unbounded gaps shows what the same
+  architecture reaches when the test condition is trained on.
+- **No memorizable trajectory.** Start point, direction (any angle), distance
+  (25-75% of the canvas), shape and size are all sampled per trial; 10% of
+  trials are stationary.
+- **Not a neurogym env.** The target is a movie, not a class label per
+  timestep, so batches are sampled directly.
+
+### Result
+
+CTRNN, `hidden=512`, 32px, 20,000 steps, 3 seeds, 500 test trials each
+(`results/apparent_motion.json`; means over seeds):
+
+![Apparent motion as imputation](figures/apparent_motion.png)
+
+| blanked frames at test | IoU with true frame | centroid error (px) | ink drawn / true ink |
+|---|---|---|---|
+| 1 (trained) | 0.743 | 0.66 | 1.02 |
+| 4 (trained, longest) | 0.638 | 0.80 | 0.98 |
+| 5 (never trained) | 0.539 | 0.99 | 0.86 |
+| **6 = apparent motion (never trained)** | **0.225** | **2.34** | **0.46** |
+| 6, model trained with unbounded gaps | 0.422 | 1.47 | 0.93 |
+| 6, online readout | 0.087 | 5.00 | 1.03 |
+
+Fill-in on apparent motion is **partial**. The ink the network draws in the
+blanked frames does travel from a to b (regression slope of the reconstructed
+centroid along the a-b axis against the true position: 1.06; mean a-b distance
+is about 16 px, centroid error 2.3 px), and the reconstruction overlaps the
+true intermediate frame more than it overlaps the nearest endpoint (0.225 vs
+0.182) or both endpoints superimposed (0.102). But it draws less than half of
+the ink, and individual reconstructions are fragmented rather than one clean
+moving shape (see the bottom row of the figure). Performance degrades smoothly
+up to 5 blanked frames and drops sharply at 6.
+
+The online readout fails at long gaps as it must (5 px error, slope 0.48): it
+has not seen b when it has to draw the intermediate frames.
+
+Limitations: reconstruction is imperfect even in the trained regime (IoU 0.74
+with one blanked frame), so these fully-connected pixel models are a floor, not
+a tuned result. The same-place flicker control (`"flicker"`: endpoints only,
+a = b) is reconstructed in place but faintly (IoU 0.46, ink ratio 0.71), so
+part of the apparent-motion deficit is a deficit for *any* two-frame display,
+not for motion specifically. Longer inter-stimulus intervals and held-out
+positions or speeds are not tested, and there is no human anchor.
+
+```bash
+uv run python scripts/run_apparent_motion.py --quick   # smoke run
+uv run python scripts/run_apparent_motion.py           # ~1h on 8 CPU cores
+```
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
@@ -248,6 +324,7 @@ conventions in `illusion_rnn/stimuli.py`, and pass the result to the env via
 ```
 illusion_rnn/       the package: envs, stimulus loaders, models, train/eval, plotting
   generate.py       programmatic stimulus generator + train/test splits
+  apparent.py       classical apparent motion as masked-frame imputation
   sweep.py          multi-seed architecture grid runner
 checkpoints/        trained models (git LFS) + MANIFEST.md
 notebooks/          01_quickstart, 02_train, 03_dynamics, 04_rsa; legacy/ holds
