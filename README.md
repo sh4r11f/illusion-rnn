@@ -672,6 +672,91 @@ OPENBLAS_NUM_THREADS=2 uv run python scripts/compare_main_task.py \
 
 [Per-frame measurements and example coordinates](results/main_task_comparison.json).
 
+### Does an internal position signal actually move the output?
+
+A probe can find information that the model itself never uses. Here we
+**change the activations inside the frozen network**, run its remaining
+layers, and measure whether its six missing-position estimates move.
+Each test pair has the same object, size and unchanged flash; only A *or*
+B moves 4 pixels left, right, up or down. The intact response is the model’s
+output on the moved movie minus its output on the original. It is not the
+ground-truth motion: averaged over the six blank frames, shifting just one
+endpoint ideally shifts a straight interpolant by 2 px.
+
+![Effects of moving each flash, swapping position directions, and editing individual connections](figures/position_trace.png)
+
+**Finding the signal.** On 1,024 square/circle pairs per endpoint, regress
+the change in activation on the signed x/y translation, separately at each
+site. These two directions use no decoder weights. On 384 new triangle
+pairs per endpoint, copy *only* the donor-minus-original change in that
+plane into the original state. For the reverse test, leave the donor
+intact except for restoring that plane to its original value. Score the
+RNN’s ink centre or the JEPA embedding through a fixed position calibration
+fit only to individual square/circle flashes. No target movie or hidden-frame
+coordinates enter the networks. The triangle is held out of this analysis,
+not of backbone training.
+
+| Final-state intervention (mean across three seeds) | RNN: A / B | JEPA: A / B |
+|---|---:|---:|
+| Moving the real flash: mean signed output shift | 2.53 / 1.03 px | 1.03 / 1.00 px |
+| Copying just the position plane: % of intact shift | 25 / 19% | 85 / 91% |
+| Blocking just that plane: % of intact shift removed | 26 / 23% | 85 / 91% |
+| Copying that plane: reduction in per-example coordinate RMSE to donor | 12 / 7% | 28 / 24% |
+
+At initialization the intact models barely shift in the requested direction
+(absolute seed-mean below 0.02 px for each endpoint, with calibration refit
+for each untrained JEPA). Random two-dimensional planes in the *trained*
+models recover at most 2% of the mean shift on average at the final state.
+**These percentages are not position accuracy.**
+The JEPA’s *mean signed response* is concentrated in two directions even
+though swapping them reduces the discrepancy from the donor’s full predicted
+embedding by only about 3% (L2 norm across trials/frames). Its final
+predictor and calibration are affine, so the final copy/block tests are
+algebraic complements, not independent confirmations. Upstream swaps in the
+flash slot and first mixing layer also change the output. In the RNN,
+swapping the start-position plane **before B arrives** reproduces 34% of the
+start effect. Immediately after A, the same procedure gives a small effect
+in the *opposite* direction: a single fixed interpretation across recurrent
+steps is not supported.
+
+**Finding connections.** Test the JEPA’s moved flash slot → first context
+layer and the RNN’s last blank state → final learned recurrent update. The
+RNN’s direct leaky-memory path remains intact; because the last blank state
+cannot know B, we test only the A route there. On fit pairs, rank weights by
+the absolute mean signed contribution to output movement (upstream activation
+change × weight × downstream gradient, evaluated at the midpoint before the
+nonlinearity). Ranking proposes a circuit; the **test** swaps contributions
+on individual edges and reruns the actual nonlinear network on new triangles.
+No weights are retrained or zeroed.
+
+| Tested route | Top 5% swapped: shift recovered | Random 5% swapped | Top 5% blocked: shift removed |
+|---|---:|---:|---:|
+| RNN start, across final recurrent update | 34% | 2% | 37% |
+| JEPA start slot → first context layer | 55% | 6% | 55% |
+| JEPA end slot → first context layer | 68% | 4% | 67% |
+
+The denominator is the **intact model’s** mean signed shift, not just that
+layer’s effect. “5%” is of the tested matrix, not of the model: 13,107 of
+512 × 512 recurrent edges or 461 of 48 × 192 slot edges. Four independently
+matched random sets are averaged within each seed. RNN transfer still occurs
+through the direct leak when the learned recurrent route is blocked. These
+are **partial, task-specific routes** for where the flashes were, not unique
+position neurons or evidence of a trajectory simulator. A stronger next
+test would keep the endpoints fixed and move an intermediate cue: do the
+same edges change the reconstructed *path* without changing the endpoints?
+
+```bash
+OPENBLAS_NUM_THREADS=2 uv run python scripts/trace_position.py \
+    --rnn checkpoints/apparent --jepa checkpoints/jepa
+uv run python scripts/plot_position_trace.py
+```
+
+[Per-seed interventions, controls and top-64 edge identities](results/position_trace.json).
+Unit identities are local to each seed. Native-output and coordinate recovery
+are one minus patched-to-donor RMSE divided by original-to-donor RMSE; they
+can be negative. The result file also includes tests of 8 × 8 unit blocks
+and matched untrained models (use absolute shifts, not ratios near zero).
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
