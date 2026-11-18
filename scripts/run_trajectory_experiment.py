@@ -50,20 +50,25 @@ def endpoint_keys(batch):
             np.packbits(batch.frames[:, [0, -1]].astype(bool), axis=-1)]
 
 
-@torch.inference_mode()
-def fit_examples(model, n, exclude):
+def fitting_batches(n, exclude):
     rng = np.random.default_rng(FIT_SEED)
-    xs, ys = [], []
     while n:
         batch = tr.sample_trajectories(rng, 64)
         take = [i for i, k in enumerate(endpoint_keys(batch)) if k not in exclude][:n]
         if not take:
             continue
+        yield batch, take
+        n -= len(take)
+
+
+@torch.inference_mode()
+def fit_examples(model, n, exclude):
+    xs, ys = [], []
+    for batch, take in fitting_batches(n, exclude):
         for cue in (False, True):
             activity, _ = model.rnn(inputs(batch, cue))
             xs.append(activity[-1, take].numpy())
             ys.append(batch.centres[take][:, SCORE])
-        n -= len(take)
     return np.concatenate(xs), np.concatenate(ys)
 
 

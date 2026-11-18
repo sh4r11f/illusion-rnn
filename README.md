@@ -552,6 +552,72 @@ OPENBLAS_NUM_THREADS=2 uv run python scripts/run_stimulus_robustness.py \
 
 Full results: [`results/stimulus_robustness.json`](results/stimulus_robustness.json).
 
+### JEPA: predict where the object is without predicting its pixels
+
+We trained a small **joint-embedding predictive architecture (JEPA)** from
+scratch on the same motion task. Given both endpoints and an intermediate
+flash, its predicted embeddings distinguish speeding up from slowing down or
+moving steadily. Without an endpoint, they do **not** reliably continue the
+acceleration. On these movies, predicting embeddings was not better than
+predicting pixels with a comparable model.
+
+| Model and position readout | Cued acceleration / path choice | Cued position error (px) | Final fast–slow separation without endpoint | Final position error (px) |
+|---|---:|---:|---:|---:|
+| JEPA, predicted embedding → single-image position | 79% / 77% | 2.27 | −6% | 4.01 |
+| Matched pixel control, centre of predicted ink | 98% / 93% | 1.17 | 6% | 3.77 |
+| JEPA, probe fitted on motion labels | 82% / 76% | 2.12 | 8% | 5.25 |
+| Matched pixel control, same probe protocol | 96% / 90% | 1.33 | 26% | 5.36 |
+| Earlier CTRNN, same probe protocol | 76% / 70% | 4.42 | 12% | 6.68 |
+| Join visible flashes / continue last velocity | 99.7% / 78% | 1.23 | 0% | 3.69 |
+
+Means weight the nine shape–size conditions and three training seeds equally,
+using the **same test tracks** as the preceding experiment (192 groups per
+task). Interpolation scores five hidden frames across all paths; forecast
+columns score the fourth hidden frame on straight paths. With endpoints only,
+acceleration and path choice are both 1/3 because the alternatives have
+identical inputs. On the straight, steady subset the JEPA's single-image
+readout has 3.56 px error without the cue; simply joining the endpoints
+scores 0.47 px. A negative separation is a small reversal of the fast–slow
+contrast, **not** a negative distance. The CTRNN is a reference, not the
+matched control: it has a different architecture and a longer training run.
+
+![JEPA and pixel control across three shapes and three sizes](figures/motion_jepa.png)
+
+**What the two JEPA readouts measure.** The first is one affine map from a
+teacher embedding of an individual image to its ink centroid, fitted on
+familiar shapes. Apply it unchanged to each *predicted* embedding: it never
+trains on forecasts. On fresh familiar images where the object is actually
+shown it scores 1.46 px. In contrast, the context probes learn the five
+missing or four future coordinates directly from frozen context, using the
+same familiar fit movies, excluded test pairs and ridge protocol as the CTRNN.
+A probe may learn a forecasting rule; it need not reflect what the model
+predicts on its own.
+
+**Training.** An average-pooled frame MLP produces 48 features. A temporal
+MLP reads the ordered visible slots and visibility flags and predicts an
+embedding per frame. The target encoder sees **each true frame independently**,
+has no gradient, and follows the online frame encoder by exponential moving
+average (decay 0.99). Training minimizes masked-frame embedding MSE plus
+variance and covariance penalties on visible features. This is a task-sized
+JEPA, not pretrained V-JEPA. The control keeps the same online backbone,
+initialization, movies, masks and optimizer schedule but uses a pixel head
+and masked-frame BCE instead. Both get 1,000 straight-motion and 2,000
+varied-motion updates, batch size 32, maximum training gap 4; no coordinate
+labels are used to train either backbone.
+
+**Collapse check.** On 512 held-out familiar movies, the teacher has a
+participation rank of 31–32 out of 48 dimensions across seeds. Cued hidden
+embeddings match the correct frame better than the same time in an unrelated
+movie (MSE 0.43 vs 1.00); the prefix-only comparison is 0.59 vs 0.89.
+These checks show nonconstant, informative predictions, not a learned law of motion.
+
+```bash
+uv run python scripts/train_motion_jepa.py --checkpoints checkpoints/jepa
+OPENBLAS_NUM_THREADS=2 uv run python scripts/evaluate_motion_jepa.py --checkpoints checkpoints/jepa
+```
+
+[Per-seed results](results/motion_jepa.json) include all forecast horizons and paths.
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
