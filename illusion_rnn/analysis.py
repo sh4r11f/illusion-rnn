@@ -22,15 +22,24 @@ from dataclasses import dataclass
 import numpy as np
 
 
-def ridge_predict(x, y, test_x, alpha=1.0):
-    """Train-only standardization and an affine ridge readout for multiframe targets."""
+def fit_ridge(x, y, alpha=1.0):
+    """Fit once on familiar movies; reuse the same readout on any test condition."""
     x = x.astype(np.float64)
     mu, sd = x.mean(0), x.std(0).clip(min=1e-8)
     z = (x - mu) / sd
     target = y.reshape(len(y), -1).astype(np.float64)
     bias = target.mean(0)
     w = np.linalg.solve(z.T @ z + alpha * np.eye(z.shape[1]), z.T @ (target - bias))
-    return (((test_x - mu) / sd) @ w + bias).reshape(-1, *y.shape[1:])
+    target_shape = y.shape[1:]
+
+    def predict(test_x):
+        return (((test_x - mu) / sd) @ w + bias).reshape(-1, *target_shape)
+    return predict
+
+
+def ridge_predict(x, y, test_x, alpha=1.0):
+    """Train-only standardization and an affine ridge readout for multiframe targets."""
+    return fit_ridge(x, y, alpha)(test_x)
 
 
 def stack_activity(result):

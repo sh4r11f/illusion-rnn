@@ -482,6 +482,76 @@ OPENBLAS_NUM_THREADS=2 uv run python scripts/run_prefix_forecast.py --checkpoint
 The runner writes `results/prefix_forecast.json` with per-horizon results for
 each path, timing profile and seed, and `figures/prefix_forecast.png`.
 
+### Does the endpoint result transfer across objects and sizes?
+
+Change only the object: a filled square, a filled cross or a one-pixel hollow
+square, each 3, 7 or 11 pixels wide. The same 192 groups of **ink-centre
+tracks** are replayed in all nine conditions within each task. Placements fit
+the largest object on the 32 px canvas; no clipping or size-dependent slowing
+is needed. Training used filled squares, circles and triangles, 4–8 px wide.
+Only the 7 px filled square is familiar on both dimensions. Intensity per ink
+pixel, not total ink, is held fixed.
+
+![Shape and size transfer in three endpoint tasks](figures/stimulus_robustness.png)
+
+Means over three model seeds; the bands in the plot are their ranges.
+
+| Stimulus | Width (px) | Patch found / within 2 px¹ | Cued acceleration / path choice² | Fast–slow separation recovered³ | Forecast error³ (px) |
+|---|---:|---:|---:|---:|---:|
+| Filled square | 3 | 15% / 11% | 89% / 84% | 19% | 3.54 |
+| Filled square | 7 | 86% / 69% | 89% / 82% | 14% | 3.41 |
+| Filled square | 11 | 93% / 42% | 58% / 58% | −4% | 3.76 |
+| Cross | 3 | 5% / 4% | 87% / 80% | 15% | 3.61 |
+| Cross | 7 | 88% / 68% | 92% / 85% | 17% | 3.38 |
+| Cross | 11 | 100% / 64% | 75% / 70% | 3% | 3.61 |
+| Hollow square | 3 | 12% / 9% | 89% / 83% | 17% | 3.54 |
+| Hollow square | 7 | 96% / 68% | 61% / 51% | −2% | 3.91 |
+| Hollow square | 11 | 100% / 38% | 41% / 38% | −4% | 5.01 |
+
+1. **Straight, constant-speed fill-in:** the original gap-limited RNN sees
+   only the endpoints. Both percentages use *all six blank frames*; no
+   detected non-start patch counts as a miss. Conditional on a detection, the
+   patch is closer on average to the true position than the nearer endpoint
+   for every stimulus and size. That does not make the tiny objects reliable:
+   the network rarely draws a detectable second patch for them. At large sizes
+   removing the initial footprint also clips more of the true object.
+2. **Interpolation with a cue:** the varied-motion RNN sees the endpoints
+   and optionally frame 4. Without frame 4 every condition scores 1/3 on
+   each choice by construction. With it, both choices improve, but transfer
+   depends on appearance. At 11 px the hollow square is barely above chance
+   on path. Choice ranks three trajectories with the other factor held fixed;
+   it does **not** guarantee a precise position. For the 11 px filled square
+   one seed’s cued probe has 48.65 px mean error (the others: 3.15 and 3.00).
+   Coordinates from the linear probe are not clipped to the canvas.
+3. **Endpoint-free forecast:** the varied-motion RNN sees frames 1–4 and
+   then four blanks. The table scores its unmodified image decoder’s ink
+   centre at the final blank on straight paths. A gain of 100% reproduces the
+   true separation, 0% ignores acceleration, and negative values have the
+   fast–slow contrast slightly reversed on average. Weak separation transfers
+   to all nine conditions. The *error ranking* does not: continuing at the
+   last velocity scores 3.69 px for every appearance (identical tracks), and
+   the RNN has lower mean error in six conditions. Low position error by
+   itself is not evidence for acceleration forecasting.
+
+**No retraining per condition.** For each adapted RNN, fit one interpolation
+probe and one forecast probe on separate, familiar movies, excluding all
+matching test endpoint or last-visible image pairs, respectively. Apply the
+same two probes across all nine conditions. The results include per-seed
+records, the visible-line, velocity and quadratic controls, and separate
+left/right-arc forecast scores. For example, the RNN beats the velocity
+baseline by 0.31 px on the 7 px cross (95% paired bootstrap interval:
+0.18–0.44 px), but is worse by 1.32 px on the 11 px hollow square
+(1.15–1.50 px). These intervals resample the 192 trajectory groups after
+averaging over the three fixed networks; they do not estimate uncertainty
+over new training runs or adjust for testing multiple conditions.
+
+```bash
+OPENBLAS_NUM_THREADS=2 uv run python scripts/run_stimulus_robustness.py \
+    --base checkpoints/apparent --checkpoints checkpoints/trajectory
+```
+
+Full results: [`results/stimulus_robustness.json`](results/stimulus_robustness.json).
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from illusion_rnn.apparent import MotionBatch, _mask
+from illusion_rnn.generate import outline_mask
 
 ACCEL = ("steady", "speed_up", "slow_down")
 PATH = ("straight", "arc_left", "arc_right")
@@ -21,9 +22,9 @@ class Chords:
     shapes: np.ndarray
 
 
-def sample_chords(rng, n):
+def sample_chords(rng, n, *, size_range=(4, 8)):
     """Choose a common placement that fits *every* path, without clipping."""
-    sizes = rng.integers(4, 9, n)
+    sizes = rng.integers(size_range[0], size_range[1] + 1, n)
     shapes = rng.choice(SHAPES, n)
     length = rng.uniform(10, 18, (n, 1))
     phi = rng.uniform(-np.pi, np.pi, n)
@@ -59,12 +60,14 @@ def render(chords, accel, path):
     return render_tracks(trajectory(chords, accel, path), chords.sizes, chords.shapes)
 
 
-def render_tracks(tracks, sizes, shapes):
+def render_tracks(tracks, sizes, shapes, *, outline=False):
     top_left = np.rint(tracks).astype(int)
     frames = np.zeros((len(sizes), FRAMES, SIDE, SIDE), dtype=np.float32)
     centres = top_left.astype(np.float32)
     for i, (size, shape) in enumerate(zip(sizes, shapes)):
         ink = _mask(shape, size)
+        if outline:
+            ink = outline_mask(ink.astype(bool))
         y, x = np.nonzero(ink)
         centres[i] += [x.mean(), y.mean()]
         for t, (left, top) in enumerate(top_left[i]):
@@ -82,7 +85,7 @@ def sample_trajectories(rng, batch_size, n_frames=FRAMES):
 PREFIX = 4
 
 
-def forecast_tracks(rng, n):
+def forecast_tracks(rng, n, *, size_range=(4, 8)):
     """(group, acceleration, path, time, xy), matched on the last two visible frames.
 
     k=0 is the last flash. The segment ending at k has arclength v+a*k,
@@ -99,7 +102,7 @@ def forecast_tracks(rng, n):
     phi = rng.uniform(-np.pi, np.pi, n)
     unit = np.stack([np.cos(phi), np.sin(phi)], axis=-1)[:, None, None, None]
     tracks = u[..., None] * unit + w[..., None] * (unit[..., ::-1] * [1, -1])
-    sizes = rng.integers(4, 9, n)
+    sizes = rng.integers(size_range[0], size_range[1] + 1, n)
     lo, hi = tracks.min((1, 2, 3)), tracks.max((1, 2, 3))
     # Fit all nine options with *one* scale and translation per group.
     limit = ((SIDE - sizes)[:, None] / (hi - lo)).min(1)

@@ -420,6 +420,8 @@ def patch_position_metrics(recon: np.ndarray, batch: MotionBatch, visible: np.nd
     ``threshold``. All distances are in pixels, over moving trials only.
 
     - ``patch_found``   fraction of blanked frames with any such patch,
+    - ``patch_within_2px_all``  fraction of all moving blanked frames with a
+      patch centre within 2 pixels of the true centre (non-detections miss),
     - ``patch_err``     mean distance from the patch centre to the true centre
       (``patch_err_median``: median; ``patch_err_frac``: mean error divided by
       the trial's a-to-b distance),
@@ -475,6 +477,7 @@ def patch_position_metrics(recon: np.ndarray, batch: MotionBatch, visible: np.nd
         }
     return {
         "patch_found": len(rows["err"]) / total if total else None,
+        "patch_within_2px_all": float((rows["err"] <= 2).sum() / total) if total else None,
         "patch_err": mean(rows["err"]),
         "patch_err_median": float(np.median(rows["err"])) if len(rows["err"]) else None,
         "patch_err_frac": mean(rows["frac"]),
