@@ -41,6 +41,10 @@ pip install git+https://github.com/sh4r11f/illusion-rnn.git
 
 ## Quickstart
 
+For the larger CUDA models, see [masked imputation on real video](docs/real-video-motion.md):
+local RGB clips, a spatial ConvGRU or a patch JEPA, and endpoints-only evaluation.
+These are untrained configurations, separate from the synthetic results.
+
 The snippet below assumes a full repo clone with git LFS (for the shipped
 checkpoints); library-only installs (`pip install git+...`) can still build
 environments and train models, but must download checkpoints separately.
