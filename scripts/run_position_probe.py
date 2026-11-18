@@ -34,15 +34,15 @@ class Trials:
     shapes: np.ndarray
 
 
-def sample_trials(n, seed, *, fit, seen):
+def sample_trials(n, seed, *, fit, seen, holdouts=True):
     """Independent movies; do not reuse even a pixel-identical pair of endpoints."""
     rng = np.random.default_rng(seed)
     endpoints, centres, shapes = [], [], []
     while len(centres) < n:
         batch = ap.sample_motion(rng, 128, n_frames=FRAMES, img_size=SIDE, p_static=0,
-                                 shapes=FAMILIAR if fit else (*FAMILIAR, NOVEL))
+                                 shapes=FAMILIAR if fit or not holdouts else (*FAMILIAR, NOVEL))
         for movie, path, shape in zip(batch.frames, batch.centres, batch.shapes):
-            if fit and inside_tile(path).any():
+            if holdouts and fit and inside_tile(path).any():
                 continue
             ends = movie[[0, -1]].astype(bool)
             key = np.packbits(ends).tobytes()

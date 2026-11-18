@@ -618,6 +618,60 @@ OPENBLAS_NUM_THREADS=2 uv run python scripts/evaluate_motion_jepa.py --checkpoin
 
 [Per-seed results](results/motion_jepa.json) include all forecast horizons and paths.
 
+### Head to head on the original two-flash task
+
+Here the object moves **in a straight line at constant speed**. Both frozen
+models see only frames 1 and 8 of exactly the same 2,048 moving movies
+(squares, circles and triangles, 4–8 px). Neither sees the six target images.
+The comparison uses the original gap-limited CTRNN, not the same-backbone
+pixel control, and the final JEPA from the preceding experiment.
+
+![All six missing positions: JEPA and RNN errors by frame and fraction within two pixels](figures/jepa_rnn_main_accuracy.png)
+
+| How position is measured | Original RNN | JEPA |
+|---|---:|---:|
+| Model output: mean error | 2.25 px | 3.90 px |
+| Model output: fraction within 2 px | 62% | 19% |
+| Matched context probe: mean error | 1.68 px | 1.87 px |
+| Matched context probe: fraction within 2 px | 71% | 63% |
+
+**The readout matters.** Panel A scores the centre of all the RNN’s drawn
+ink and a single-image coordinate readout of the JEPA’s predicted frame
+embedding. Those are different output mechanisms. Panel B instead fits each
+model the same affine ridge task: recover all six positions from the RNN’s
+final state or JEPA’s context. The mean error gap shrinks from 1.65 px to
+0.19 px (paired 95% movie-bootstrap intervals: 1.56–1.73 and 0.16–0.22 px,
+conditional on these three seeds). Panel C includes every missing frame.
+In particular, an RNN non-start patch is detected on 57% and lands within
+2 px on 41%; the centre of *all* ink need not coincide with a distinct patch.
+Joining the visible centres already achieves 0.47 px error, versus 3.98 px
+for the nearer endpoint. Neither learned system beats that straight-line rule.
+
+![Example square, circle and triangle: actual and estimated paths above, progress between the endpoints below](figures/jepa_rnn_main_examples.png)
+
+The second plot uses the **first test movie of each shape**, not a model’s best
+trial. A and B are the flashes. The top row shows both spatial dimensions;
+the bottom projects position onto the A–B direction (0% = start, 100% = end).
+Only the six hidden estimates are plotted for the models. Connecting them
+illustrates the after-sequence reconstruction; it is not a trace recorded
+online as the frames went by.
+
+**Protocol.** No backbone retraining. Use 4,096 separate fitting movies from
+the same familiar shape and location distribution, with no repeated endpoint
+image pairs within or between splits. Fit the JEPA image-to-position
+calibration on *individual visible fit flashes* and their own coordinates.
+Fit both context probes on the same hidden position labels. Shading and
+whiskers span the three checkpoint seeds. The RNN had 20,000 straight-motion
+updates; the JEPA had 1,000 straight and 2,000 varied updates. This measures
+these checkpoints’ performance, not a training-budget-controlled advantage.
+
+```bash
+OPENBLAS_NUM_THREADS=2 uv run python scripts/compare_main_task.py \
+    --rnn checkpoints/apparent --jepa checkpoints/jepa
+```
+
+[Per-frame measurements and example coordinates](results/main_task_comparison.json).
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
