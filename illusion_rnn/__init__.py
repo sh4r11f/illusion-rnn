@@ -1,5 +1,12 @@
 """illusion-rnn: a neurogym testbed for Transformational Apparent Motion (TAM)."""
 
+from illusion_rnn.apparent import (
+    ImputationNet,
+    evaluate_imputation,
+    sample_masks,
+    sample_motion,
+    train_imputation,
+)
 from illusion_rnn.envs import (
     MOTION_CHOICES,
     TAM_CHOICES,
@@ -43,6 +50,7 @@ __all__ = [
     "FFStack",
     "FrameOnlyNet",
     "GRUNet",
+    "ImputationNet",
     "MOTION_CHOICES",
     "MOTION_TYPES",
     "EvalResult",
@@ -56,6 +64,7 @@ __all__ = [
     "TAMTask",
     "cnn_encoder",
     "evaluate",
+    "evaluate_imputation",
     "load_motion",
     "load_rnn",
     "load_tam",
@@ -65,7 +74,10 @@ __all__ = [
     "plot_trials",
     "resolve_device",
     "rotate_stimuli",
+    "sample_masks",
+    "sample_motion",
     "shuffle_frames",
     "train",
+    "train_imputation",
     "__version__",
 ]

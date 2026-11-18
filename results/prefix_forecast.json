@@ -1,0 +1,2490 @@
+{
+  "fit_groups": 512,
+  "test_groups": 256,
+  "fit_seed": 71001,
+  "test_seed": 71002,
+  "acceleration": [
+    "steady",
+    "speed_up",
+    "slow_down"
+  ],
+  "prefix_frames": 4,
+  "blank_frames": 4,
+  "baselines": {
+    "last_velocity": {
+      "straight": [
+        {
+          "mean_error_px": 0.8649333874130994,
+          "error_px_by_accel": [
+            0.7911683783139758,
+            0.8907031592550676,
+            0.9129286246702548
+          ],
+          "within_2px_all": 0.9856770833333334,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.42578125,
+          "closer_to_true_than_last_velocity": 0.1181640625
+        },
+        {
+          "mean_error_px": 1.535499891667671,
+          "error_px_by_accel": [
+            1.2708482956329945,
+            1.657048629832992,
+            1.6786027495370268
+          ],
+          "within_2px_all": 0.7239583333333334,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.29296875,
+          "closer_to_true_than_last_velocity": 0.03515625
+        },
+        {
+          "mean_error_px": 2.481874208033171,
+          "error_px_by_accel": [
+            1.7418280648805289,
+            2.8656088120119207,
+            2.8381857472070635
+          ],
+          "within_2px_all": 0.37890625,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.171875,
+          "closer_to_true_than_last_velocity": 0.01171875
+        },
+        {
+          "mean_error_px": 3.6791409540206708,
+          "error_px_by_accel": [
+            2.2219192212254075,
+            4.421613315824143,
+            4.39389032501246
+          ],
+          "within_2px_all": 0.2109375,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.125,
+          "closer_to_true_than_last_velocity": 0.0029296875
+        }
+      ],
+      "arc_left": [
+        {
+          "mean_error_px": 1.0075323143666104,
+          "error_px_by_accel": [
+            0.9541766569886101,
+            1.0555386079490638,
+            1.0128816781621572
+          ],
+          "within_2px_all": 0.94921875,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.443359375,
+          "closer_to_true_than_last_velocity": 0.0927734375
+        },
+        {
+          "mean_error_px": 2.3198557501677777,
+          "error_px_by_accel": [
+            2.0972808061218764,
+            2.8039714088396455,
+            2.0583150355418103
+          ],
+          "within_2px_all": 0.3984375,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.318359375,
+          "closer_to_true_than_last_velocity": 0.0126953125
+        },
+        {
+          "mean_error_px": 4.311657305694097,
+          "error_px_by_accel": [
+            3.7698859618684413,
+            5.716891913057112,
+            3.4481940421567385
+          ],
+          "within_2px_all": 0.10546875,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.3134765625,
+          "closer_to_true_than_last_velocity": 0.0009765625
+        },
+        {
+          "mean_error_px": 6.878142164818134,
+          "error_px_by_accel": [
+            5.940230428906435,
+            9.568462196219375,
+            5.125733869328592
+          ],
+          "within_2px_all": 0.022135416666666668,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.3505859375,
+          "closer_to_true_than_last_velocity": 0.0029296875
+        }
+      ],
+      "arc_right": [
+        {
+          "mean_error_px": 1.0537656373016027,
+          "error_px_by_accel": [
+            0.9838428797361707,
+            1.0909467951512795,
+            1.0865072370173574
+          ],
+          "within_2px_all": 0.9453125,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.4384765625,
+          "closer_to_true_than_last_velocity": 0.078125
+        },
+        {
+          "mean_error_px": 2.3508057386073973,
+          "error_px_by_accel": [
+            2.1132116136809502,
+            2.8277614760032153,
+            2.111444126138026
+          ],
+          "within_2px_all": 0.3919270833333333,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.2998046875,
+          "closer_to_true_than_last_velocity": 0.0087890625
+        },
+        {
+          "mean_error_px": 4.306717503987874,
+          "error_px_by_accel": [
+            3.7876401503382264,
+            5.629592142431656,
+            3.502920219193739
+          ],
+          "within_2px_all": 0.07421875,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.306640625,
+          "closer_to_true_than_last_velocity": 0.0
+        },
+        {
+          "mean_error_px": 6.904037645766039,
+          "error_px_by_accel": [
+            5.995685782306124,
+            9.577873791528843,
+            5.138553363463146
+          ],
+          "within_2px_all": 0.020833333333333332,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.0,
+          "closer_to_true_than_steady": 0.357421875,
+          "closer_to_true_than_last_velocity": 0.001953125
+        }
+      ]
+    },
+    "prefix_quadratic": {
+      "straight": [
+        {
+          "mean_error_px": 1.0594170160542637,
+          "error_px_by_accel": [
+            1.0685904488094435,
+            1.057418756281142,
+            1.0522418430722063
+          ],
+          "within_2px_all": 0.93359375,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.672779923700457,
+          "closer_to_true_than_steady": 0.533203125,
+          "closer_to_true_than_last_velocity": 0.310546875
+        },
+        {
+          "mean_error_px": 1.9924244275183571,
+          "error_px_by_accel": [
+            1.9834380248524557,
+            1.9980794179242478,
+            1.995755839778368
+          ],
+          "within_2px_all": 0.49609375,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.9682534464863037,
+          "closer_to_true_than_steady": 0.693359375,
+          "closer_to_true_than_last_velocity": 0.4140625
+        },
+        {
+          "mean_error_px": 3.339224365359366,
+          "error_px_by_accel": [
+            3.2588966246638567,
+            3.390356884082776,
+            3.3684195873314664
+          ],
+          "within_2px_all": 0.3229166666666667,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.9971500387855261,
+          "closer_to_true_than_steady": 0.7109375,
+          "closer_to_true_than_last_velocity": 0.494140625
+        },
+        {
+          "mean_error_px": 4.977111729237689,
+          "error_px_by_accel": [
+            4.780295285574471,
+            5.042933540126954,
+            5.108106362011641
+          ],
+          "within_2px_all": 0.21744791666666666,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 1.0035837287318412,
+          "closer_to_true_than_steady": 0.73828125,
+          "closer_to_true_than_last_velocity": 0.5654296875
+        }
+      ],
+      "arc_left": [
+        {
+          "mean_error_px": 1.1480291478475986,
+          "error_px_by_accel": [
+            1.063948755155581,
+            1.1185810014527877,
+            1.261557686934427
+          ],
+          "within_2px_all": 0.9010416666666666,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.08974359076247235,
+          "closer_to_true_than_steady": 0.4541015625,
+          "closer_to_true_than_last_velocity": 0.3251953125
+        },
+        {
+          "mean_error_px": 2.6607485146884176,
+          "error_px_by_accel": [
+            2.273699695068426,
+            2.6981883190684393,
+            3.0103575299283882
+          ],
+          "within_2px_all": 0.2942708333333333,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.14989973252469974,
+          "closer_to_true_than_steady": 0.3583984375,
+          "closer_to_true_than_last_velocity": 0.4404296875
+        },
+        {
+          "mean_error_px": 5.223071857231243,
+          "error_px_by_accel": [
+            4.1152208744440895,
+            5.746288721935567,
+            5.807705975314073
+          ],
+          "within_2px_all": 0.09765625,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.4167911084001739,
+          "closer_to_true_than_steady": 0.2578125,
+          "closer_to_true_than_last_velocity": 0.4248046875
+        },
+        {
+          "mean_error_px": 9.004752447593921,
+          "error_px_by_accel": [
+            6.675863229157159,
+            10.536316771298651,
+            9.802077342325955
+          ],
+          "within_2px_all": 0.028645833333333332,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.6854218195643719,
+          "closer_to_true_than_steady": 0.11328125,
+          "closer_to_true_than_last_velocity": 0.3291015625
+        }
+      ],
+      "arc_right": [
+        {
+          "mean_error_px": 1.207282130653837,
+          "error_px_by_accel": [
+            1.1228189071674728,
+            1.1773153785878796,
+            1.3217121062061583
+          ],
+          "within_2px_all": 0.8854166666666666,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": 0.031249998344315338,
+          "closer_to_true_than_steady": 0.4541015625,
+          "closer_to_true_than_last_velocity": 0.287109375
+        },
+        {
+          "mean_error_px": 2.729163467496557,
+          "error_px_by_accel": [
+            2.339503057067702,
+            2.8553244310716233,
+            2.992662914350344
+          ],
+          "within_2px_all": 0.2838541666666667,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.15056074828745067,
+          "closer_to_true_than_steady": 0.33203125,
+          "closer_to_true_than_last_velocity": 0.4169921875
+        },
+        {
+          "mean_error_px": 5.2826285085314355,
+          "error_px_by_accel": [
+            4.24967649340534,
+            5.880788853957988,
+            5.717420178230979
+          ],
+          "within_2px_all": 0.10546875,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.42416621095235485,
+          "closer_to_true_than_steady": 0.21875,
+          "closer_to_true_than_last_velocity": 0.412109375
+        },
+        {
+          "mean_error_px": 9.062569541679848,
+          "error_px_by_accel": [
+            6.810370713857831,
+            10.731894118872919,
+            9.645443792308793
+          ],
+          "within_2px_all": 0.03515625,
+          "coverage": 1.0,
+          "pair_coverage": 1.0,
+          "separation_gain": -0.6851954861554888,
+          "closer_to_true_than_steady": 0.107421875,
+          "closer_to_true_than_last_velocity": 0.310546875
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "seed": 0,
+      "untrained_probe": {
+        "straight": [
+          {
+            "mean_error_px": 2.737325345174927,
+            "error_px_by_accel": [
+              2.7115696982940847,
+              2.8197819300803477,
+              2.680624407150348
+            ],
+            "within_2px_all": 0.3658854166666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.20930110199480167,
+            "closer_to_true_than_steady": 0.505859375,
+            "closer_to_true_than_last_velocity": 0.5146484375
+          },
+          {
+            "mean_error_px": 3.902396421043813,
+            "error_px_by_accel": [
+              3.795564640010925,
+              4.329366116740368,
+              3.582258506380147
+            ],
+            "within_2px_all": 0.18619791666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.15770013712208372,
+            "closer_to_true_than_steady": 0.466796875,
+            "closer_to_true_than_last_velocity": 0.509765625
+          },
+          {
+            "mean_error_px": 5.432008493580024,
+            "error_px_by_accel": [
+              5.179080167071981,
+              6.518821915605791,
+              4.5981233980622935
+            ],
+            "within_2px_all": 0.10026041666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10969510164078898,
+            "closer_to_true_than_steady": 0.4375,
+            "closer_to_true_than_last_velocity": 0.466796875
+          },
+          {
+            "mean_error_px": 7.288312438596549,
+            "error_px_by_accel": [
+              6.758261245437344,
+              9.530385050062783,
+              5.576291020289521
+            ],
+            "within_2px_all": 0.0546875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.07175885168800278,
+            "closer_to_true_than_steady": 0.40625,
+            "closer_to_true_than_last_velocity": 0.4404296875
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 2.7771299937443104,
+            "error_px_by_accel": [
+              2.7246068897269797,
+              2.866133778993314,
+              2.7406493125126374
+            ],
+            "within_2px_all": 0.3424479166666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12024320987049861,
+            "closer_to_true_than_steady": 0.4755859375,
+            "closer_to_true_than_last_velocity": 0.4990234375
+          },
+          {
+            "mean_error_px": 4.031641827681916,
+            "error_px_by_accel": [
+              3.930490537365746,
+              4.532316384287702,
+              3.6321185613923004
+            ],
+            "within_2px_all": 0.15625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1020750880244853,
+            "closer_to_true_than_steady": 0.4609375,
+            "closer_to_true_than_last_velocity": 0.5146484375
+          },
+          {
+            "mean_error_px": 5.693046030624669,
+            "error_px_by_accel": [
+              5.440758978775164,
+              6.9705987748223315,
+              4.66778033827651
+            ],
+            "within_2px_all": 0.10677083333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.03789614242614881,
+            "closer_to_true_than_steady": 0.431640625,
+            "closer_to_true_than_last_velocity": 0.4990234375
+          },
+          {
+            "mean_error_px": 7.512141951030158,
+            "error_px_by_accel": [
+              7.078010061900543,
+              9.846832516245556,
+              5.611583274944376
+            ],
+            "within_2px_all": 0.0625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.008217615465833784,
+            "closer_to_true_than_steady": 0.41015625,
+            "closer_to_true_than_last_velocity": 0.4990234375
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 2.852849388911469,
+            "error_px_by_accel": [
+              2.893130359750687,
+              2.93481880207091,
+              2.7305990049128104
+            ],
+            "within_2px_all": 0.33984375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1432352603974411,
+            "closer_to_true_than_steady": 0.5224609375,
+            "closer_to_true_than_last_velocity": 0.501953125
+          },
+          {
+            "mean_error_px": 4.205027247196877,
+            "error_px_by_accel": [
+              4.140681737936588,
+              4.710457911298938,
+              3.763942092355102
+            ],
+            "within_2px_all": 0.1484375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11527646918739863,
+            "closer_to_true_than_steady": 0.46484375,
+            "closer_to_true_than_last_velocity": 0.4853515625
+          },
+          {
+            "mean_error_px": 5.987379013646328,
+            "error_px_by_accel": [
+              5.814664441095233,
+              7.197640030567093,
+              4.9498325692766585
+            ],
+            "within_2px_all": 0.08072916666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.08524551491194762,
+            "closer_to_true_than_steady": 0.4453125,
+            "closer_to_true_than_last_velocity": 0.4765625
+          },
+          {
+            "mean_error_px": 7.973059609272798,
+            "error_px_by_accel": [
+              7.690658773645909,
+              10.257904786069027,
+              5.970615268103456
+            ],
+            "within_2px_all": 0.053385416666666664,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.046212970511561646,
+            "closer_to_true_than_steady": 0.4296875,
+            "closer_to_true_than_last_velocity": 0.4921875
+          }
+        ]
+      },
+      "probe": {
+        "straight": [
+          {
+            "mean_error_px": 1.132213615816687,
+            "error_px_by_accel": [
+              1.1536890478614086,
+              1.1705687273441412,
+              1.0723830722445107
+            ],
+            "within_2px_all": 0.921875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3753046711666036,
+            "closer_to_true_than_steady": 0.509765625,
+            "closer_to_true_than_last_velocity": 0.5205078125
+          },
+          {
+            "mean_error_px": 2.068296472330584,
+            "error_px_by_accel": [
+              2.060571506029542,
+              2.3733418311408796,
+              1.7709760798213317
+            ],
+            "within_2px_all": 0.53515625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.4682785010217605,
+            "closer_to_true_than_steady": 0.490234375,
+            "closer_to_true_than_last_velocity": 0.56640625
+          },
+          {
+            "mean_error_px": 3.539100557046986,
+            "error_px_by_accel": [
+              3.4347216989015843,
+              4.502997567394055,
+              2.6795824048453176
+            ],
+            "within_2px_all": 0.22786458333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3625401051340309,
+            "closer_to_true_than_steady": 0.4921875,
+            "closer_to_true_than_last_velocity": 0.525390625
+          },
+          {
+            "mean_error_px": 5.486779757175879,
+            "error_px_by_accel": [
+              5.172184694601908,
+              7.694156559436149,
+              3.5939980174895787
+            ],
+            "within_2px_all": 0.12109375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.2350672558831261,
+            "closer_to_true_than_steady": 0.458984375,
+            "closer_to_true_than_last_velocity": 0.4794921875
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.3995479790664433,
+            "error_px_by_accel": [
+              1.390669881568592,
+              1.4915639581098654,
+              1.3164100975208726
+            ],
+            "within_2px_all": 0.8020833333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.2654499120992489,
+            "closer_to_true_than_steady": 0.5048828125,
+            "closer_to_true_than_last_velocity": 0.3974609375
+          },
+          {
+            "mean_error_px": 2.6886874313171916,
+            "error_px_by_accel": [
+              2.6223915348130653,
+              3.334826337375066,
+              2.108844421763444
+            ],
+            "within_2px_all": 0.35546875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.2678109168529944,
+            "closer_to_true_than_steady": 0.48046875,
+            "closer_to_true_than_last_velocity": 0.4091796875
+          },
+          {
+            "mean_error_px": 4.426293167469983,
+            "error_px_by_accel": [
+              4.185035021483694,
+              6.117382456633534,
+              2.9764620242927213
+            ],
+            "within_2px_all": 0.171875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11160148133710299,
+            "closer_to_true_than_steady": 0.45703125,
+            "closer_to_true_than_last_velocity": 0.4189453125
+          },
+          {
+            "mean_error_px": 6.330984860251388,
+            "error_px_by_accel": [
+              5.879306680965926,
+              9.254411184646932,
+              3.8592367151413085
+            ],
+            "within_2px_all": 0.10026041666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.01784543626469943,
+            "closer_to_true_than_steady": 0.44921875,
+            "closer_to_true_than_last_velocity": 0.4482421875
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.4383848701737527,
+            "error_px_by_accel": [
+              1.4364618705330399,
+              1.526057132502636,
+              1.3526356074855825
+            ],
+            "within_2px_all": 0.78125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3076666583092067,
+            "closer_to_true_than_steady": 0.5205078125,
+            "closer_to_true_than_last_velocity": 0.42578125
+          },
+          {
+            "mean_error_px": 2.7839792521072346,
+            "error_px_by_accel": [
+              2.6908593332262116,
+              3.4075261963542416,
+              2.2535522267412516
+            ],
+            "within_2px_all": 0.3502604166666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3283151900880337,
+            "closer_to_true_than_steady": 0.47265625,
+            "closer_to_true_than_last_velocity": 0.4033203125
+          },
+          {
+            "mean_error_px": 4.561464765871549,
+            "error_px_by_accel": [
+              4.325683675583438,
+              6.12460604606885,
+              3.2341045759623617
+            ],
+            "within_2px_all": 0.13671875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.2007654101126277,
+            "closer_to_true_than_steady": 0.45703125,
+            "closer_to_true_than_last_velocity": 0.41015625
+          },
+          {
+            "mean_error_px": 6.536602563931036,
+            "error_px_by_accel": [
+              6.147975822455845,
+              9.364706209690432,
+              4.097125659646829
+            ],
+            "within_2px_all": 0.09375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.0842172806371271,
+            "closer_to_true_than_steady": 0.462890625,
+            "closer_to_true_than_last_velocity": 0.458984375
+          }
+        ]
+      },
+      "ink_centre": {
+        "straight": [
+          {
+            "mean_error_px": 1.0135731516636017,
+            "error_px_by_accel": [
+              0.8478501608843196,
+              0.9174437852766639,
+              1.2754255088298216
+            ],
+            "within_2px_all": 0.9557291666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.5666823502611796,
+            "closer_to_true_than_steady": 0.376953125,
+            "closer_to_true_than_last_velocity": 0.4013671875
+          },
+          {
+            "mean_error_px": 1.6956225522075437,
+            "error_px_by_accel": [
+              1.321362148445662,
+              1.550335373863834,
+              2.215170134313135
+            ],
+            "within_2px_all": 0.65234375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.20817613091944903,
+            "closer_to_true_than_steady": 0.2265625,
+            "closer_to_true_than_last_velocity": 0.37890625
+          },
+          {
+            "mean_error_px": 2.74288364416249,
+            "error_px_by_accel": [
+              2.0013797662181165,
+              2.6236875443895125,
+              3.603583621879842
+            ],
+            "within_2px_all": 0.2903645833333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.0003833807635112636,
+            "closer_to_true_than_steady": 0.171875,
+            "closer_to_true_than_last_velocity": 0.3359375
+          },
+          {
+            "mean_error_px": 4.081594134135379,
+            "error_px_by_accel": [
+              2.957836754778757,
+              4.622445259085631,
+              4.664500388541748
+            ],
+            "within_2px_all": 0.15234375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10614901389976869,
+            "closer_to_true_than_steady": 0.1796875,
+            "closer_to_true_than_last_velocity": 0.3154296875
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.6410642107653286,
+            "error_px_by_accel": [
+              1.584839465970958,
+              1.4913099361749134,
+              1.847043230150114
+            ],
+            "within_2px_all": 0.7252604166666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.24210635318936807,
+            "closer_to_true_than_steady": 0.4521484375,
+            "closer_to_true_than_last_velocity": 0.2275390625
+          },
+          {
+            "mean_error_px": 3.2499865192097137,
+            "error_px_by_accel": [
+              3.076358393980905,
+              3.448871487428117,
+              3.2247296762201194
+            ],
+            "within_2px_all": 0.12239583333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.07229458096071524,
+            "closer_to_true_than_steady": 0.35546875,
+            "closer_to_true_than_last_velocity": 0.1123046875
+          },
+          {
+            "mean_error_px": 5.461872233351175,
+            "error_px_by_accel": [
+              5.039737049965344,
+              6.640477054219977,
+              4.705402595868205
+            ],
+            "within_2px_all": 0.009114583333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1337741050349312,
+            "closer_to_true_than_steady": 0.392578125,
+            "closer_to_true_than_last_velocity": 0.0712890625
+          },
+          {
+            "mean_error_px": 7.930628610508992,
+            "error_px_by_accel": [
+              7.237862775231586,
+              10.689144341325829,
+              5.864878714969559
+            ],
+            "within_2px_all": 0.010416666666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10555866790757243,
+            "closer_to_true_than_steady": 0.41015625,
+            "closer_to_true_than_last_velocity": 0.0927734375
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.5956817621483033,
+            "error_px_by_accel": [
+              1.5101964802679504,
+              1.4210473019942176,
+              1.855801504182741
+            ],
+            "within_2px_all": 0.73828125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.16267766594985408,
+            "closer_to_true_than_steady": 0.4384765625,
+            "closer_to_true_than_last_velocity": 0.267578125
+          },
+          {
+            "mean_error_px": 3.2126682957594546,
+            "error_px_by_accel": [
+              3.0273160186200525,
+              3.3889554470465137,
+              3.2217334216117957
+            ],
+            "within_2px_all": 0.11458333333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10557203446376753,
+            "closer_to_true_than_steady": 0.388671875,
+            "closer_to_true_than_last_velocity": 0.1357421875
+          },
+          {
+            "mean_error_px": 5.414997981249802,
+            "error_px_by_accel": [
+              5.0211712188057085,
+              6.52909190225842,
+              4.694730822685278
+            ],
+            "within_2px_all": 0.0078125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1359594686743977,
+            "closer_to_true_than_steady": 0.3828125,
+            "closer_to_true_than_last_velocity": 0.078125
+          },
+          {
+            "mean_error_px": 7.784284074889162,
+            "error_px_by_accel": [
+              7.10748494933829,
+              10.47414168263532,
+              5.771225592693874
+            ],
+            "within_2px_all": 0.00390625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10746752530990927,
+            "closer_to_true_than_steady": 0.412109375,
+            "closer_to_true_than_last_velocity": 0.126953125
+          }
+        ]
+      },
+      "patch": {
+        "straight": [
+          {
+            "mean_error_px": 0.9982504268047981,
+            "error_px_by_accel": [
+              0.8517370615136098,
+              0.8809793053794643,
+              1.2605464150520165
+            ],
+            "within_2px_all": 0.9583333333333334,
+            "coverage": 0.99609375,
+            "pair_coverage": 0.9921875,
+            "separation_gain": -0.4428266289371058,
+            "closer_to_true_than_steady": 0.3931372549019608,
+            "closer_to_true_than_last_velocity": 0.40588235294117647
+          },
+          {
+            "mean_error_px": 1.700292894029354,
+            "error_px_by_accel": [
+              1.343550900423715,
+              1.5380625455705506,
+              2.2255431273284474
+            ],
+            "within_2px_all": 0.63671875,
+            "coverage": 0.9765625,
+            "pair_coverage": 0.95703125,
+            "separation_gain": -0.18797455842366387,
+            "closer_to_true_than_steady": 0.22845691382765532,
+            "closer_to_true_than_last_velocity": 0.374749498997996
+          },
+          {
+            "mean_error_px": 2.8614490212274974,
+            "error_px_by_accel": [
+              2.134900566029477,
+              2.617366926526931,
+              3.8415399312754253
+            ],
+            "within_2px_all": 0.2734375,
+            "coverage": 0.9088541666666666,
+            "pair_coverage": 0.8828125,
+            "separation_gain": 0.014720552094171628,
+            "closer_to_true_than_steady": 0.1956989247311828,
+            "closer_to_true_than_last_velocity": 0.3580645161290323
+          },
+          {
+            "mean_error_px": 4.80045938322806,
+            "error_px_by_accel": [
+              4.303524686922197,
+              4.8559659733333715,
+              5.243045070598859
+            ],
+            "within_2px_all": 0.10286458333333333,
+            "coverage": 0.7565104166666666,
+            "pair_coverage": 0.70703125,
+            "separation_gain": 0.21747439925375656,
+            "closer_to_true_than_steady": 0.3511450381679389,
+            "closer_to_true_than_last_velocity": 0.4300254452926209
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.6541951178266465,
+            "error_px_by_accel": [
+              1.6056758873652082,
+              1.505661714717736,
+              1.8508539948117697
+            ],
+            "within_2px_all": 0.71875,
+            "coverage": 0.9921875,
+            "pair_coverage": 0.984375,
+            "separation_gain": -0.11973593804220206,
+            "closer_to_true_than_steady": 0.4635108481262327,
+            "closer_to_true_than_last_velocity": 0.22879684418145957
+          },
+          {
+            "mean_error_px": 3.247407650315338,
+            "error_px_by_accel": [
+              3.084365190619408,
+              3.4333600522830325,
+              3.227335064642465
+            ],
+            "within_2px_all": 0.11848958333333333,
+            "coverage": 0.9609375,
+            "pair_coverage": 0.94140625,
+            "separation_gain": 0.08434625034876167,
+            "closer_to_true_than_steady": 0.35816326530612247,
+            "closer_to_true_than_last_velocity": 0.10306122448979592
+          },
+          {
+            "mean_error_px": 5.6233851152455445,
+            "error_px_by_accel": [
+              5.140510987921695,
+              6.779275007346668,
+              4.889394891812498
+            ],
+            "within_2px_all": 0.010416666666666666,
+            "coverage": 0.8932291666666666,
+            "pair_coverage": 0.85546875,
+            "separation_gain": 0.1370803384199598,
+            "closer_to_true_than_steady": 0.38074398249452956,
+            "closer_to_true_than_last_velocity": 0.06455142231947483
+          },
+          {
+            "mean_error_px": 8.348394539952595,
+            "error_px_by_accel": [
+              7.753007385240467,
+              10.946714787984877,
+              6.156999793609189
+            ],
+            "within_2px_all": 0.015625,
+            "coverage": 0.7721354166666666,
+            "pair_coverage": 0.69140625,
+            "separation_gain": 0.1294745525293256,
+            "closer_to_true_than_steady": 0.399746192893401,
+            "closer_to_true_than_last_velocity": 0.16243654822335024
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.5977688722829715,
+            "error_px_by_accel": [
+              1.5283453563035034,
+              1.426975392728082,
+              1.8375867734725437
+            ],
+            "within_2px_all": 0.7291666666666666,
+            "coverage": 0.9921875,
+            "pair_coverage": 0.98046875,
+            "separation_gain": -0.046578916766747705,
+            "closer_to_true_than_steady": 0.4546351084812623,
+            "closer_to_true_than_last_velocity": 0.2692307692307692
+          },
+          {
+            "mean_error_px": 3.2165503142929666,
+            "error_px_by_accel": [
+              3.031479969363461,
+              3.3814764505065495,
+              3.236532069712793
+            ],
+            "within_2px_all": 0.10546875,
+            "coverage": 0.9635416666666666,
+            "pair_coverage": 0.953125,
+            "separation_gain": 0.11983016919680085,
+            "closer_to_true_than_steady": 0.3825910931174089,
+            "closer_to_true_than_last_velocity": 0.13562753036437247
+          },
+          {
+            "mean_error_px": 5.542029812825486,
+            "error_px_by_accel": [
+              5.170852764940325,
+              6.594208697726495,
+              4.826122471343498
+            ],
+            "within_2px_all": 0.009114583333333334,
+            "coverage": 0.9088541666666666,
+            "pair_coverage": 0.875,
+            "separation_gain": 0.15078458579375698,
+            "closer_to_true_than_steady": 0.3706896551724138,
+            "closer_to_true_than_last_velocity": 0.08405172413793104
+          },
+          {
+            "mean_error_px": 8.233934980862916,
+            "error_px_by_accel": [
+              7.508888075232362,
+              10.870296157529175,
+              6.213219136867284
+            ],
+            "within_2px_all": 0.0026041666666666665,
+            "coverage": 0.78515625,
+            "pair_coverage": 0.71484375,
+            "separation_gain": 0.13019250812715052,
+            "closer_to_true_than_steady": 0.3548387096774194,
+            "closer_to_true_than_last_velocity": 0.18610421836228289
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1,
+      "untrained_probe": {
+        "straight": [
+          {
+            "mean_error_px": 2.7202316769551245,
+            "error_px_by_accel": [
+              2.72585534389422,
+              2.81544344942638,
+              2.619396237544774
+            ],
+            "within_2px_all": 0.3606770833333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12633763516917812,
+            "closer_to_true_than_steady": 0.4921875,
+            "closer_to_true_than_last_velocity": 0.5556640625
+          },
+          {
+            "mean_error_px": 3.8660754022874877,
+            "error_px_by_accel": [
+              3.793325478156655,
+              4.302345154658791,
+              3.502555574047018
+            ],
+            "within_2px_all": 0.21744791666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12289595284188921,
+            "closer_to_true_than_steady": 0.431640625,
+            "closer_to_true_than_last_velocity": 0.560546875
+          },
+          {
+            "mean_error_px": 5.56757000234983,
+            "error_px_by_accel": [
+              5.353629344055314,
+              6.719853538667608,
+              4.629227124326565
+            ],
+            "within_2px_all": 0.09635416666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.09622669486237871,
+            "closer_to_true_than_steady": 0.4140625,
+            "closer_to_true_than_last_velocity": 0.5078125
+          },
+          {
+            "mean_error_px": 7.655683601799136,
+            "error_px_by_accel": [
+              7.228388115919529,
+              9.997425542415343,
+              5.74123714706254
+            ],
+            "within_2px_all": 0.053385416666666664,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.07186951115575668,
+            "closer_to_true_than_steady": 0.41796875,
+            "closer_to_true_than_last_velocity": 0.4541015625
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 2.7502154569334873,
+            "error_px_by_accel": [
+              2.704710229942676,
+              2.809929069706599,
+              2.736007071151186
+            ],
+            "within_2px_all": 0.3723958333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11124042794682422,
+            "closer_to_true_than_steady": 0.4990234375,
+            "closer_to_true_than_last_velocity": 0.5263671875
+          },
+          {
+            "mean_error_px": 3.9600842300446395,
+            "error_px_by_accel": [
+              3.842501003643969,
+              4.4249635958121125,
+              3.612788090677837
+            ],
+            "within_2px_all": 0.18619791666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.13905244834662586,
+            "closer_to_true_than_steady": 0.44140625,
+            "closer_to_true_than_last_velocity": 0.5224609375
+          },
+          {
+            "mean_error_px": 5.741776105755051,
+            "error_px_by_accel": [
+              5.516237313674653,
+              6.95418556719731,
+              4.754905436393191
+            ],
+            "within_2px_all": 0.10026041666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.07854886865737487,
+            "closer_to_true_than_steady": 0.44140625,
+            "closer_to_true_than_last_velocity": 0.5185546875
+          },
+          {
+            "mean_error_px": 7.68506241449392,
+            "error_px_by_accel": [
+              7.371947717896577,
+              9.855829082616083,
+              5.827410442969102
+            ],
+            "within_2px_all": 0.059895833333333336,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.03953165638721785,
+            "closer_to_true_than_steady": 0.447265625,
+            "closer_to_true_than_last_velocity": 0.5302734375
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 2.7783802369975334,
+            "error_px_by_accel": [
+              2.7817321233793018,
+              2.86393414074844,
+              2.6894744468648604
+            ],
+            "within_2px_all": 0.33984375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11147358668998544,
+            "closer_to_true_than_steady": 0.5068359375,
+            "closer_to_true_than_last_velocity": 0.50390625
+          },
+          {
+            "mean_error_px": 4.124016327430641,
+            "error_px_by_accel": [
+              4.069185196234548,
+              4.655561659940535,
+              3.647302126116842
+            ],
+            "within_2px_all": 0.16796875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11305711632122367,
+            "closer_to_true_than_steady": 0.4609375,
+            "closer_to_true_than_last_velocity": 0.4794921875
+          },
+          {
+            "mean_error_px": 5.943872653721383,
+            "error_px_by_accel": [
+              5.785752420565594,
+              7.260955558450481,
+              4.784909982148071
+            ],
+            "within_2px_all": 0.08203125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.06502822832404961,
+            "closer_to_true_than_steady": 0.443359375,
+            "closer_to_true_than_last_velocity": 0.46875
+          },
+          {
+            "mean_error_px": 7.966198588045039,
+            "error_px_by_accel": [
+              7.7277041461087155,
+              10.3767089845845,
+              5.794182633441902
+            ],
+            "within_2px_all": 0.0390625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.02279064370921847,
+            "closer_to_true_than_steady": 0.4375,
+            "closer_to_true_than_last_velocity": 0.501953125
+          }
+        ]
+      },
+      "probe": {
+        "straight": [
+          {
+            "mean_error_px": 1.0916947800329202,
+            "error_px_by_accel": [
+              1.058709437097193,
+              1.1785162124448685,
+              1.0378586905566989
+            ],
+            "within_2px_all": 0.9192708333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3752333879804818,
+            "closer_to_true_than_steady": 0.513671875,
+            "closer_to_true_than_last_velocity": 0.5146484375
+          },
+          {
+            "mean_error_px": 2.0033215750400237,
+            "error_px_by_accel": [
+              1.9038467443101532,
+              2.3694387901759058,
+              1.7366791906340127
+            ],
+            "within_2px_all": 0.5651041666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.44959657157128063,
+            "closer_to_true_than_steady": 0.509765625,
+            "closer_to_true_than_last_velocity": 0.546875
+          },
+          {
+            "mean_error_px": 3.3782099017021885,
+            "error_px_by_accel": [
+              3.1539036015305753,
+              4.433626007710679,
+              2.54710009586531
+            ],
+            "within_2px_all": 0.2565104166666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.35221987766501395,
+            "closer_to_true_than_steady": 0.453125,
+            "closer_to_true_than_last_velocity": 0.509765625
+          },
+          {
+            "mean_error_px": 5.275171527958673,
+            "error_px_by_accel": [
+              4.86424926238311,
+              7.5612248005267695,
+              3.4000405209661397
+            ],
+            "within_2px_all": 0.11979166666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.22838635901061907,
+            "closer_to_true_than_steady": 0.4453125,
+            "closer_to_true_than_last_velocity": 0.4599609375
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.334704795031767,
+            "error_px_by_accel": [
+              1.2882272365573804,
+              1.405871769511915,
+              1.310015379026006
+            ],
+            "within_2px_all": 0.8424479166666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3107091774241763,
+            "closer_to_true_than_steady": 0.5029296875,
+            "closer_to_true_than_last_velocity": 0.4091796875
+          },
+          {
+            "mean_error_px": 2.5808112015361293,
+            "error_px_by_accel": [
+              2.4536090765748853,
+              3.2312251527424083,
+              2.057599375291095
+            ],
+            "within_2px_all": 0.40234375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.2769319739358505,
+            "closer_to_true_than_steady": 0.455078125,
+            "closer_to_true_than_last_velocity": 0.4169921875
+          },
+          {
+            "mean_error_px": 4.256157720060986,
+            "error_px_by_accel": [
+              3.9174844522874337,
+              5.947029952516794,
+              2.903958755378731
+            ],
+            "within_2px_all": 0.19401041666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12532854438271157,
+            "closer_to_true_than_steady": 0.451171875,
+            "closer_to_true_than_last_velocity": 0.4150390625
+          },
+          {
+            "mean_error_px": 6.171399072824092,
+            "error_px_by_accel": [
+              5.5529488696471,
+              9.13949375817648,
+              3.821754590648699
+            ],
+            "within_2px_all": 0.10286458333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.01592683159116093,
+            "closer_to_true_than_steady": 0.43359375,
+            "closer_to_true_than_last_velocity": 0.4658203125
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.3754369335915086,
+            "error_px_by_accel": [
+              1.3845164489270063,
+              1.4616409853077106,
+              1.2801533665398095
+            ],
+            "within_2px_all": 0.8125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3060717235384665,
+            "closer_to_true_than_steady": 0.5068359375,
+            "closer_to_true_than_last_velocity": 0.455078125
+          },
+          {
+            "mean_error_px": 2.642658262394764,
+            "error_px_by_accel": [
+              2.5876751390548822,
+              3.2363083222832527,
+              2.103991325846158
+            ],
+            "within_2px_all": 0.3841145833333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.34707233781958047,
+            "closer_to_true_than_steady": 0.478515625,
+            "closer_to_true_than_last_velocity": 0.4287109375
+          },
+          {
+            "mean_error_px": 4.3058905500431655,
+            "error_px_by_accel": [
+              4.083095159122874,
+              5.804918164460995,
+              3.0296583265456256
+            ],
+            "within_2px_all": 0.18489583333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.21571933690808368,
+            "closer_to_true_than_steady": 0.462890625,
+            "closer_to_true_than_last_velocity": 0.431640625
+          },
+          {
+            "mean_error_px": 6.203989614684409,
+            "error_px_by_accel": [
+              5.7853276870855606,
+              8.898623158245137,
+              3.9280179987225288
+            ],
+            "within_2px_all": 0.11328125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.0988390152155307,
+            "closer_to_true_than_steady": 0.455078125,
+            "closer_to_true_than_last_velocity": 0.46875
+          }
+        ]
+      },
+      "ink_centre": {
+        "straight": [
+          {
+            "mean_error_px": 1.0591339418676438,
+            "error_px_by_accel": [
+              0.9228578750184395,
+              0.878480107960643,
+              1.3760638426238485
+            ],
+            "within_2px_all": 0.9427083333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.5158425983719745,
+            "closer_to_true_than_steady": 0.369140625,
+            "closer_to_true_than_last_velocity": 0.4150390625
+          },
+          {
+            "mean_error_px": 1.7111435040969187,
+            "error_px_by_accel": [
+              1.37322268641902,
+              1.5026861501493665,
+              2.2575216757223706
+            ],
+            "within_2px_all": 0.6588541666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.19143577041261345,
+            "closer_to_true_than_steady": 0.25,
+            "closer_to_true_than_last_velocity": 0.375
+          },
+          {
+            "mean_error_px": 2.776028651397264,
+            "error_px_by_accel": [
+              2.0598639596177195,
+              2.6359139518568364,
+              3.632308042717238
+            ],
+            "within_2px_all": 0.3046875,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.01599421471719572,
+            "closer_to_true_than_steady": 0.19921875,
+            "closer_to_true_than_last_velocity": 0.330078125
+          },
+          {
+            "mean_error_px": 4.211662816056206,
+            "error_px_by_accel": [
+              3.175777918670809,
+              4.704898298966993,
+              4.754312230530816
+            ],
+            "within_2px_all": 0.1484375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.09316481381286473,
+            "closer_to_true_than_steady": 0.20703125,
+            "closer_to_true_than_last_velocity": 0.3232421875
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.6550622189072082,
+            "error_px_by_accel": [
+              1.595714893204843,
+              1.4517955194024021,
+              1.9176762441143795
+            ],
+            "within_2px_all": 0.7135416666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.17100748447584865,
+            "closer_to_true_than_steady": 0.4560546875,
+            "closer_to_true_than_last_velocity": 0.2431640625
+          },
+          {
+            "mean_error_px": 3.266384497476823,
+            "error_px_by_accel": [
+              3.0804259542940007,
+              3.4369470800176307,
+              3.2817804581188375
+            ],
+            "within_2px_all": 0.125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11833229413753109,
+            "closer_to_true_than_steady": 0.37109375,
+            "closer_to_true_than_last_velocity": 0.1083984375
+          },
+          {
+            "mean_error_px": 5.487210990996185,
+            "error_px_by_accel": [
+              5.073516717309195,
+              6.629030776348101,
+              4.75908547933126
+            ],
+            "within_2px_all": 0.014322916666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.16511085924639746,
+            "closer_to_true_than_steady": 0.384765625,
+            "closer_to_true_than_last_velocity": 0.0771484375
+          },
+          {
+            "mean_error_px": 7.779769886613477,
+            "error_px_by_accel": [
+              7.032328358030753,
+              10.474076406439025,
+              5.83290489537065
+            ],
+            "within_2px_all": 0.0078125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12872663466549933,
+            "closer_to_true_than_steady": 0.404296875,
+            "closer_to_true_than_last_velocity": 0.1240234375
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.596291234023104,
+            "error_px_by_accel": [
+              1.5226810775154156,
+              1.4008784864122443,
+              1.865314138141652
+            ],
+            "within_2px_all": 0.7252604166666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.11899988092816995,
+            "closer_to_true_than_steady": 0.4345703125,
+            "closer_to_true_than_last_velocity": 0.263671875
+          },
+          {
+            "mean_error_px": 3.128830534647649,
+            "error_px_by_accel": [
+              2.9382466134642202,
+              3.2744877566538872,
+              3.173757233824839
+            ],
+            "within_2px_all": 0.14713541666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.13290215026469482,
+            "closer_to_true_than_steady": 0.359375,
+            "closer_to_true_than_last_velocity": 0.1337890625
+          },
+          {
+            "mean_error_px": 5.21633144984835,
+            "error_px_by_accel": [
+              4.805500183698514,
+              6.283979513831471,
+              4.559514652015067
+            ],
+            "within_2px_all": 0.016927083333333332,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.16400245784442374,
+            "closer_to_true_than_steady": 0.384765625,
+            "closer_to_true_than_last_velocity": 0.080078125
+          },
+          {
+            "mean_error_px": 7.6149267977353885,
+            "error_px_by_accel": [
+              6.92485774917057,
+              10.309100666490682,
+              5.610821977544915
+            ],
+            "within_2px_all": 0.005208333333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11598425876099665,
+            "closer_to_true_than_steady": 0.419921875,
+            "closer_to_true_than_last_velocity": 0.130859375
+          }
+        ]
+      },
+      "patch": {
+        "straight": [
+          {
+            "mean_error_px": 1.0497221943304824,
+            "error_px_by_accel": [
+              0.9344965173083878,
+              0.8513008322044999,
+              1.3621440497318877
+            ],
+            "within_2px_all": 0.9466145833333334,
+            "coverage": 0.9973958333333334,
+            "pair_coverage": 0.99609375,
+            "separation_gain": -0.404247211652411,
+            "closer_to_true_than_steady": 0.38943248532289626,
+            "closer_to_true_than_last_velocity": 0.4197651663405088
+          },
+          {
+            "mean_error_px": 1.6965157279602314,
+            "error_px_by_accel": [
+              1.367163764437973,
+              1.475914612175472,
+              2.250850903516707
+            ],
+            "within_2px_all": 0.6484375,
+            "coverage": 0.9856770833333334,
+            "pair_coverage": 0.9765625,
+            "separation_gain": -0.17691959580482775,
+            "closer_to_true_than_steady": 0.25595238095238093,
+            "closer_to_true_than_last_velocity": 0.38095238095238093
+          },
+          {
+            "mean_error_px": 2.865971555240681,
+            "error_px_by_accel": [
+              2.2173278043321205,
+              2.5681522322667742,
+              3.8410095700458293
+            ],
+            "within_2px_all": 0.2942708333333333,
+            "coverage": 0.91796875,
+            "pair_coverage": 0.8828125,
+            "separation_gain": -0.009444212415275453,
+            "closer_to_true_than_steady": 0.22281449893390193,
+            "closer_to_true_than_last_velocity": 0.35607675906183367
+          },
+          {
+            "mean_error_px": 4.825065148417042,
+            "error_px_by_accel": [
+              4.467592126906523,
+              5.0352994168851986,
+              4.977167773719858
+            ],
+            "within_2px_all": 0.09505208333333333,
+            "coverage": 0.7526041666666666,
+            "pair_coverage": 0.65625,
+            "separation_gain": 0.18026614666984686,
+            "closer_to_true_than_steady": 0.3185378590078329,
+            "closer_to_true_than_last_velocity": 0.42428198433420367
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.6784512704780306,
+            "error_px_by_accel": [
+              1.6271237760362716,
+              1.4821383857072488,
+              1.9216559195844023
+            ],
+            "within_2px_all": 0.6888020833333334,
+            "coverage": 0.9895833333333334,
+            "pair_coverage": 0.98046875,
+            "separation_gain": -0.058383376636515535,
+            "closer_to_true_than_steady": 0.46449704142011833,
+            "closer_to_true_than_last_velocity": 0.23865877712031558
+          },
+          {
+            "mean_error_px": 3.280799105953628,
+            "error_px_by_accel": [
+              3.0988504814259836,
+              3.4500769143557335,
+              3.293520605343669
+            ],
+            "within_2px_all": 0.11848958333333333,
+            "coverage": 0.9791666666666666,
+            "pair_coverage": 0.97265625,
+            "separation_gain": 0.11342776113453229,
+            "closer_to_true_than_steady": 0.36726546906187624,
+            "closer_to_true_than_last_velocity": 0.10578842315369262
+          },
+          {
+            "mean_error_px": 5.645302773607512,
+            "error_px_by_accel": [
+              5.20831447608773,
+              6.726150290938164,
+              4.961324969790069
+            ],
+            "within_2px_all": 0.01171875,
+            "coverage": 0.9244791666666666,
+            "pair_coverage": 0.890625,
+            "separation_gain": 0.1662169320318531,
+            "closer_to_true_than_steady": 0.3890063424947146,
+            "closer_to_true_than_last_velocity": 0.07716701902748414
+          },
+          {
+            "mean_error_px": 7.96544077253503,
+            "error_px_by_accel": [
+              7.253661209491724,
+              10.58004682642486,
+              6.004364491152394
+            ],
+            "within_2px_all": 0.005208333333333333,
+            "coverage": 0.78125,
+            "pair_coverage": 0.6953125,
+            "separation_gain": 0.15826310657361414,
+            "closer_to_true_than_steady": 0.40703517587939697,
+            "closer_to_true_than_last_velocity": 0.14949748743718594
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.6055689135934317,
+            "error_px_by_accel": [
+              1.5412909195285223,
+              1.407831119865708,
+              1.8675847013860647
+            ],
+            "within_2px_all": 0.7161458333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.02167937264286257,
+            "closer_to_true_than_steady": 0.4482421875,
+            "closer_to_true_than_last_velocity": 0.263671875
+          },
+          {
+            "mean_error_px": 3.126268819108235,
+            "error_px_by_accel": [
+              2.935439676886232,
+              3.2504453819112986,
+              3.193454619162527
+            ],
+            "within_2px_all": 0.14322916666666666,
+            "coverage": 0.9817708333333334,
+            "pair_coverage": 0.96875,
+            "separation_gain": 0.15449358627843274,
+            "closer_to_true_than_steady": 0.3645418326693227,
+            "closer_to_true_than_last_velocity": 0.13545816733067728
+          },
+          {
+            "mean_error_px": 5.355546538391079,
+            "error_px_by_accel": [
+              4.8935620626218075,
+              6.446571921704397,
+              4.7073609075739515
+            ],
+            "within_2px_all": 0.014322916666666666,
+            "coverage": 0.9166666666666666,
+            "pair_coverage": 0.890625,
+            "separation_gain": 0.15459535365381294,
+            "closer_to_true_than_steady": 0.35974304068522484,
+            "closer_to_true_than_last_velocity": 0.0835117773019272
+          },
+          {
+            "mean_error_px": 8.06776487798027,
+            "error_px_by_accel": [
+              7.1766221041636715,
+              10.929137836850003,
+              5.7841050852437235
+            ],
+            "within_2px_all": 0.0078125,
+            "coverage": 0.8033854166666666,
+            "pair_coverage": 0.734375,
+            "separation_gain": 0.12827356492447722,
+            "closer_to_true_than_steady": 0.40789473684210525,
+            "closer_to_true_than_last_velocity": 0.1674641148325359
+          }
+        ]
+      }
+    },
+    {
+      "seed": 2,
+      "untrained_probe": {
+        "straight": [
+          {
+            "mean_error_px": 2.7538623063722447,
+            "error_px_by_accel": [
+              2.7539562462910254,
+              2.831414403267564,
+              2.676216269558144
+            ],
+            "within_2px_all": 0.36328125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.29501767687458336,
+            "closer_to_true_than_steady": 0.515625,
+            "closer_to_true_than_last_velocity": 0.5087890625
+          },
+          {
+            "mean_error_px": 3.94713391073763,
+            "error_px_by_accel": [
+              3.843432938321603,
+              4.3916880531754945,
+              3.6062807407157935
+            ],
+            "within_2px_all": 0.19791666666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.19599743718067578,
+            "closer_to_true_than_steady": 0.474609375,
+            "closer_to_true_than_last_velocity": 0.5234375
+          },
+          {
+            "mean_error_px": 5.755309364118986,
+            "error_px_by_accel": [
+              5.498719079948226,
+              6.9759731408592796,
+              4.791235871549452
+            ],
+            "within_2px_all": 0.08072916666666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.15396177236999556,
+            "closer_to_true_than_steady": 0.435546875,
+            "closer_to_true_than_last_velocity": 0.470703125
+          },
+          {
+            "mean_error_px": 7.886591501775037,
+            "error_px_by_accel": [
+              7.453404623246085,
+              10.274291039673887,
+              5.932078842405138
+            ],
+            "within_2px_all": 0.052083333333333336,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11662782630266276,
+            "closer_to_true_than_steady": 0.443359375,
+            "closer_to_true_than_last_velocity": 0.4521484375
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 2.7519122439230137,
+            "error_px_by_accel": [
+              2.741106680174177,
+              2.802263879423935,
+              2.712366172170929
+            ],
+            "within_2px_all": 0.3424479166666667,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.20464533160279177,
+            "closer_to_true_than_steady": 0.4873046875,
+            "closer_to_true_than_last_velocity": 0.4970703125
+          },
+          {
+            "mean_error_px": 4.101330909055751,
+            "error_px_by_accel": [
+              4.075502915350606,
+              4.586053927555229,
+              3.642435884261414
+            ],
+            "within_2px_all": 0.14973958333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1284992833345677,
+            "closer_to_true_than_steady": 0.4453125,
+            "closer_to_true_than_last_velocity": 0.4970703125
+          },
+          {
+            "mean_error_px": 5.965367243378258,
+            "error_px_by_accel": [
+              5.813302342091596,
+              7.299344208947394,
+              4.7834551790957835
+            ],
+            "within_2px_all": 0.07161458333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.06122306148792353,
+            "closer_to_true_than_steady": 0.443359375,
+            "closer_to_true_than_last_velocity": 0.4853515625
+          },
+          {
+            "mean_error_px": 7.986132829236788,
+            "error_px_by_accel": [
+              7.733883564265012,
+              10.32777970624418,
+              5.896735217201176
+            ],
+            "within_2px_all": 0.041666666666666664,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.02218274892349054,
+            "closer_to_true_than_steady": 0.427734375,
+            "closer_to_true_than_last_velocity": 0.4931640625
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 2.7760552184197564,
+            "error_px_by_accel": [
+              2.765735626689051,
+              2.8786236580466324,
+              2.683806370523585
+            ],
+            "within_2px_all": 0.3372395833333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11043171636653953,
+            "closer_to_true_than_steady": 0.4951171875,
+            "closer_to_true_than_last_velocity": 0.4921875
+          },
+          {
+            "mean_error_px": 4.073428744786376,
+            "error_px_by_accel": [
+              4.017868071811162,
+              4.588856103276727,
+              3.613562059271239
+            ],
+            "within_2px_all": 0.18489583333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11771714511158841,
+            "closer_to_true_than_steady": 0.458984375,
+            "closer_to_true_than_last_velocity": 0.4853515625
+          },
+          {
+            "mean_error_px": 5.857448445113548,
+            "error_px_by_accel": [
+              5.688217022981354,
+              7.18921980363687,
+              4.694908508722421
+            ],
+            "within_2px_all": 0.09375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.06763286318602055,
+            "closer_to_true_than_steady": 0.451171875,
+            "closer_to_true_than_last_velocity": 0.484375
+          },
+          {
+            "mean_error_px": 7.862450527425051,
+            "error_px_by_accel": [
+              7.610358903255051,
+              10.227026448818478,
+              5.749966230201623
+            ],
+            "within_2px_all": 0.040364583333333336,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.01901869414249268,
+            "closer_to_true_than_steady": 0.4453125,
+            "closer_to_true_than_last_velocity": 0.515625
+          }
+        ]
+      },
+      "probe": {
+        "straight": [
+          {
+            "mean_error_px": 1.1680493917378414,
+            "error_px_by_accel": [
+              1.1475383993767907,
+              1.218421054994917,
+              1.1381887208418167
+            ],
+            "within_2px_all": 0.8893229166666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3995471797309237,
+            "closer_to_true_than_steady": 0.513671875,
+            "closer_to_true_than_last_velocity": 0.4892578125
+          },
+          {
+            "mean_error_px": 2.183919307009213,
+            "error_px_by_accel": [
+              2.154163915899819,
+              2.5110162048470164,
+              1.8865778002808042
+            ],
+            "within_2px_all": 0.51953125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.4434476894475271,
+            "closer_to_true_than_steady": 0.513671875,
+            "closer_to_true_than_last_velocity": 0.52734375
+          },
+          {
+            "mean_error_px": 3.693665533228516,
+            "error_px_by_accel": [
+              3.57557846935323,
+              4.6735604809739595,
+              2.83185764935836
+            ],
+            "within_2px_all": 0.23307291666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.33896863387245796,
+            "closer_to_true_than_steady": 0.45703125,
+            "closer_to_true_than_last_velocity": 0.51171875
+          },
+          {
+            "mean_error_px": 5.660965504248202,
+            "error_px_by_accel": [
+              5.359897352371476,
+              7.836994465897633,
+              3.786004694475499
+            ],
+            "within_2px_all": 0.12239583333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.22022464455376342,
+            "closer_to_true_than_steady": 0.44140625,
+            "closer_to_true_than_last_velocity": 0.4775390625
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.4015834079489184,
+            "error_px_by_accel": [
+              1.3973722841388352,
+              1.4436102986672859,
+              1.363767641040634
+            ],
+            "within_2px_all": 0.7877604166666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.4150684776729571,
+            "closer_to_true_than_steady": 0.5029296875,
+            "closer_to_true_than_last_velocity": 0.4033203125
+          },
+          {
+            "mean_error_px": 2.6863281459356974,
+            "error_px_by_accel": [
+              2.63101747048952,
+              3.2612142810231566,
+              2.1667526862944158
+            ],
+            "within_2px_all": 0.3723958333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3620112764777093,
+            "closer_to_true_than_steady": 0.48828125,
+            "closer_to_true_than_last_velocity": 0.4208984375
+          },
+          {
+            "mean_error_px": 4.423801162298946,
+            "error_px_by_accel": [
+              4.206492439576567,
+              6.0029132909974905,
+              3.0619977563227794
+            ],
+            "within_2px_all": 0.18489583333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.20738101905087264,
+            "closer_to_true_than_steady": 0.462890625,
+            "closer_to_true_than_last_velocity": 0.4365234375
+          },
+          {
+            "mean_error_px": 6.345218326411632,
+            "error_px_by_accel": [
+              5.930573495988994,
+              9.133177540300732,
+              3.9719039429451666
+            ],
+            "within_2px_all": 0.10677083333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.09374847531858764,
+            "closer_to_true_than_steady": 0.4375,
+            "closer_to_true_than_last_velocity": 0.4501953125
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.4340539117108044,
+            "error_px_by_accel": [
+              1.4102355324918805,
+              1.5628491470390247,
+              1.3290770556015086
+            ],
+            "within_2px_all": 0.7669270833333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3236342167290986,
+            "closer_to_true_than_steady": 0.5087890625,
+            "closer_to_true_than_last_velocity": 0.4296875
+          },
+          {
+            "mean_error_px": 2.7845006744545837,
+            "error_px_by_accel": [
+              2.677718417387479,
+              3.500590650785229,
+              2.1751929551910427
+            ],
+            "within_2px_all": 0.3645833333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.3144932991192281,
+            "closer_to_true_than_steady": 0.48046875,
+            "closer_to_true_than_last_velocity": 0.3916015625
+          },
+          {
+            "mean_error_px": 4.555985997815835,
+            "error_px_by_accel": [
+              4.291184074366524,
+              6.255582981288917,
+              3.121190937792065
+            ],
+            "within_2px_all": 0.15885416666666666,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.17881652139608942,
+            "closer_to_true_than_steady": 0.466796875,
+            "closer_to_true_than_last_velocity": 0.4140625
+          },
+          {
+            "mean_error_px": 6.522985627966989,
+            "error_px_by_accel": [
+              6.045438905605298,
+              9.505403502393534,
+              4.018114475902131
+            ],
+            "within_2px_all": 0.09505208333333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.06196685128569116,
+            "closer_to_true_than_steady": 0.455078125,
+            "closer_to_true_than_last_velocity": 0.447265625
+          }
+        ]
+      },
+      "ink_centre": {
+        "straight": [
+          {
+            "mean_error_px": 0.9779199737532517,
+            "error_px_by_accel": [
+              0.8263702906483171,
+              0.9439807930681817,
+              1.163408837543256
+            ],
+            "within_2px_all": 0.97265625,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.46375451551769936,
+            "closer_to_true_than_steady": 0.38671875,
+            "closer_to_true_than_last_velocity": 0.4111328125
+          },
+          {
+            "mean_error_px": 1.6446748903357162,
+            "error_px_by_accel": [
+              1.264264244843611,
+              1.6627622223754448,
+              2.006998203788093
+            ],
+            "within_2px_all": 0.6770833333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.17195900688015528,
+            "closer_to_true_than_steady": 0.201171875,
+            "closer_to_true_than_last_velocity": 0.3671875
+          },
+          {
+            "mean_error_px": 2.732002933893439,
+            "error_px_by_accel": [
+              2.000793530890579,
+              2.937039122715811,
+              3.258176148073927
+            ],
+            "within_2px_all": 0.2903645833333333,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.018164220462314612,
+            "closer_to_true_than_steady": 0.15234375,
+            "closer_to_true_than_last_velocity": 0.33203125
+          },
+          {
+            "mean_error_px": 4.155687661117571,
+            "error_px_by_accel": [
+              3.1957319336746064,
+              5.215470407672792,
+              4.055860642005312
+            ],
+            "within_2px_all": 0.13411458333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1295026246649622,
+            "closer_to_true_than_steady": 0.24609375,
+            "closer_to_true_than_last_velocity": 0.3642578125
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.5628864829889828,
+            "error_px_by_accel": [
+              1.5249545838224234,
+              1.4070872547973399,
+              1.7566176103471858
+            ],
+            "within_2px_all": 0.76953125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.12408489109281438,
+            "closer_to_true_than_steady": 0.4638671875,
+            "closer_to_true_than_last_velocity": 0.2470703125
+          },
+          {
+            "mean_error_px": 3.127748546034175,
+            "error_px_by_accel": [
+              2.970103288870769,
+              3.3593326896585674,
+              3.05380965957319
+            ],
+            "within_2px_all": 0.14192708333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10749525030561957,
+            "closer_to_true_than_steady": 0.375,
+            "closer_to_true_than_last_velocity": 0.1181640625
+          },
+          {
+            "mean_error_px": 5.147233841601466,
+            "error_px_by_accel": [
+              4.7044765934245865,
+              6.419262651374492,
+              4.31796228000532
+            ],
+            "within_2px_all": 0.03125,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12353215751729173,
+            "closer_to_true_than_steady": 0.361328125,
+            "closer_to_true_than_last_velocity": 0.1005859375
+          },
+          {
+            "mean_error_px": 7.3475757613913535,
+            "error_px_by_accel": [
+              6.60855149738482,
+              10.248020929705984,
+              5.186154857083255
+            ],
+            "within_2px_all": 0.020833333333333332,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.10434217549018573,
+            "closer_to_true_than_steady": 0.416015625,
+            "closer_to_true_than_last_velocity": 0.1669921875
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.6177377637245354,
+            "error_px_by_accel": [
+              1.556712889680243,
+              1.523577716952641,
+              1.772922684540723
+            ],
+            "within_2px_all": 0.7278645833333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": -0.07178606787168469,
+            "closer_to_true_than_steady": 0.4482421875,
+            "closer_to_true_than_last_velocity": 0.255859375
+          },
+          {
+            "mean_error_px": 3.1086068105978,
+            "error_px_by_accel": [
+              2.9240914297838048,
+              3.4105534158115214,
+              2.9911755861980733
+            ],
+            "within_2px_all": 0.15755208333333334,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.12599037715240477,
+            "closer_to_true_than_steady": 0.3671875,
+            "closer_to_true_than_last_velocity": 0.1533203125
+          },
+          {
+            "mean_error_px": 5.191612273397404,
+            "error_px_by_accel": [
+              4.81469410191581,
+              6.415340153285552,
+              4.344802564990852
+            ],
+            "within_2px_all": 0.02734375,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.1531269233007675,
+            "closer_to_true_than_steady": 0.40234375,
+            "closer_to_true_than_last_velocity": 0.103515625
+          },
+          {
+            "mean_error_px": 7.313294533685007,
+            "error_px_by_accel": [
+              6.683542122493059,
+              10.187645865662617,
+              5.068695612899345
+            ],
+            "within_2px_all": 0.024739583333333332,
+            "coverage": 1.0,
+            "pair_coverage": 1.0,
+            "separation_gain": 0.11552895572474955,
+            "closer_to_true_than_steady": 0.427734375,
+            "closer_to_true_than_last_velocity": 0.1953125
+          }
+        ]
+      },
+      "patch": {
+        "straight": [
+          {
+            "mean_error_px": 0.9713270096865374,
+            "error_px_by_accel": [
+              0.8400869801236505,
+              0.9241205882408927,
+              1.1501451648009398
+            ],
+            "within_2px_all": 0.9661458333333334,
+            "coverage": 0.9947916666666666,
+            "pair_coverage": 0.9921875,
+            "separation_gain": -0.3395820349349601,
+            "closer_to_true_than_steady": 0.40588235294117647,
+            "closer_to_true_than_last_velocity": 0.4137254901960784
+          },
+          {
+            "mean_error_px": 1.6302835680392027,
+            "error_px_by_accel": [
+              1.2630141262661299,
+              1.6287556898391862,
+              2.0080034038180923
+            ],
+            "within_2px_all": 0.6692708333333334,
+            "coverage": 0.984375,
+            "pair_coverage": 0.96484375,
+            "separation_gain": -0.15704858619483492,
+            "closer_to_true_than_steady": 0.21713147410358566,
+            "closer_to_true_than_last_velocity": 0.3595617529880478
+          },
+          {
+            "mean_error_px": 2.7826832305957834,
+            "error_px_by_accel": [
+              2.0885194440144135,
+              2.8396308193706834,
+              3.4274214092217914
+            ],
+            "within_2px_all": 0.28515625,
+            "coverage": 0.9440104166666666,
+            "pair_coverage": 0.9296875,
+            "separation_gain": 0.03978274908354444,
+            "closer_to_true_than_steady": 0.1873706004140787,
+            "closer_to_true_than_last_velocity": 0.36024844720496896
+          },
+          {
+            "mean_error_px": 4.692324875746637,
+            "error_px_by_accel": [
+              3.9138502390804093,
+              5.9389043433131725,
+              4.21132406099197
+            ],
+            "within_2px_all": 0.12760416666666666,
+            "coverage": 0.8294270833333334,
+            "pair_coverage": 0.76953125,
+            "separation_gain": 0.17752807578608118,
+            "closer_to_true_than_steady": 0.34186046511627904,
+            "closer_to_true_than_last_velocity": 0.44534883720930235
+          }
+        ],
+        "arc_left": [
+          {
+            "mean_error_px": 1.5706326247287412,
+            "error_px_by_accel": [
+              1.539874928505003,
+              1.4162696383586093,
+              1.7564792707837638
+            ],
+            "within_2px_all": 0.7669270833333334,
+            "coverage": 0.9986979166666666,
+            "pair_coverage": 0.99609375,
+            "separation_gain": 0.004320756566687537,
+            "closer_to_true_than_steady": 0.47162426614481406,
+            "closer_to_true_than_last_velocity": 0.2455968688845401
+          },
+          {
+            "mean_error_px": 3.133234668106116,
+            "error_px_by_accel": [
+              2.979689781721263,
+              3.3576368779644095,
+              3.061248144258596
+            ],
+            "within_2px_all": 0.15104166666666666,
+            "coverage": 0.9908854166666666,
+            "pair_coverage": 0.9765625,
+            "separation_gain": 0.12821898854145736,
+            "closer_to_true_than_steady": 0.3784584980237154,
+            "closer_to_true_than_last_velocity": 0.13142292490118576
+          },
+          {
+            "mean_error_px": 5.2251389792263945,
+            "error_px_by_accel": [
+              4.731846388835982,
+              6.411752905137578,
+              4.485785206924584
+            ],
+            "within_2px_all": 0.03125,
+            "coverage": 0.91796875,
+            "pair_coverage": 0.890625,
+            "separation_gain": 0.10890201702749774,
+            "closer_to_true_than_steady": 0.3498942917547569,
+            "closer_to_true_than_last_velocity": 0.11205073995771671
+          },
+          {
+            "mean_error_px": 7.247073957780643,
+            "error_px_by_accel": [
+              6.506031167708076,
+              10.11789448775865,
+              5.150204629008683
+            ],
+            "within_2px_all": 0.02734375,
+            "coverage": 0.8046875,
+            "pair_coverage": 0.75390625,
+            "separation_gain": 0.14010101124464294,
+            "closer_to_true_than_steady": 0.4196642685851319,
+            "closer_to_true_than_last_velocity": 0.2314148681055156
+          }
+        ],
+        "arc_right": [
+          {
+            "mean_error_px": 1.6303678756033773,
+            "error_px_by_accel": [
+              1.5832311648080444,
+              1.5293559958397598,
+              1.7781218885070005
+            ],
+            "within_2px_all": 0.7265625,
+            "coverage": 0.9986979166666666,
+            "pair_coverage": 0.99609375,
+            "separation_gain": 0.039124534721249216,
+            "closer_to_true_than_steady": 0.4657534246575342,
+            "closer_to_true_than_last_velocity": 0.2563600782778865
+          },
+          {
+            "mean_error_px": 3.1273531381036705,
+            "error_px_by_accel": [
+              2.9512203025228168,
+              3.4331730717343705,
+              2.99907510273847
+            ],
+            "within_2px_all": 0.15234375,
+            "coverage": 0.9791666666666666,
+            "pair_coverage": 0.96875,
+            "separation_gain": 0.13517794971877028,
+            "closer_to_true_than_steady": 0.373,
+            "closer_to_true_than_last_velocity": 0.147
+          },
+          {
+            "mean_error_px": 5.449638984248795,
+            "error_px_by_accel": [
+              5.063299303582075,
+              6.67303100621252,
+              4.56723460914209
+            ],
+            "within_2px_all": 0.020833333333333332,
+            "coverage": 0.9283854166666666,
+            "pair_coverage": 0.88671875,
+            "separation_gain": 0.16366769349022994,
+            "closer_to_true_than_steady": 0.3813559322033898,
+            "closer_to_true_than_last_velocity": 0.11440677966101695
+          },
+          {
+            "mean_error_px": 7.564663506561316,
+            "error_px_by_accel": [
+              6.968608876882875,
+              10.872597234533064,
+              5.065048041452847
+            ],
+            "within_2px_all": 0.029947916666666668,
+            "coverage": 0.81640625,
+            "pair_coverage": 0.75,
+            "separation_gain": 0.08437752805551983,
+            "closer_to_true_than_steady": 0.4444444444444444,
+            "closer_to_true_than_last_velocity": 0.26004728132387706
+          }
+        ]
+      }
+    }
+  ]
+}
