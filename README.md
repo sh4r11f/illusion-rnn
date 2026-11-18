@@ -821,6 +821,20 @@ uv run python scripts/plot_cue_trace.py
 
 [Per-frame changes, copy/block controls and edge overlaps for each seed](results/cue_trace.json).
 
+### Individual neurons, populations and latent dynamics
+
+On held-out crosses, the start position and the bend are more readable from a
+population than from any one fit-selected neuron. The distinction matters
+causally: 16 RNN units explain half the variance in cue offset, yet copying
+only those units barely bends the output. During blanks a fixed position
+readout of the evolving RNN state recovers 62% of the true travel; keeping
+the cue state fixed and supplying the frame index separately recovers 57%.
+The JEPA context does not evolve between flashes by construction.
+
+[Three figures, example neurons, controls and interpretation](docs/motion-population-dynamics.md)
+· [per-unit scores](results/motion_unit_scores.csv)
+· [per-seed population and time-resolved measurements](results/motion_unit_dynamics.json).
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract
