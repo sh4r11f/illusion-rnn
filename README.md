@@ -757,6 +757,70 @@ are one minus patched-to-donor RMSE divided by original-to-donor RMSE; they
 can be negative. The result file also includes tests of 8 × 8 unit blocks
 and matched untrained models (use absolute shifts, not ratios near zero).
 
+### Do those same circuits bend a path when only its middle flash moves?
+
+**Partially.** We kept frames 1 and 8 pixel-identical and changed only the
+frame-4 flash from one side of their chord to the other. The two underlying
+movies are opposite constant-speed arcs. Both frozen models moved their
+estimates of the **five hidden frames** toward the new cue. They also moved
+their estimates of the *visible endpoints*, so a simple centre shift would
+overstate how much they changed the path.
+
+![Opposite cues between the same endpoints; hidden-frame bend and causal circuit transfers](figures/cue_trace.png)
+
+| Change, in pixels | Original RNN | JEPA |
+|---|---:|---:|
+| Intact hidden-path bend after correcting for endpoint drift | 3.88 | 1.48 |
+| Distance the model’s estimated A / B moved | 1.19 / 3.16 | 4.32 / 3.08 |
+| Swap both old endpoint planes together (four final-state directions) | 0.29 | 0.59 |
+| Swap two directions identified using the cue instead | 1.54 | 1.50 |
+| Swap start-ranked 5% of edges (JEPA: corresponding cue-slot indices) | 0.89 | 0.22 |
+| Swap 5% of the same matrix at random | 0.05 | 0.08 |
+| Swap 5% ranked specifically for cue-induced bend | 1.82 | 0.80 |
+
+**What “bend” measures.** For each pair and time, project the change in the
+estimated centre onto the direction perpendicular to A–B, positive toward
+the new cue. Subtract the line connecting the changes in the two *estimated*
+endpoint positions. Average over frames 2, 3, 5, 6 and 7, never the cue.
+A translation or tilt alone scores zero. The true rendered paths differ by
+5.70 px on this measure. Measured without using either visible-frame output
+(subtract a line between frames 2 and 7 and score frames 3, 5 and 6),
+the intact bend is still positive: 2.04 px RNN, 0.77 px JEPA. This check
+matters especially for the JEPA, whose objective supervises masked slots.
+
+**What actually transfers.** All six original network checkpoints and the
+single-image JEPA calibration protocol are unchanged. We recover the old
+directions and edge rankings using only the previous endpoint fitting pairs
+(check the top-64 identities against the saved results). We transfer the
+old A/B directions separately and together, with rank-matched random controls.
+In the RNN the old start-ranked edges are the **same physical weights** from
+the last blank state to the final update. Copying their contributions gives
+23% of the intact bend; blocking them leaves 3.03 px. In the JEPA the
+literal endpoint-slot contributions **do not change** when only the cue
+moves. The 0.22 px result uses the start ranking at matching source/receiver
+indices in the cue slot, **different weights**. The old end ranking at that
+slot gives 0.21 px. A zero literal transfer does not mean the unchanged
+flashes are unimportant for interpreting the cue.
+
+**Controls and limits.** Cue-specific rankings/directions fit on 1,024
+square/circle pairs are a separate comparison, never used to select the
+old circuits. All swaps, reverse blocks and four matched random sets are
+evaluated on 512 new triangle pairs shared across models/seeds. For
+start-ranked edges, the bend advantage over random was 0.84 px [0.80, 0.89]
+in the RNN and 0.14 px [0.13, 0.16] for the JEPA index transfer (paired
+95% movie-bootstrap intervals, conditional on these three seeds).
+These are changes in the RNN ink centre and the JEPA’s decoded embedding,
+not proof of a separate path module or of accurate reconstruction on every
+trial. Joining three flashes can also produce a bend.
+
+```bash
+OPENBLAS_NUM_THREADS=2 uv run python scripts/trace_cue.py \
+    --rnn checkpoints/apparent --jepa checkpoints/jepa
+uv run python scripts/plot_cue_trace.py
+```
+
+[Per-frame changes, copy/block controls and edge overlaps for each seed](results/cue_trace.json).
+
 ## Plug in your own model
 
 `ir.train` / `ir.evaluate` accept any callable module with the contract

@@ -63,22 +63,32 @@ def input_movie(ends):
 
 def states(model, ends, end):
     """Only actual endpoint images are accepted; hidden target images do not exist here."""
-    x = input_movie(ends)
+    return flash_states(model, ends, (0, T-1), (0, T-1)[end])
+
+
+def flash_states(model, images, times, slot_time):
+    """Construct the movie from visible flashes only. Times include the final frame."""
+    x = images.new_zeros(len(images), T, SIDE, SIDE)
+    x[:, times] = images
     if isinstance(model, MotionJEPA):
         mask = torch.zeros(len(x), T, dtype=torch.bool)
-        mask[:, (0, -1)] = True
+        mask[:, times] = True
         enc = model.encoder(x).masked_fill(~mask[..., None], 0)
         slots = torch.cat((enc, mask[..., None]), dim=-1).flatten(1)
         mid = model.context[1:3](slots)
-        return {"slot": enc[:, (0, -1)[end]], "mix": mid, "final": model.context[3:](mid),
+        return {"slot": enc[:, slot_time], "mix": mid, "final": model.context[3:](mid),
                 "_slots": slots}
     h, _ = model.rnn(x.flatten(2).transpose(0, 1))
-    return {"flash": h[0], "gap": h[-2], "final": h[-1], "_last": ends[:, 1].flatten(1)}
+    return {"flash": h[0], "gap": h[-2], "final": h[-1], "_last": x[:, -1].flatten(1)}
 
 
 def slot_slice(model, end):
+    return time_slice(model, (0, T-1)[end])
+
+
+def time_slice(model, time):
     dim = model.encoder.project[-1].normalized_shape[0]
-    start = (0, T-1)[end]*(dim+1)
+    start = time*(dim+1)
     return slice(start, start+dim)
 
 
@@ -127,22 +137,24 @@ def edge_state(model, base, other, end, src, dst):
     return h
 
 
-def output(model, h, calibration):
+def output(model, h, calibration, *, all_frames=False):
+    frames = slice(None) if all_frames else slice(1, -1)
     if isinstance(model, MotionJEPA):
-        raw = model.predictor(h).reshape(len(h), T, -1)[:, 1:-1]
-        xy = calibration(raw.reshape(-1, raw.size(-1)).numpy()).reshape(len(h), T-2, 2)
+        raw = model.predictor(h).reshape(len(h), T, -1)[:, frames]
+        xy = calibration(raw.reshape(-1, raw.size(-1)).numpy()).reshape(len(h), raw.size(1), 2)
         return raw, torch.from_numpy(xy).float()
-    raw = model.fc(h).reshape(len(h), T, SIDE, SIDE)[:, 1:-1].sigmoid()
+    raw = model.fc(h).reshape(len(h), T, SIDE, SIDE)[:, frames].sigmoid()
     axis = torch.arange(SIDE)
     m = raw.sum((-2, -1)).clamp_min(1e-20)
     xy = torch.stack([(raw.sum(k)*axis).sum(-1)/m for k in (-2, -1)], dim=-1)
     return raw, xy
 
 
-def route_inputs(model, base, other, end):
+def route_inputs(model, base, other, end, *, slot_time=None):
     if isinstance(model, MotionJEPA):
         lin = model.context[1]
-        return lin(base["_slots"]), other["slot"]-base["slot"], lin.weight[:, slot_slice(model, end)]
+        sl = slot_slice(model, end) if slot_time is None else time_slice(model, slot_time)
+        return lin(base["_slots"]), other["slot"]-base["slot"], lin.weight[:, sl]
     rnn = model.rnn
     return (rnn.input2h(base["_last"]) + rnn.h2h(base["gap"]),
             other["gap"]-base["gap"], rnn.h2h.weight)
@@ -154,9 +166,9 @@ def route_finish(model, base, pre):
     return (1-model.rnn.alpha)*base["gap"] + model.rnn.alpha*pre.relu()
 
 
-def route_ranking(model, f0, f1, step, end, cal):
+def route_ranking(model, f0, f1, step, end, cal, *, slot_time=None, time_weights=None):
     """Rank learned edges on fit pairs by mean signed first-order effect at the midpoint."""
-    pre, dx, w = route_inputs(model, f0, f1, end)
+    pre, dx, w = route_inputs(model, f0, f1, end, slot_time=slot_time)
     mid = (pre + .5*F.linear(dx, w)).detach()
     if isinstance(model, MotionJEPA):
         dim = model.encoder.project[-1].normalized_shape[0]
@@ -170,10 +182,12 @@ def route_ranking(model, f0, f1, step, end, cal):
             base = {} if isinstance(model, MotionJEPA) else {"gap": f0["gap"][sl]}
             h = route_finish(model, base, p)
             if isinstance(model, MotionJEPA):
-                xy = model.predictor(h).reshape(len(p), T, -1)[:, 1:-1] @ jac
+                z = model.predictor(h).reshape(len(p), T, -1)
+                xy = (z[:, 1:-1] if time_weights is None else z) @ jac
             else:
-                _, xy = output(model, h, None)
-            objective = (xy.mean(1)*step[sl]/SHIFT).sum()
+                _, xy = output(model, h, None, all_frames=time_weights is not None)
+            measure = xy.mean(1) if time_weights is None else (xy*time_weights[None, :, None]).sum(1)
+            objective = (measure*step[sl]/SHIFT).sum()
             grad, = torch.autograd.grad(objective, p)
         scores += grad.T @ dx[sl]
     return (w*scores).abs().flatten().argsort(descending=True)
